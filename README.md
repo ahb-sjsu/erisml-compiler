@@ -5,7 +5,9 @@
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 [![Pydantic v2](https://img.shields.io/badge/pydantic-v2-green.svg)](https://docs.pydantic.dev/)
 [![Schema](https://img.shields.io/badge/IR%20schema-erisml__compiler__ir__v0.1-orange.svg)](SCOPE.md)
-[![Tests](https://img.shields.io/badge/tests-142%20passing-brightgreen.svg)](#status)
+[![Tests](https://img.shields.io/badge/tests-194%20passing-brightgreen.svg)](#status)
+[![Ruff](https://img.shields.io/badge/lint-ruff-blueviolet)](https://github.com/astral-sh/ruff)
+[![Black](https://img.shields.io/badge/code%20style-black-000000)](https://github.com/psf/black)
 [![Status: Alpha](https://img.shields.io/badge/status-alpha-red.svg)](SCOPE.md)
 [![PyPI](https://img.shields.io/pypi/v/erisml-compiler.svg)](https://pypi.org/project/erisml-compiler/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20659432.svg)](https://doi.org/10.5281/zenodo.20659432)
@@ -26,9 +28,14 @@ actually agree about it.
 
 See `ErisML-Compiler.md` for the full design spec (31 sections) and `SCOPE.md`
 for what each phase actually delivers versus what is deferred. Current `main`
-covers Phases 1–4 (IR + DEME + calibration + silicon emitters + I-EIP
-Monitor); the production web app and silicon hardware verification are
-deferred.
+covers the original Phases 1–4 (IR + DEME + calibration + silicon emitters +
+I-EIP Monitor) plus the **DEME V3 alignment** rolling in over an additional
+six-phase migration (`docs/migration/deme_v3_alignment.md`). Phases 1–4 of
+that alignment have landed: 9-dimension moral state, rank-1 through rank-6
+tensors with `(k, n, τ, a, c, s)` axes, per-party verdicts, fairness
+metrics (Gini + worst-off), and a bridge invoking DEME V3 modules
+(`GenevaEMV3`, `TriageEMV3`) directly. The production web app and silicon
+hardware verification remain deferred.
 
 ## Quick start
 
@@ -40,8 +47,9 @@ pip install 'erisml-compiler[llm,calibration,monitor]'  # full stack
 # Or, install from source (editable; choose extras as needed)
 pip install -e ".[test,calibration,monitor,notebook]"
 
-# Compile one of the bundled examples (text lens)
-eris-compile compile examples/nazi_attic.txt --out out/nazi_attic.ir.json
+# Compile one of the bundled examples — emits both V2 moral_vectors and a
+# DEME V3 MoralTensorV3 with the requested rank (default 2 = per-stakeholder).
+eris-compile compile examples/nazi_attic.txt --rank 2 --out out/nazi_attic.ir.json
 
 # Validate the IR
 eris-compile validate out/nazi_attic.ir.json
@@ -61,8 +69,13 @@ eris-compile delta out/nazi_attic.ir.json out/nazi_attic.trace.json \
 # Emit synthesizable Vitis HLS C++ for the silicon target
 eris-compile silicon-emit --out-dir out/silicon
 
-# Run the full test suite (142 tests, ~30s without LaBSE download)
+# Run the full test suite (194 tests including V3 alignment;
+# ~30s for the V2 core + extras when LaBSE is cached)
 pytest
+
+# Run the linters / formatters that CI uses
+ruff check src tests
+black --check src tests
 
 # Quickstart notebook
 jupyter notebook notebooks/quickstart.ipynb
@@ -181,12 +194,42 @@ erisml-compiler/
     probe_models.py           # Recon: enumerate HF + GGUF models on Atlas
 ```
 
+## DEME V3 alignment
+
+The original V2 IR carries 10 moral dimensions and a rank-2 per-stakeholder
+`MoralTensor`. **DEME V3** (`erisml-lib`) speaks a different shape:
+9 dimensions derived from the *Nine Dimensions of Ethical Assessment* 3×3
+matrix, tensors at ranks 1–6 over axes `(k, n, τ, a, c, s)` (dimension /
+stakeholder / time / action / coalition / uncertainty sample), per-party
+verdicts, distributional veto locations, Gini + worst-off fairness
+metrics, and a sprint-tiered module hierarchy (Constitutional,
+Core Safety, Rights/Fairness, Soft Values, Meta-Governance).
+
+The compiler is rolling onto V3 over a documented six-phase migration
+(`docs/migration/deme_v3_alignment.md`). What's landed today:
+
+| Phase | Deliverable |
+|---|---|
+| 1 | `MoralTensorV3` Pydantic schema with rank/shape/axes/values + V2→V3 migration helpers |
+| 2 | Orchestrator produces `ir.moral_tensor_v3` at the requested rank; `--rank N` CLI flag |
+| 3 | Bridge wires the IR through `EthicalFactsV3` and invokes registered V3 modules (Geneva, Triage) |
+| 4 | Per-party facts built directly from `EthicalFact.subjects`; per-party verdicts and Gini surfaced on the IR; `requires_human_review` is now per-stakeholder |
+| 5 (planned) | Coalition + temporal + uncertainty axes (rank 3–6) |
+| 6 (planned) | Strategic layer (Shapley + Nash) + `DecisionProof` audit chain |
+
+The V2 surface remains alive — `moral_vectors`, `moral_tensors`, the V2
+EM-DAG — so existing IRs still parse and the legacy `MoralVector` API still
+works. Phase 5+ may deprecate the V2 fields after the silicon and Monitor
+paths migrate.
+
 ## Status
 
-**Phases 1–4 on `main`** — alpha. **142 tests passing** across IR, EM-DAG,
-FSMs, canonicalizer, critic, correction, calibration, export, silicon emit,
-activation lens, delta lens, equivariance, and the failure-mode detectors.
-CI green on Ubuntu × Python 3.10/3.11/3.12.
+**Phases 1–4 on `main`, plus DEME V3 alignment Phases 1–4** — alpha.
+**194 tests passing** across IR (V2 + V3), EM-DAG, FSMs, canonicalizer,
+critic, correction, calibration, export, silicon emit, activation lens,
+delta lens, equivariance, failure-mode detectors, V3 schema, V3 pipeline,
+V3 bridge, V3 direct-facts builder. CI green on Ubuntu × Python
+3.10/3.11/3.12, ruff lint + black format checks both clean.
 
 End-to-end verified:
 
@@ -195,6 +238,10 @@ End-to-end verified:
   triggers `requires_human_review`).
 - I-EIP Monitor on the same example: divergence 0.70, 6 direction breaks,
   two failure modes fire, `requires_human_review=True`.
+- **DEME V3 bridge** on the same example: rank-2 `(9, 4)` tensor over
+  speaker / hidden_refugees / nazis / village. Per-party harm splits cleanly:
+  speaker 0.76 (forbid), village 0.83 (forbid), nazis 0.18 (neutral),
+  refugees 0.0 (prefer). Gini over harm = 0.43.
 - Vitis HLS C++ emit for FSMs + EM-DAG (NRP Coder bitstream blocked
   separately — see SCOPE.md).
 

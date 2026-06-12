@@ -11,6 +11,7 @@ This module provides:
     - `quantize_array`           numpy/list scalar quantisation
     - `cpp_typedef`              emit Vitis HLS `ap_fixed<W,I>` typedef
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass

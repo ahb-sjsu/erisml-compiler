@@ -1,7 +1,7 @@
 """Tests for the critic pass."""
+
 from pathlib import Path
 
-import pytest
 
 from erisml_compiler.annotation.critic import CriticExtractor, critic_pass
 from erisml_compiler.annotation.mock_extractor import MockExtractor
@@ -50,6 +50,7 @@ def test_critic_extractor_handles_critic_failure():
 
     class FailingExtractor:
         name = "failing"
+
         def extract(self, document, segments):
             raise RuntimeError("simulated failure")
 

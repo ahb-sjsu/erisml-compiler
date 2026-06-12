@@ -13,6 +13,7 @@ take a directory of corrected-IR JSONs (from the human-correction loop)
 plus their source texts and yield (text, label, language, period)
 tuples.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -25,9 +26,9 @@ class ProbeBatch:
     """One batch produced by the dataset."""
 
     texts: list[str]
-    labels: torch.Tensor          # (B,) long
-    language_idx: torch.Tensor    # (B,) long
-    period_idx: torch.Tensor      # (B,) long
+    labels: torch.Tensor  # (B,) long
+    language_idx: torch.Tensor  # (B,) long
+    period_idx: torch.Tensor  # (B,) long
 
 
 class ProbeTrainingDataset:
@@ -80,6 +81,7 @@ def synthetic_dataset(
     random so the adversarial losses have something to discourage.
     """
     import random
+
     rng = random.Random(seed)
     role_words = ["agent", "patient", "victim", "authority", "protector"]
     texts: list[str] = []

@@ -18,6 +18,7 @@ What it does NOT do without a trained checkpoint:
       noise. The whole point of the calibration loop (calibrate command)
       is to produce checkpoints with meaningful predictions.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -26,23 +27,34 @@ from typing import Any
 
 from erisml_compiler.annotation.base import Extractor, ExtractorResult
 from erisml_compiler.ir.schemas import (
-    Commitment,
     EthicalFact,
     EthicalFactKind,
     Stakeholder,
     StakeholderRole,
 )
 
-
 # Default class vocabularies. These are dataset-dependent: a real
 # checkpoint would record its own vocabularies in its `config`.
 DEFAULT_ROLE_CLASSES: tuple[StakeholderRole, ...] = (
-    "agent", "patient", "victim", "authority", "coercer",
-    "protector", "bystander", "nonconsenting_third_party",
+    "agent",
+    "patient",
+    "victim",
+    "authority",
+    "coercer",
+    "protector",
+    "bystander",
+    "nonconsenting_third_party",
 )
 DEFAULT_FACT_KIND_CLASSES: tuple[EthicalFactKind, ...] = (
-    "coercion", "consent", "harm", "externality",
-    "legitimacy", "care", "truth", "role_duty", "deception",
+    "coercion",
+    "consent",
+    "harm",
+    "externality",
+    "legitimacy",
+    "care",
+    "truth",
+    "role_duty",
+    "deception",
 )
 
 
@@ -92,6 +104,7 @@ class ProbeExtractor(Extractor):
         if self._role_backbone is None:
             return ("agent", 0.1)
         import torch
+
         emb = self._role_backbone.encode_texts([text])
         with torch.no_grad():
             logits, _, _, _ = self._role_backbone(emb)
@@ -105,29 +118,30 @@ class ProbeExtractor(Extractor):
         if self._fact_backbone is None:
             return ("coercion", 0.1)
         import torch
+
         emb = self._fact_backbone.encode_texts([text])
         with torch.no_grad():
             logits, _, _, _ = self._fact_backbone(emb)
             probs = torch.softmax(logits, dim=-1)
             cls = int(probs.argmax(dim=-1).item())
             conf = float(probs.max().item())
-        kind = self.config.fact_kind_classes[
-            min(cls, len(self.config.fact_kind_classes) - 1)
-        ]
+        kind = self.config.fact_kind_classes[min(cls, len(self.config.fact_kind_classes) - 1)]
         return (kind, conf)
 
     def extract(self, document, segments) -> ExtractorResult:
         self._lazy_load()
 
-        result = ExtractorResult(extractor_metadata={
-            "extractor": "probe",
-            "role_checkpoint": self.config.role_checkpoint,
-            "fact_kind_checkpoint": self.config.fact_kind_checkpoint,
-            "labse_model": self.config.labse_model,
-            "no_checkpoints_loaded": (
-                self._role_backbone is None and self._fact_backbone is None
-            ),
-        })
+        result = ExtractorResult(
+            extractor_metadata={
+                "extractor": "probe",
+                "role_checkpoint": self.config.role_checkpoint,
+                "fact_kind_checkpoint": self.config.fact_kind_checkpoint,
+                "labse_model": self.config.labse_model,
+                "no_checkpoints_loaded": (
+                    self._role_backbone is None and self._fact_backbone is None
+                ),
+            }
+        )
         if not segments:
             return result
 

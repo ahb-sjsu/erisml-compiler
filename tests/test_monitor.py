@@ -4,6 +4,7 @@ All tests use MockActivationSource so they run without a GPU or any
 downloaded HF weights. They are CPU-cheap and run in the
 test-llm-calibration CI job (which already has torch installed).
 """
+
 from __future__ import annotations
 
 import pytest
@@ -18,7 +19,6 @@ from erisml_compiler.monitor.activation_probe import (
     _logits_to_moral_vector,
 )
 from erisml_compiler.monitor.ieip_monitor import IEIPMonitor, MonitorTrace
-
 
 # ---------- MockActivationSource ----------
 

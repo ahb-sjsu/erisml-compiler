@@ -18,6 +18,7 @@ schema validator, and records the correction in the IR's audit trail.
 
 Supported ops: set, add, remove. Paths are dotted (`stakeholders.<id>.<field>`).
 """
+
 from __future__ import annotations
 
 import json
@@ -29,10 +30,17 @@ from typing import Any
 from erisml_compiler.ir.schemas import CompilerIR
 
 # Collections that can be patched by id.
-_KEYED_COLLECTIONS = frozenset({
-    "stakeholders", "commitments", "events", "ethical_facts",
-    "conflicts", "norms", "relations",
-})
+_KEYED_COLLECTIONS = frozenset(
+    {
+        "stakeholders",
+        "commitments",
+        "events",
+        "ethical_facts",
+        "conflicts",
+        "norms",
+        "relations",
+    }
+)
 
 
 @dataclass
@@ -209,16 +217,18 @@ def apply_corrections(
     # Stamp the record into the IR's `extra` block under "corrections".
     new_ir.extra = dict(new_ir.extra)
     history = new_ir.extra.setdefault("corrections", [])
-    history.append({
-        "corrector_id": record.corrector_id,
-        "rationale": record.rationale,
-        "applied_at_utc": record.applied_at_utc,
-        "n_patches_applied": record.n_patches_applied,
-        "n_patches_failed": record.n_patches_failed,
-        "pre_correction_ir_hash": record.pre_correction_ir_hash,
-        "post_correction_ir_hash": record.post_correction_ir_hash,
-        "diff_summary": record.diff_summary,
-    })
+    history.append(
+        {
+            "corrector_id": record.corrector_id,
+            "rationale": record.rationale,
+            "applied_at_utc": record.applied_at_utc,
+            "n_patches_applied": record.n_patches_applied,
+            "n_patches_failed": record.n_patches_failed,
+            "pre_correction_ir_hash": record.pre_correction_ir_hash,
+            "post_correction_ir_hash": record.post_correction_ir_hash,
+            "diff_summary": record.diff_summary,
+        }
+    )
 
     return new_ir, record, summaries
 

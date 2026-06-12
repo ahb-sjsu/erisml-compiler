@@ -1,5 +1,5 @@
 """Tests for the human-correction loop (Track A)."""
-import json
+
 from pathlib import Path
 
 import pytest
@@ -38,6 +38,7 @@ def test_diff_scalar_change(base_ir):
 
 def test_diff_added_stakeholder(base_ir):
     from erisml_compiler.ir.schemas import Stakeholder
+
     new_ir = base_ir.model_copy(deep=True)
     new_ir.stakeholders.append(
         Stakeholder(id="new_party", label="Newcomer", type="individual", roles=["bystander"])
@@ -103,15 +104,17 @@ def test_add_new_entity(base_ir):
     corrections = {
         "corrector_id": "test",
         "rationale": "add new stakeholder",
-        "patches": [{
-            "op": "add",
-            "path": "stakeholders.observer_x",
-            "value": {
-                "label": "Observer",
-                "type": "individual",
-                "roles": ["bystander"],
-            },
-        }],
+        "patches": [
+            {
+                "op": "add",
+                "path": "stakeholders.observer_x",
+                "value": {
+                    "label": "Observer",
+                    "type": "individual",
+                    "roles": ["bystander"],
+                },
+            }
+        ],
     }
     new_ir, record, _ = apply_corrections(base_ir, corrections)
     assert any(s.id == "observer_x" for s in new_ir.stakeholders)
@@ -136,7 +139,11 @@ def test_invalid_op_recorded_as_failure(base_ir):
         "rationale": "test bogus op",
         "patches": [
             {"op": "set", "path": "canonical_form", "value": "valid_change"},  # valid
-            {"op": "add", "path": "stakeholders.x", "value": {"label": "X", "type": "WRONG"}},  # value should fail schema
+            {
+                "op": "add",
+                "path": "stakeholders.x",
+                "value": {"label": "X", "type": "WRONG"},
+            },  # value should fail schema
         ],
     }
     # The schema-invalid add ought to fail at re-validation. The apply
@@ -167,6 +174,7 @@ def test_correction_records_in_audit_trail(base_ir):
 
 def test_hash_changes_after_correction(base_ir):
     from erisml_compiler.audit.hash_chain import compute_ir_hash
+
     pre = compute_ir_hash(base_ir)
     corrections = {
         "corrector_id": "test",

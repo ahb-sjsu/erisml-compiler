@@ -1,4 +1,5 @@
 """Canonicalizer abstract base + auto-selection."""
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -61,8 +62,10 @@ def auto_canonicalizer(prefer_labse: bool = True) -> Canonicalizer:
     if prefer_labse:
         try:
             from erisml_compiler.canonicalizer.labse import LaBSECanonicalizer
+
             return LaBSECanonicalizer()
         except Exception:
             pass
     from erisml_compiler.canonicalizer.registry import RegistryCanonicalizer
+
     return RegistryCanonicalizer()

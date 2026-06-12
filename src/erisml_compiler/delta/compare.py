@@ -13,13 +13,12 @@
 Threshold defaults are conservative; the I-EIP Monitor's intent is to
 err on the side of escalation (`requires_human_review`).
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Iterable
 
 from erisml_compiler.ir.schemas import MORAL_DIMENSIONS, MoralVector
-
 
 # Direction encoding: -1 negative, 0 neutral, +1 positive. Lets the
 # delta arithmetic stay numerical.
@@ -31,12 +30,12 @@ class DimensionDelta:
     dimension: str
     text_value: float
     activation_value: float
-    value_delta: float          # activation - text
+    value_delta: float  # activation - text
     text_direction: str
     activation_direction: str
     direction_match: bool
-    confidence_gap: float       # |text.confidence - activation.confidence|
-    joint_uncertainty: float    # max(text.uncertainty, activation.uncertainty)
+    confidence_gap: float  # |text.confidence - activation.confidence|
+    joint_uncertainty: float  # max(text.uncertainty, activation.uncertainty)
 
 
 @dataclass(frozen=True)
@@ -159,8 +158,7 @@ def compare_morals(
         divergence >= divergence_threshold
         or direction_breaks > direction_break_max
         or any(
-            d.dimension in uncertain_dims
-            and abs(d.value_delta) >= uncertain_value_delta_max
+            d.dimension in uncertain_dims and abs(d.value_delta) >= uncertain_value_delta_max
             for d in per_dim
         )
     )

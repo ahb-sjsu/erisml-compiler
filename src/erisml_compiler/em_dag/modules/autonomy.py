@@ -4,6 +4,7 @@ Depends on `legitimacy`: consent obtained under illegitimate authority is
 not real consent. If the upstream legitimacy score is strongly negative, the
 autonomy score is dragged down even when explicit consent is recorded.
 """
+
 from __future__ import annotations
 
 from erisml_compiler.em_dag.base import EthicalModule
@@ -21,8 +22,12 @@ class AutonomyEM(EthicalModule):
         coercion_facts = facts_of_kind(ir, "coercion")
         all_relevant = consent_facts + coercion_facts
         bad = [
-            f for f in all_relevant
-            if any(kw in (f.description or "").lower() for kw in ("coerc", "non-consensual", "imposed", "forced", "without consent"))
+            f
+            for f in all_relevant
+            if any(
+                kw in (f.description or "").lower()
+                for kw in ("coerc", "non-consensual", "imposed", "forced", "without consent")
+            )
         ]
         score = aggregate_negative(bad, explanation_prefix="Autonomy assessment: ")
 

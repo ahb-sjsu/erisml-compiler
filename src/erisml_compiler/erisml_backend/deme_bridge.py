@@ -22,6 +22,7 @@ Decision logic (deterministic, silicon-castable):
     else:
         -> indeterminate
 """
+
 from __future__ import annotations
 
 from erisml_compiler.ir.schemas import (
@@ -45,12 +46,9 @@ class DEMEBridge:
         fidelity_v = vector.vow_fidelity.value
         repair_v = vector.repair_residue.value
         legitimacy_v = vector.legitimacy_trust.value
-        epistemic_v = vector.epistemic_quality.value
 
         # Defeasibility check.
-        any_defeasible = any(
-            c.status == "active_but_defeasible" for c in ir.commitments
-        )
+        any_defeasible = any(c.status == "active_but_defeasible" for c in ir.commitments)
         catastrophic_externality = externality_v <= -0.85
 
         # Allowed / prohibited action regions (text descriptions).
@@ -61,9 +59,7 @@ class DEMEBridge:
         # Tragic conflict: catastrophic externality + defeasible commitment.
         if catastrophic_externality and any_defeasible:
             allowed.append("Escalate to higher human decision authority.")
-            prohibited.append(
-                "Unilateral action that imposes catastrophic non-consensual risk."
-            )
+            prohibited.append("Unilateral action that imposes catastrophic non-consensual risk.")
             residue.append(
                 "Even after escalation, non-consenting affected parties bear residual risk."
             )

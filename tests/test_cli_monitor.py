@@ -1,4 +1,5 @@
 """CLI smoke tests for `eris-compile monitor` and `eris-compile delta`."""
+
 from __future__ import annotations
 
 import json
@@ -22,11 +23,16 @@ def test_cli_monitor_mock_emits_trace(tmp_path: Path):
     out = tmp_path / "trace.json"
     result = _run(
         [
-            "monitor", "hello world",
-            "--source", "mock",
-            "--hidden-dim", "16",
-            "--n-layers", "3",
-            "--out", str(out),
+            "monitor",
+            "hello world",
+            "--source",
+            "mock",
+            "--hidden-dim",
+            "16",
+            "--n-layers",
+            "3",
+            "--out",
+            str(out),
         ]
     )
     assert result.exit_code == 0, result.output
@@ -44,11 +50,16 @@ def test_cli_delta_against_synthetic_ir_and_trace(tmp_path: Path):
     trace_path = tmp_path / "trace.json"
     res1 = _run(
         [
-            "monitor", "subject text",
-            "--source", "mock",
-            "--hidden-dim", "12",
-            "--n-layers", "4",
-            "--out", str(trace_path),
+            "monitor",
+            "subject text",
+            "--source",
+            "mock",
+            "--hidden-dim",
+            "12",
+            "--n-layers",
+            "4",
+            "--out",
+            str(trace_path),
         ]
     )
     assert res1.exit_code == 0, res1.output
@@ -75,7 +86,8 @@ def test_cli_delta_against_synthetic_ir_and_trace(tmp_path: Path):
             "delta",
             str(ir_path),
             str(trace_path),
-            "--out", str(out),
+            "--out",
+            str(out),
         ]
     )
     assert res2.exit_code == 0, res2.output
@@ -106,11 +118,7 @@ def test_cli_delta_falls_back_to_timeline_when_no_global_vector(tmp_path: Path):
     ir_path = tmp_path / "ir.json"
     ir_path.write_text(
         json.dumps(
-            {
-                "moral_timeline": [
-                    {"time_index": 0, "event_label": "e", "vector": mv.model_dump()}
-                ]
-            }
+            {"moral_timeline": [{"time_index": 0, "event_label": "e", "vector": mv.model_dump()}]}
         ),
         encoding="utf-8",
     )

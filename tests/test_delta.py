@@ -3,6 +3,7 @@
 All tests use MockActivationSource or hand-constructed MoralVectors so
 they run CPU-only.
 """
+
 from __future__ import annotations
 
 import pytest
@@ -10,15 +11,11 @@ import pytest
 torch = pytest.importorskip("torch")
 
 from erisml_compiler.delta import (
-    DeltaResult,
-    DimensionDelta,
     FailureMode,
     compare_morals,
     detect_failure_modes,
 )
 from erisml_compiler.delta.equivariance import (
-    DEFAULT_REWRITES,
-    EquivarianceReport,
     Rewrite,
     check_equivariance,
 )
@@ -189,7 +186,7 @@ def test_equivariance_to_dict_serialisable():
 # ---------- failure modes ----------
 
 
-def _trace_with_drift(dim_name: str, n_layers: int = 5) -> "MonitorTrace":
+def _trace_with_drift(dim_name: str, n_layers: int = 5):
     """Hand-build a trace where one dimension drifts monotonically."""
     from erisml_compiler.monitor.activation_probe import LayerProbeResult
     from erisml_compiler.monitor.ieip_monitor import MonitorTrace, _aggregate
@@ -202,7 +199,9 @@ def _trace_with_drift(dim_name: str, n_layers: int = 5) -> "MonitorTrace":
             if d == dim_name:
                 v = -1.0 + 2.0 * (i / (n_layers - 1))  # -1 -> +1
                 fields[d] = DimensionScore(
-                    value=v, confidence=abs(v), uncertainty=1 - abs(v),
+                    value=v,
+                    confidence=abs(v),
+                    uncertainty=1 - abs(v),
                     direction="positive" if v > 0.05 else ("negative" if v < -0.05 else "neutral"),
                 )
             else:
@@ -274,9 +273,7 @@ def test_detect_failure_modes_audit_chain_break():
     src = MockActivationSource(hidden_dim=8, n_layers=3)
     mon = IEIPMonitor(src, seed=0)
     trace = mon.monitor("x")
-    report = detect_failure_modes(
-        delta=delta, trace=trace, expected_trace_hash="0" * 64
-    )
+    report = detect_failure_modes(delta=delta, trace=trace, expected_trace_hash="0" * 64)
     assert FailureMode.AUDIT_CHAIN_BREAK in report.fired
     assert report.requires_human_review is True
 

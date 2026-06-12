@@ -6,6 +6,7 @@ filters for the subset of harm where the subject is a non-consenting third
 party (stakeholder with role `nonconsenting_third_party` or `bystander`
 without explicit consent).
 """
+
 from __future__ import annotations
 
 from erisml_compiler.em_dag.base import EthicalModule
@@ -22,15 +23,13 @@ class ExternalityEM(EthicalModule):
         externality_facts = facts_of_kind(ir, "externality")
         # Identify non-consenting third parties.
         third_parties = {
-            s.id for s in ir.stakeholders
+            s.id
+            for s in ir.stakeholders
             if "nonconsenting_third_party" in s.roles
             or (s.consent_status in ("not_obtained", "coerced") and "bystander" in s.roles)
         }
         # Filter externality facts to those affecting third parties.
-        relevant = [
-            f for f in externality_facts
-            if any(sid in third_parties for sid in f.subjects)
-        ]
+        relevant = [f for f in externality_facts if any(sid in third_parties for sid in f.subjects)]
         if not relevant:
             # Fall back to all externality facts.
             relevant = externality_facts

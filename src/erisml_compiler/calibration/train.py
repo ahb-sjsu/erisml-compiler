@@ -16,14 +16,13 @@ Total loss:
       + lambda_conf * (L_conf_lang + L_conf_period)
       + (adversarial heads contribute through reversed gradients)
 """
+
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass, field
 from pathlib import Path
 
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
 
 from erisml_compiler.calibration.adversarial_heads import MultiHeadAdversarial
@@ -143,19 +142,28 @@ def train_probe(
             # 5. Adversarial logits + cross-entropy (heads try to predict).
             adv_lang_logits_list = adv_lang(z)
             adv_period_logits_list = adv_period(z)
-            adv_lang_ce = sum(F.cross_entropy(l, lang) for l in adv_lang_logits_list) / len(adv_lang_logits_list)
-            adv_period_ce = sum(F.cross_entropy(l, period) for l in adv_period_logits_list) / len(adv_period_logits_list)
+            adv_lang_ce = sum(F.cross_entropy(logit, lang) for logit in adv_lang_logits_list) / len(
+                adv_lang_logits_list
+            )
+            adv_period_ce = sum(
+                F.cross_entropy(logit, period) for logit in adv_period_logits_list
+            ) / len(adv_period_logits_list)
 
             # 6. Confusion loss (encoder tries to make nuisance posterior uniform).
-            conf_lang = sum(confusion_loss(l) for l in adv_lang_logits_list) / len(adv_lang_logits_list)
-            conf_period = sum(confusion_loss(l) for l in adv_period_logits_list) / len(adv_period_logits_list)
+            conf_lang = sum(confusion_loss(logit) for logit in adv_lang_logits_list) / len(
+                adv_lang_logits_list
+            )
+            conf_period = sum(confusion_loss(logit) for logit in adv_period_logits_list) / len(
+                adv_period_logits_list
+            )
 
             total = (
                 main_loss
                 + config.lambda_vib * vib_l
                 + config.lambda_spec * (spec_lang + spec_period)
                 + config.lambda_conf * (conf_lang + conf_period)
-                + adv_lang_ce + adv_period_ce  # GRL on z handles encoder-side direction
+                + adv_lang_ce
+                + adv_period_ce  # GRL on z handles encoder-side direction
             )
 
             opt.zero_grad()
@@ -178,7 +186,9 @@ def train_probe(
     return backbone, history
 
 
-def save_checkpoint(backbone: ProbeBackbone, path: str | Path, history: TrainingHistory | None = None) -> Path:
+def save_checkpoint(
+    backbone: ProbeBackbone, path: str | Path, history: TrainingHistory | None = None
+) -> Path:
     """Save the trainable parts of the backbone to a .pt file."""
     p = Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)

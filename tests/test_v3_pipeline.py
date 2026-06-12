@@ -1,7 +1,7 @@
 """Phase 2 — orchestrator produces ir.moral_tensor_v3 at the requested rank."""
+
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 import pytest
@@ -11,7 +11,6 @@ from erisml_compiler.ir.v3 import MORAL_DIMENSIONS_V3
 from erisml_compiler.pipeline.orchestrator import CompileOptions, compile_document
 from erisml_compiler.tiers import CompilerTier
 
-
 EXAMPLES_DIR = Path(__file__).parent.parent / "examples"
 
 
@@ -20,7 +19,9 @@ def nazi_attic_ir() -> CompilerIR:
     return compile_document(
         EXAMPLES_DIR / "nazi_attic.txt",
         CompileOptions(
-            tier=CompilerTier.RULES, extractor="mock", canonicalizer=None,
+            tier=CompilerTier.RULES,
+            extractor="mock",
+            canonicalizer=None,
             tensor_rank=2,
         ),
     )
@@ -31,7 +32,9 @@ def medical_confidentiality_ir() -> CompilerIR:
     return compile_document(
         EXAMPLES_DIR / "medical_confidentiality.txt",
         CompileOptions(
-            tier=CompilerTier.RULES, extractor="mock", canonicalizer=None,
+            tier=CompilerTier.RULES,
+            extractor="mock",
+            canonicalizer=None,
             tensor_rank=2,
         ),
     )
@@ -68,7 +71,9 @@ def test_rank1_produces_global_vector():
     ir = compile_document(
         EXAMPLES_DIR / "nazi_attic.txt",
         CompileOptions(
-            tier=CompilerTier.RULES, extractor="mock", canonicalizer=None,
+            tier=CompilerTier.RULES,
+            extractor="mock",
+            canonicalizer=None,
             tensor_rank=1,
         ),
     )
@@ -87,9 +92,9 @@ def test_build_strategy_metadata_recorded(nazi_attic_ir):
     assertions about which one was selected."""
     md = nazi_attic_ir.moral_tensor_v3.metadata
     assert md.get("build_strategy") in {
-        "phase2_fanout_from_rank1",   # erisml-lib unavailable
-        "phase3_v3_bridge",            # bridge active, V2 facts aggregation
-        "phase4_v3_bridge",            # bridge active, direct V3 facts
+        "phase2_fanout_from_rank1",  # erisml-lib unavailable
+        "phase3_v3_bridge",  # bridge active, V2 facts aggregation
+        "phase4_v3_bridge",  # bridge active, direct V3 facts
     }
 
 
@@ -107,7 +112,9 @@ def test_phase2_fallback_carries_migration_metadata(monkeypatch):
     ir = compile_document(
         EXAMPLES_DIR / "nazi_attic.txt",
         CompileOptions(
-            tier=CompilerTier.RULES, extractor="mock", canonicalizer=None,
+            tier=CompilerTier.RULES,
+            extractor="mock",
+            canonicalizer=None,
             tensor_rank=2,
         ),
     )
@@ -126,10 +133,16 @@ def test_v2_moral_vectors_still_populated(nazi_attic_ir):
     v2 = nazi_attic_ir.moral_vectors[0]
     # All 10 V2 dims still present.
     for dim in [
-        "physical_harm", "rights_respect", "fairness_equity",
-        "autonomy_consent", "legitimacy_trust", "epistemic_quality",
-        "care_protection", "vow_fidelity",
-        "third_party_externality", "repair_residue",
+        "physical_harm",
+        "rights_respect",
+        "fairness_equity",
+        "autonomy_consent",
+        "legitimacy_trust",
+        "epistemic_quality",
+        "care_protection",
+        "vow_fidelity",
+        "third_party_externality",
+        "repair_residue",
     ]:
         assert hasattr(v2, dim)
 
@@ -169,9 +182,7 @@ def test_rank2_columns_diverge_on_at_least_one_dimension(nazi_attic_ir):
     # We only enforce the assertion when the bridge path actually ran.
     md = t.metadata.get("build_strategy", "")
     if "v3_bridge" in md and "phase4" in md:
-        assert divergent_dims, (
-            "Phase 4 v3 bridge should produce ≥1 divergent dimension; got none"
-        )
+        assert divergent_dims, "Phase 4 v3 bridge should produce ≥1 divergent dimension; got none"
 
 
 # ---------- multi-scenario sanity ----------
@@ -193,7 +204,9 @@ def test_rank_above_2_raises_helpful_error():
         compile_document(
             EXAMPLES_DIR / "nazi_attic.txt",
             CompileOptions(
-                tier=CompilerTier.RULES, extractor="mock", canonicalizer=None,
+                tier=CompilerTier.RULES,
+                extractor="mock",
+                canonicalizer=None,
                 tensor_rank=3,
             ),
         )

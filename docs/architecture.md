@@ -106,6 +106,33 @@ calibrated classifier head over a frozen multilingual encoder
 Probes are trained via `eris-compile calibrate`, checkpointed with
 `save_checkpoint`, and consumed at inference by the ProbeExtractor.
 
+## DEME V3 alignment
+
+Rolling onto DEME V3's tensor + module model in a documented six-phase
+migration (`docs/migration/deme_v3_alignment.md`). Phases 1–4 of that
+migration are on `main`:
+
+- `ir/v3/` — `MoralTensorV3` Pydantic schema (ranks 1–6, axes
+  `(k, n, τ, a, c, s)`, validators for shape / first-axis-length /
+  single-axis veto convention) + V2→V3 migration helpers.
+- `evaluation/tensor_builder_v3.py` — produces rank-1 (global) or
+  rank-2 (per-stakeholder) tensors as the orchestrator's
+  Phase-2-style fallback when erisml-lib is absent.
+- `erisml_backend/v3_bridge.py` — the production path: builds
+  `EthicalFactsV3` from compiler IR (via `v3_facts_direct.py` —
+  per-party attribution from `EthicalFact.subjects`), invokes
+  registered V3 modules (`GenevaEMV3`, `TriageEMV3`), aggregates
+  their per-party `MoralTensor`s by `default_weight`, surfaces
+  per-party verdicts + Gini-over-harm + worst-off party as IR
+  top-level fields.
+- The compiler's V2 surface (10-dim `MoralVector`, per-stakeholder
+  `MoralTensor`, V2 EM-DAG) remains alive for backward-compatibility;
+  Phase 5–6 of the migration may deprecate it once silicon and the
+  I-EIP Monitor migrate.
+
+`--rank N` on `eris-compile compile` selects the V3 tensor rank
+(1 or 2 today; 3–6 land in V3-5).
+
 ## Audit
 
 Every compilation produces an `AuditRecord` (`audit/hash_chain.py`)
@@ -208,8 +235,9 @@ audit on sampled inputs.
 | 1 | shipped v0.1.0 | Schema, pipeline, mock + rule extractor, EM-DAG, FSMs, DEME stub, audit, streaming, HTML, RLEF, CLI, tests |
 | 2 | shipped v0.2.0 | LLM adapters (NRP + vLLM), critic pass, canonicaliser, real DEME, IR diff + correction |
 | 3 | shipped v0.3.0 | Probe extractor (Tier 2.5) + calibration stack + sqnd-probe losses; silicon-emit (Vitis HLS C++) |
-| 4 | on `main`        | I-EIP Monitor: Internal / Activation / Delta lenses + 5 failure-mode detectors + trust-boundary docs |
-| 5 | deferred | Production web app: React frontend + FastAPI HTTP layer + three-pane editor |
+| 4 | shipped v0.4.0 | I-EIP Monitor: Internal / Activation / Delta lenses + 5 failure-mode detectors + trust-boundary docs |
+| 5 | on `main` (V3-1..4) | DEME V3 alignment — 9-dim ranks-1..6 `MoralTensorV3`, per-party verdicts, Gini + worst-off fairness, bridge invoking GenevaEMV3 + TriageEMV3 directly (see `docs/migration/deme_v3_alignment.md`) |
+| 5+ | deferred | Production web app: React frontend + FastAPI HTTP layer + three-pane editor |
 | 5+ | deferred | Batch corpus mode, PostgreSQL + Celery, RLEF dataset generation |
 | 5+ | partially blocked | Silicon hardware bring-up on the U55C (Vitis HLS emit is shipped; on-FPGA bitstream gated by NRP Coder pipeline) |
 

@@ -73,9 +73,11 @@ representation containing:
 - a **stakeholder graph** (who is involved, what role they play),
 - a **commitment registry** (what vows bind whom, in what state — active,
   defeasible, fulfilled, violated),
-- a **moral state vector** across 10 normative dimensions (harm, rights,
-  fairness, autonomy, legitimacy, epistemic quality, care, fidelity,
-  third-party externality, repair),
+- a **moral state tensor** at rank 1–6, indexed by axes for *moral
+  dimension* (9 dims from the "Nine Dimensions of Ethical Assessment"
+  3×3 matrix), *stakeholder*, *time*, *action*, *coalition*, and
+  *uncertainty sample*; at rank 2 the rows tell you what each
+  stakeholder is actually bearing,
 - a **verdict** produced by a deterministic evaluator (DEME) that walks
   a DAG of *ethical modules* in topological order, and
 - a **deterministic audit trace**, SHA-256 anchored, that records every
@@ -87,6 +89,15 @@ level; you can re-evaluate after a human correction without
 re-running an LLM; you can transform the case under symmetry
 operations and check that the verdict commutes; you can — and this
 matters — **cast the evaluator into silicon**.
+
+Concretely: feed the compiler the "nazi at the door" scenario and the
+rank-2 tensor that comes out splits cleanly across stakeholders.
+Speaker bears expected harm 0.76 (verdict: forbid). Village bears
+0.83 (forbid). The hiding refugees bear 0.00 (prefer the action).
+The nazis themselves bear 0.18 (neutral). The Gini coefficient over
+that harm distribution is 0.43 — a real, quantitative measure of
+how unequally the cost lands. None of that survives a scalar
+collapse.
 
 That last point is not rhetorical. The deterministic core of ErisML
 — three small finite-state machines (Commitment, Legitimacy, Consent)
@@ -223,10 +234,11 @@ The compiler and its full toolchain are available now:
 - **DOI** (concept, always latest): [10.5281/zenodo.20659432](https://doi.org/10.5281/zenodo.20659432)
 - **Paper draft**: in the repository under `paper/paper.md` (JOSS submission imminent)
 
-It is MIT licensed. 143 tests pass on Ubuntu × Python 3.10/3.11/3.12.
-The bundled examples include the three scenarios I named in this
-article, with hand-curated reference IR you can compare your own
-extractions against.
+It is MIT licensed. 194 tests pass on Ubuntu × Python 3.10/3.11/3.12,
+with ruff lint and black format both clean. The bundled examples
+include the three scenarios I named in this article, with
+hand-curated reference IR you can compare your own extractions
+against.
 
 If you build AI systems for production — especially safety-critical
 ones — I would love to hear what would have to be true for ErisML's

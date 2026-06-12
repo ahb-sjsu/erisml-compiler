@@ -1,4 +1,5 @@
 """HarmEM: evaluates physical-harm dimension. No upstream deps."""
+
 from __future__ import annotations
 
 from erisml_compiler.em_dag.base import EthicalModule

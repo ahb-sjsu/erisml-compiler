@@ -4,6 +4,7 @@ Every compile produces a SHA-256 hash of the canonical-JSON IR (excluding
 the audit record itself, which contains this very hash). The hash chain is
 deterministic given the same input + same dependency versions.
 """
+
 from __future__ import annotations
 
 import hashlib

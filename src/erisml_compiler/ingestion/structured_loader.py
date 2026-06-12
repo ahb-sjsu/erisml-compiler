@@ -17,6 +17,7 @@ Tier 1 inputs are pre-parsed event streams. The expected JSON schema:
 This loader produces a partially-populated IR. The pipeline's tensorisation
 and EM-DAG passes fill in the rest.
 """
+
 from __future__ import annotations
 
 import hashlib

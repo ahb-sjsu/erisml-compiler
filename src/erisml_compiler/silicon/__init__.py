@@ -21,6 +21,7 @@ What is NOT in this package:
       workflow. This package is the bridge code that turns Python
       definitions into HLS C++ ready for synthesis.
 """
+
 from erisml_compiler.silicon.fixed_point import (
     FixedPointConfig,
     quantize_array,

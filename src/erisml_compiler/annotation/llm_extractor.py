@@ -24,6 +24,7 @@ the JSON), validate each element against the relevant Pydantic schema, and
 collect successes. Failures are logged but do not abort extraction; the
 critic pass will catch missing entries.
 """
+
 from __future__ import annotations
 
 import json
@@ -40,7 +41,6 @@ from erisml_compiler.ir.schemas import (
     EthicalFact,
     Stakeholder,
 )
-
 
 # =============================================================================
 # Adapter interface
@@ -122,6 +122,7 @@ class NRPOpenAIAdapter(ModelAdapter):
         self.timeout_s = timeout_s or float(os.environ.get("ERISML_LLM_TIMEOUT_S", "60"))
         # Lazy import so the optional dependency is only required at use time.
         from openai import OpenAI
+
         self._client = OpenAI(base_url=self.base_url, api_key=self.api_key, timeout=self.timeout_s)
 
     def call(self, system: str, user: str, **kwargs) -> str:
@@ -169,6 +170,7 @@ class LocalVLLMAdapter(ModelAdapter):
         self.model = model or os.environ.get("ERISML_LLM_MODEL", "local-model")
         self.timeout_s = timeout_s or float(os.environ.get("ERISML_LLM_TIMEOUT_S", "60"))
         from openai import OpenAI
+
         self._client = OpenAI(base_url=self.base_url, api_key=self.api_key, timeout=self.timeout_s)
 
     def call(self, system: str, user: str, **kwargs) -> str:
@@ -341,7 +343,9 @@ class LLMExtractor(Extractor):
         try:
             data = _extract_first_json(raw, expect_array=True)
         except (ValueError, json.JSONDecodeError) as exc:
-            raise RuntimeError(f"LLM response did not contain a JSON array: {exc}\nRaw response: {raw[:500]}")
+            raise RuntimeError(
+                f"LLM response did not contain a JSON array: {exc}\nRaw response: {raw[:500]}"
+            )
         if not isinstance(data, list):
             raise RuntimeError(f"Expected a JSON array, got {type(data).__name__}.")
         return data
@@ -351,7 +355,9 @@ class LLMExtractor(Extractor):
         try:
             data = _extract_first_json(raw, expect_array=False)
         except (ValueError, json.JSONDecodeError) as exc:
-            raise RuntimeError(f"LLM response did not contain a JSON object: {exc}\nRaw response: {raw[:500]}")
+            raise RuntimeError(
+                f"LLM response did not contain a JSON object: {exc}\nRaw response: {raw[:500]}"
+            )
         if not isinstance(data, dict):
             raise RuntimeError(f"Expected a JSON object, got {type(data).__name__}.")
         return data
@@ -393,8 +399,7 @@ class LLMExtractor(Extractor):
 
         # Pass 4: canonical form.
         facts_summary = "; ".join(
-            f"{f.kind}({','.join(f.subjects)}): {f.description}"
-            for f in ethical_facts[:10]
+            f"{f.kind}({','.join(f.subjects)}): {f.description}" for f in ethical_facts[:10]
         )
         try:
             canonical_obj = self._call_and_parse_object(

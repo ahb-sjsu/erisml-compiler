@@ -15,9 +15,10 @@ Pass map:
   11. Contraction & residue   -> embedded in DEMEVerdict
   12. Audit artifact          -> audit.hash_chain.finalize_audit + audit.artifact.bundle
 """
+
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 
 import yaml
@@ -35,10 +36,14 @@ from erisml_compiler.evaluation.conflict_detector import detect_conflicts
 from erisml_compiler.evaluation.moral_vector import build_moral_vector_from_em_outputs
 from erisml_compiler.evaluation.tensor_builder import build_timeline
 from erisml_compiler.evaluation.tensor_builder_v3 import build_moral_tensor_v3
+from erisml_compiler.ingestion.structured_loader import load_structured_input
+from erisml_compiler.ingestion.text_loader import load_text_document
+from erisml_compiler.ir.schemas import CompilerIR, PassRecord
+from erisml_compiler.segmentation.segmenter import segment_paragraphs
+from erisml_compiler.tiers import CompilerTier
 
-# V3 bridge import is lazy so the orchestrator stays importable when
-# erisml-lib is absent. See _produce_v3_tensor below.
 import logging as _logging
+
 _v3_log = _logging.getLogger(__name__)
 
 
@@ -52,7 +57,8 @@ def _produce_v3_tensor(ir, em_outputs, dag, options):
     The bridge path produces genuinely per-stakeholder values.
     """
     try:
-        from erisml_compiler.erisml_backend.v3_bridge import compile_to_v3_tensor  # noqa: PLC0415
+        from erisml_compiler.erisml_backend.v3_bridge import compile_to_v3_tensor
+
         return compile_to_v3_tensor(ir, rank=options.tensor_rank)
     except ImportError:
         _v3_log.info("erisml-lib not installed; using Phase 2 fanout path")
@@ -60,27 +66,23 @@ def _produce_v3_tensor(ir, em_outputs, dag, options):
     except Exception as e:  # noqa: BLE001
         _v3_log.warning(
             "V3 bridge raised %s; falling back to Phase 2 fanout: %s",
-            type(e).__name__, e,
+            type(e).__name__,
+            e,
         )
         return build_moral_tensor_v3(ir, em_outputs, dag, rank=options.tensor_rank)
-from erisml_compiler.ingestion.structured_loader import load_structured_input
-from erisml_compiler.ingestion.text_loader import load_text_document
-from erisml_compiler.ir.schemas import CompilerIR, PassRecord
-from erisml_compiler.segmentation.segmenter import segment_paragraphs
-from erisml_compiler.tiers import CompilerTier
 
 
 @dataclass
 class CompileOptions:
     tier: CompilerTier
-    extractor: str = "rule"            # "mock" | "rule" | "probe" | "llm"
-    critic: str | None = None          # same set or None
+    extractor: str = "rule"  # "mock" | "rule" | "probe" | "llm"
+    critic: str | None = None  # same set or None
     em_profile: str | Path | None = None  # path to YAML; default if None
     canonicalizer: Canonicalizer | None = None  # default: auto-select
     llm_adapter: object | None = None  # for tier="llm" or critic="llm"
     probe_config: object | None = None  # ProbeExtractorConfig for tier="probe"
     fail_unknown_mock: bool = True
-    tensor_rank: int = 2               # DEME V3 rank for ir.moral_tensor_v3
+    tensor_rank: int = 2  # DEME V3 rank for ir.moral_tensor_v3
 
 
 def _resolve_em_profile(em_profile: str | Path | None) -> EMDAG:
@@ -91,7 +93,9 @@ def _resolve_em_profile(em_profile: str | Path | None) -> EMDAG:
     return load_profile(em_profile)
 
 
-def _resolve_extractor(name: str, llm_adapter: object | None = None, probe_config=None) -> Extractor:
+def _resolve_extractor(
+    name: str, llm_adapter: object | None = None, probe_config=None
+) -> Extractor:
     if name == "mock":
         return MockExtractor()
     if name == "rule":
@@ -101,12 +105,14 @@ def _resolve_extractor(name: str, llm_adapter: object | None = None, probe_confi
             ProbeExtractor,
             ProbeExtractorConfig,
         )
+
         return ProbeExtractor(config=probe_config or ProbeExtractorConfig())
     if name == "llm":
         from erisml_compiler.annotation.llm_extractor import (
             LLMExtractor,
             NRPOpenAIAdapter,
         )
+
         adapter = llm_adapter or NRPOpenAIAdapter()
         return LLMExtractor(adapter=adapter)
     raise ValueError(f"Unknown extractor: {name!r} (expected mock/rule/probe/llm)")

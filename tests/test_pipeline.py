@@ -1,4 +1,5 @@
 """End-to-end pipeline tests against the three example fixtures."""
+
 from pathlib import Path
 
 import pytest
@@ -21,6 +22,7 @@ def options_rule():
 
 # ----------------------------------------------------------------- nazi attic
 
+
 def test_nazi_attic_mock(options_mock):
     ir = compile_document(EXAMPLES_DIR / "nazi_attic.txt", options_mock)
     assert ir.deme_verdict is not None
@@ -28,12 +30,12 @@ def test_nazi_attic_mock(options_mock):
     assert ir.deme_verdict.escalation_required is True
     assert ir.canonical_form == "coercive_murderous_interrogation_with_collective_reprisal"
     # Spec §31 acceptance criteria:
-    assert len(ir.stakeholders) >= 1                   # #2
+    assert len(ir.stakeholders) >= 1  # #2
     assert any(c.type == "vow" for c in ir.commitments)  # #3
     assert any(f.kind == "coercion" for f in ir.ethical_facts)  # #4
     assert any(f.kind == "externality" for f in ir.ethical_facts)  # #5
-    assert ir.audit is not None                        # #9
-    assert ir.timeline                                 # #7
+    assert ir.audit is not None  # #9
+    assert ir.timeline  # #7
 
 
 def test_nazi_attic_rule(options_rule):
@@ -47,11 +49,14 @@ def test_nazi_attic_rule(options_rule):
     assert any(f.kind == "externality" for f in ir.ethical_facts)
     # Verdict on rule-extracted nazi attic should still reflect tragic conflict
     assert ir.deme_verdict.verdict in (
-        "tragic_conflict_escalate", "prohibited", "requires_human_review"
+        "tragic_conflict_escalate",
+        "prohibited",
+        "requires_human_review",
     )
 
 
 # ----------------------------------------------------------------- medical
+
 
 def test_medical_confidentiality_mock(options_mock):
     ir = compile_document(EXAMPLES_DIR / "medical_confidentiality.txt", options_mock)
@@ -64,6 +69,7 @@ def test_medical_confidentiality_mock(options_mock):
 
 # ----------------------------------------------------------------- whistleblower
 
+
 def test_whistleblower_mock(options_mock):
     ir = compile_document(EXAMPLES_DIR / "whistleblower.txt", options_mock)
     assert ir.deme_verdict is not None
@@ -74,6 +80,7 @@ def test_whistleblower_mock(options_mock):
 
 
 # ----------------------------------------------------------------- audit determinism
+
 
 def test_audit_hash_deterministic(options_mock):
     """Same input + same options produces the same IR hash."""

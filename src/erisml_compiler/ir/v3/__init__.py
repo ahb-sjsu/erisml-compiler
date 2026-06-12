@@ -20,6 +20,7 @@ Public surface:
     migrate_v2_vector_to_v3  V2 MoralVector -> rank-1 MoralTensorV3
     migrate_v2_tensor_to_v3  V2 MoralTensor -> rank-2 MoralTensorV3
 """
+
 from erisml_compiler.ir.v3.dimensions import (
     DIMENSION_MATRIX_3X3,
     MORAL_DIMENSIONS_V3,

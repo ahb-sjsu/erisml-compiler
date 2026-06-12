@@ -3,6 +3,7 @@
 Each EM module declares which `dimension` of the MoralVector it owns; the
 projection is a simple lookup.
 """
+
 from __future__ import annotations
 
 from erisml_compiler.em_dag import EMDAG
@@ -35,7 +36,10 @@ def build_moral_vector_from_em_outputs(
     for dim in MORAL_DIMENSIONS:
         if dim not in by_dimension:
             by_dimension[dim] = DimensionScore(
-                value=0.0, confidence=1.0, uncertainty=0.0, direction="neutral",
+                value=0.0,
+                confidence=1.0,
+                uncertainty=0.0,
+                direction="neutral",
                 source_spans=[],
                 explanation="No EM module owns this dimension in the current DAG.",
             )

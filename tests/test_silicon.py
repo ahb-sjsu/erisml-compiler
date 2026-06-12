@@ -1,8 +1,4 @@
 """Tests for the silicon-target scaffolding (Track C)."""
-import re
-from pathlib import Path
-
-import pytest
 
 from erisml_compiler.silicon.fixed_point import (
     FixedPointConfig,
@@ -17,7 +13,6 @@ from erisml_compiler.silicon.hls_emit import (
     emit_makefile,
     emit_top_module,
 )
-
 
 # ---------- fixed point ----------
 

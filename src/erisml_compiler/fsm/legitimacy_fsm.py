@@ -12,6 +12,7 @@ States (per spec 8.5):
 
 `void` is terminal/absorbing.
 """
+
 from __future__ import annotations
 
 from typing import Literal

@@ -3,6 +3,7 @@
 Mirrors spec section 13 (Internal representation) and section 14 (MoralVector).
 Adds EM-DAG outputs in `CompilerIR.em_outputs` per the architectural addition.
 """
+
 from __future__ import annotations
 
 from typing import Any, Literal
@@ -11,7 +12,6 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from erisml_compiler import __schema_version__
 from erisml_compiler.ir.v3 import MoralTensorV3  # noqa: F401  used as forward ref
-
 
 # =============================================================================
 # Primitives
@@ -174,7 +174,9 @@ class Norm(BaseModel):
     target: str | None = None
     priority_tier: int = Field(ge=0, default=1)
     defeasible: bool = True
-    source: str  # "statutory", "constitutional", "customary", "inferred_human_rights_baseline", etc.
+    source: (
+        str  # "statutory", "constitutional", "customary", "inferred_human_rights_baseline", etc.
+    )
     source_spans: list[str] = Field(default_factory=list)
 
 

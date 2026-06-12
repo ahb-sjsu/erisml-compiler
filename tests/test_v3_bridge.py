@@ -1,4 +1,5 @@
 """Phase 3 — V3 bridge wires compiler IR to DEME V3 modules."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -11,7 +12,6 @@ from erisml_compiler.ir.schemas import CompilerIR
 from erisml_compiler.pipeline.orchestrator import CompileOptions, compile_document
 from erisml_compiler.tiers import CompilerTier
 
-
 EXAMPLES_DIR = Path(__file__).parent.parent / "examples"
 
 
@@ -20,7 +20,9 @@ def bridge_ir() -> CompilerIR:
     return compile_document(
         EXAMPLES_DIR / "nazi_attic.txt",
         CompileOptions(
-            tier=CompilerTier.RULES, extractor="mock", canonicalizer=None,
+            tier=CompilerTier.RULES,
+            extractor="mock",
+            canonicalizer=None,
             tensor_rank=2,
         ),
     )
@@ -32,9 +34,10 @@ def test_bridge_invoked_when_erisml_lib_available(bridge_ir):
     fail loudly if the orchestrator silently fell back to phase 2."""
     md = bridge_ir.moral_tensor_v3.metadata
     strategy = md.get("build_strategy")
-    assert strategy in {"phase3_v3_bridge", "phase4_v3_bridge"}, (
-        f"expected v3 bridge path, got {strategy}"
-    )
+    assert strategy in {
+        "phase3_v3_bridge",
+        "phase4_v3_bridge",
+    }, f"expected v3 bridge path, got {strategy}"
 
 
 def test_modules_recorded_in_metadata(bridge_ir):
@@ -63,7 +66,9 @@ def test_bridge_rank1_collapse():
     ir = compile_document(
         EXAMPLES_DIR / "nazi_attic.txt",
         CompileOptions(
-            tier=CompilerTier.RULES, extractor="mock", canonicalizer=None,
+            tier=CompilerTier.RULES,
+            extractor="mock",
+            canonicalizer=None,
             tensor_rank=1,
         ),
     )
@@ -79,7 +84,9 @@ def test_bridge_v2_facts_aggregator_directly():
     ir = compile_document(
         EXAMPLES_DIR / "nazi_attic.txt",
         CompileOptions(
-            tier=CompilerTier.RULES, extractor="mock", canonicalizer=None,
+            tier=CompilerTier.RULES,
+            extractor="mock",
+            canonicalizer=None,
             tensor_rank=2,
         ),
     )
@@ -88,8 +95,7 @@ def test_bridge_v2_facts_aggregator_directly():
     # affected_count > 0 and either harm > 0 or coercion flagged.
     assert v2.consequences.affected_count == len(ir.stakeholders)
     has_harm_or_coercion = (
-        v2.consequences.expected_harm > 0.0
-        or v2.autonomy_and_agency.coercion_or_undue_influence
+        v2.consequences.expected_harm > 0.0 or v2.autonomy_and_agency.coercion_or_undue_influence
     )
     assert has_harm_or_coercion, "nazi_attic should produce harm or coercion signal"
 
@@ -106,7 +112,9 @@ def test_bridge_falls_back_to_phase2_on_module_exception(monkeypatch):
     ir = compile_document(
         EXAMPLES_DIR / "nazi_attic.txt",
         CompileOptions(
-            tier=CompilerTier.RULES, extractor="mock", canonicalizer=None,
+            tier=CompilerTier.RULES,
+            extractor="mock",
+            canonicalizer=None,
             tensor_rank=2,
         ),
     )

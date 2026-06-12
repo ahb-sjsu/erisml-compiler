@@ -17,14 +17,14 @@ A `to_deme_tensor()` helper converts to the native numpy-backed
 import is lazy so this module remains usable without erisml-lib
 installed (e.g. during early-phase test runs).
 """
+
 from __future__ import annotations
 
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from erisml_compiler.ir.v3.dimensions import MORAL_DIMENSIONS_V3, DimensionAxis
-
+from erisml_compiler.ir.v3.dimensions import DimensionAxis
 
 # Maximum rank supported by DEME V3.
 MAX_RANK: int = 6
@@ -115,9 +115,7 @@ class MoralTensorV3(BaseModel):
         if len(v) == 0:
             raise ValueError("shape cannot be empty")
         if v[0] != K_DIM:
-            raise ValueError(
-                f"shape[0] must equal {K_DIM} (moral dimensions); got {v[0]}"
-            )
+            raise ValueError(f"shape[0] must equal {K_DIM} (moral dimensions); got {v[0]}")
         for i, d in enumerate(v):
             if d <= 0:
                 raise ValueError(f"shape[{i}] must be positive; got {d}")
@@ -135,9 +133,7 @@ class MoralTensorV3(BaseModel):
     @model_validator(mode="after")
     def _consistency(self) -> "MoralTensorV3":
         if self.rank != len(self.shape):
-            raise ValueError(
-                f"rank ({self.rank}) must equal len(shape) ({len(self.shape)})"
-            )
+            raise ValueError(f"rank ({self.rank}) must equal len(shape) ({len(self.shape)})")
         if len(self.axis_names) != self.rank:
             raise ValueError(
                 f"axis_names length ({len(self.axis_names)}) must equal rank ({self.rank})"
@@ -159,7 +155,7 @@ class MoralTensorV3(BaseModel):
         for loc in self.veto_locations:
             length = len(loc)
             if length == 0:
-                continue   # global, no bounds check
+                continue  # global, no bounds check
             if length == 1:
                 axis = 0 if self.rank == 1 else 1
                 if loc[0] < 0 or loc[0] >= self.shape[axis]:
@@ -175,9 +171,7 @@ class MoralTensorV3(BaseModel):
                 )
             for i, idx in enumerate(loc):
                 if idx < 0 or idx >= self.shape[i]:
-                    raise ValueError(
-                        f"veto_location {loc} index out of range at axis {i}"
-                    )
+                    raise ValueError(f"veto_location {loc} index out of range at axis {i}")
         return self
 
     # ---------- constructors ----------
@@ -206,9 +200,7 @@ class MoralTensorV3(BaseModel):
     def get_cell(self, *indices: int) -> float:
         """Return the float value at `indices`. Length must equal rank."""
         if len(indices) != self.rank:
-            raise ValueError(
-                f"get_cell needs {self.rank} indices; got {len(indices)}"
-            )
+            raise ValueError(f"get_cell needs {self.rank} indices; got {len(indices)}")
         node: Any = self.values
         for i in indices:
             node = node[i]
@@ -276,7 +268,11 @@ class MoralTensorV3(BaseModel):
         """
         import numpy as np  # noqa: PLC0415
 
-        arr = np.asarray(deme_tensor._data) if not isinstance(deme_tensor._data, np.ndarray) else deme_tensor._data
+        arr = (
+            np.asarray(deme_tensor._data)
+            if not isinstance(deme_tensor._data, np.ndarray)
+            else deme_tensor._data
+        )
         return cls(
             rank=int(deme_tensor.rank),
             shape=tuple(int(x) for x in deme_tensor.shape),

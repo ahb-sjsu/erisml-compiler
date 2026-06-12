@@ -4,6 +4,7 @@ Bundles everything needed to evaluate or contest the verdict into a single
 HTML file with embedded CSS and (optionally) a base64-embedded timeline
 plot. No external assets: a reviewer can email it, save it, archive it.
 """
+
 from __future__ import annotations
 
 import base64

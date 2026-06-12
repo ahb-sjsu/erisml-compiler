@@ -7,6 +7,7 @@ decision verbs ('shall', 'must', 'choose', 'must decide') are classified as
 `background`. Phase 2 will replace heuristic tagging with a learned
 classifier.
 """
+
 from __future__ import annotations
 
 import re

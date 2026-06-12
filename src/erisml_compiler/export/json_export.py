@@ -1,4 +1,5 @@
 """JSON export and round-trip."""
+
 from __future__ import annotations
 
 import json

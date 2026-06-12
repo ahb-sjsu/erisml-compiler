@@ -5,27 +5,59 @@ Substring/fragment match against the canonical-form descriptions in
 Used as the default when sentence-transformers is not installed, and as
 the fallback when LaBSE fails to load.
 """
+
 from __future__ import annotations
 
 import re
 
 from erisml_compiler.canonicalizer.base import CanonicalizationResult, Canonicalizer
 
-
-STOPWORDS = frozenset({
-    "a", "an", "the", "and", "or", "of", "to", "in", "by", "on", "for", "with",
-    "that", "this", "is", "are", "was", "were", "be", "been", "being",
-    "as", "at", "from", "not", "no", "but", "if", "then", "else", "than",
-    "into", "over", "under", "through", "between", "against",
-})
+STOPWORDS = frozenset(
+    {
+        "a",
+        "an",
+        "the",
+        "and",
+        "or",
+        "of",
+        "to",
+        "in",
+        "by",
+        "on",
+        "for",
+        "with",
+        "that",
+        "this",
+        "is",
+        "are",
+        "was",
+        "were",
+        "be",
+        "been",
+        "being",
+        "as",
+        "at",
+        "from",
+        "not",
+        "no",
+        "but",
+        "if",
+        "then",
+        "else",
+        "than",
+        "into",
+        "over",
+        "under",
+        "through",
+        "between",
+        "against",
+    }
+)
 
 
 def _tokenize(s: str) -> set[str]:
     """Cheap tokenizer: lowercase alphanumeric words minus stopwords."""
-    return {
-        t for t in re.findall(r"[a-z0-9_]+", s.lower())
-        if t not in STOPWORDS and len(t) > 2
-    }
+    return {t for t in re.findall(r"[a-z0-9_]+", s.lower()) if t not in STOPWORDS and len(t) > 2}
 
 
 class RegistryCanonicalizer(Canonicalizer):
@@ -46,8 +78,11 @@ class RegistryCanonicalizer(Canonicalizer):
         summary_tokens = _tokenize(summary)
         if not summary_tokens or not known_forms:
             return CanonicalizationResult(
-                tag=None, confidence=0.0, matched_known_form=False,
-                evidence=["empty summary or empty registry"], backend=self.name,
+                tag=None,
+                confidence=0.0,
+                matched_known_form=False,
+                evidence=["empty summary or empty registry"],
+                backend=self.name,
             )
 
         scores: list[tuple[str, float, set[str]]] = []

@@ -7,6 +7,7 @@ States:
     obtained     ──(coerced_revisit)──> coerced
     coerced, withdrawn  --> terminal absorbing
 """
+
 from __future__ import annotations
 
 from typing import Literal
@@ -24,9 +25,7 @@ class ConsentFSM:
     def __init__(self, subject_id: str, initial: ConsentState = "not_obtained"):
         self.subject_id = subject_id
         self.state: ConsentState = initial
-        self.history: list[tuple[int, ConsentState, ConsentEvent | None]] = [
-            (0, self.state, None)
-        ]
+        self.history: list[tuple[int, ConsentState, ConsentEvent | None]] = [(0, self.state, None)]
 
     def step(self, event_tag: ConsentEvent, time_index: int) -> ConsentState:
         if self.state in ("coerced", "withdrawn"):

@@ -27,6 +27,7 @@ output) because the pooled state is the probe's input — drift here
 quantifies the equivariance failure of the underlying model, and drift
 in the probe output then quantifies how much the probe amplifies it.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -54,11 +55,11 @@ class Rewrite:
 class LayerEquivarianceResult:
     layer_index: int
     rewrite_name: str
-    pooled_cosine_sim: float       # in [-1, 1]; 1 = identical
-    pooled_l2: float               # >= 0; 0 = identical
+    pooled_cosine_sim: float  # in [-1, 1]; 1 = identical
+    pooled_l2: float  # >= 0; 0 = identical
     probe_logits_cosine_sim: float
     probe_logits_l2: float
-    passed: bool                   # both cosine sims above threshold
+    passed: bool  # both cosine sims above threshold
 
 
 @dataclass(frozen=True)

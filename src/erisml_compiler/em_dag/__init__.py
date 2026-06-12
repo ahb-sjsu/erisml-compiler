@@ -12,6 +12,7 @@ This package provides:
     - Concrete EMs in `em_dag.modules`
     - Profile loader for YAML-defined DAGs
 """
+
 from erisml_compiler.em_dag.base import EthicalModule
 from erisml_compiler.em_dag.dag import EMDAG, load_profile
 

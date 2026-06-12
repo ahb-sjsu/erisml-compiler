@@ -23,6 +23,7 @@ All transitions are deterministic given the event tag. This makes the FSM
 amenable to silicon casting: state is a 3-bit register, transition function
 is a small lookup table.
 """
+
 from __future__ import annotations
 
 from typing import Literal
@@ -76,9 +77,7 @@ class CommitmentFSM:
     def __init__(self, commitment: Commitment):
         self.commitment_id = commitment.id
         self.state: CommitmentState = commitment.status
-        self.history: list[tuple[int, CommitmentState, EventTag | None]] = [
-            (0, self.state, None)
-        ]
+        self.history: list[tuple[int, CommitmentState, EventTag | None]] = [(0, self.state, None)]
 
     def step(self, event_tag: EventTag, time_index: int) -> CommitmentState:
         if self.state in TERMINAL_STATES:

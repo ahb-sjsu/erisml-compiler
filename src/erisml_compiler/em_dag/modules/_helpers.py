@@ -5,6 +5,7 @@ They keep individual EMs short and consistent. All arithmetic here is fixed
 sign convention: positive scores indicate the dimension is being respected
 (harm avoided, autonomy honored); negative scores indicate violation.
 """
+
 from __future__ import annotations
 
 from erisml_compiler.ir.schemas import (
@@ -103,7 +104,9 @@ def aggregate_positive(
 
 
 def active_commitments(ir: CompilerIR) -> list[Commitment]:
-    return [c for c in ir.commitments if c.status in ("active", "active_but_defeasible", "fulfilled")]
+    return [
+        c for c in ir.commitments if c.status in ("active", "active_but_defeasible", "fulfilled")
+    ]
 
 
 def violated_commitments(ir: CompilerIR) -> list[Commitment]:

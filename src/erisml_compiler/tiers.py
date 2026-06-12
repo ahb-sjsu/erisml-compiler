@@ -21,6 +21,7 @@ frontends that feed structured input into the same evaluator.
 Tiers 2 and 3 emit the same canonical IR that Tier 1 ingests. The evaluator
 core is shared across all three tiers.
 """
+
 from __future__ import annotations
 
 from enum import Enum
@@ -51,8 +52,7 @@ class CompilerTier(str, Enum):
         if suffix in {".txt", ".md"}:
             return cls.RULES
         raise ValueError(
-            f"Cannot auto-detect tier from extension {suffix!r}. "
-            f"Specify --tier explicitly."
+            f"Cannot auto-detect tier from extension {suffix!r}. " f"Specify --tier explicitly."
         )
 
     @property

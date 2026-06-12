@@ -3,6 +3,7 @@
 Matplotlib is an optional dependency (in the `notebook` extra). The function
 imports it lazily so the core CLI does not require it.
 """
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -13,6 +14,7 @@ from erisml_compiler.ir.schemas import CompilerIR, MORAL_DIMENSIONS
 def save_timeline_plot(ir: CompilerIR, out_path: str | Path) -> Path:
     """Save a 10-dimensional timeline plot. Returns the path to the file."""
     import matplotlib
+
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 

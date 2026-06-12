@@ -15,6 +15,7 @@ a weighted mean (the BI itself) plus per-axis breakdown.
 A high BI indicates the probe extracts culture-invariant moral structure;
 a low BI indicates the probe is using language/period/tradition shortcuts.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass

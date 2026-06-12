@@ -21,6 +21,7 @@ each other:
 Imports here are intentionally light. The torch-dependent paths (equivariance
 test, internal-vector comparison) lazy-import inside their entry points.
 """
+
 from __future__ import annotations
 
 from erisml_compiler.delta.compare import (

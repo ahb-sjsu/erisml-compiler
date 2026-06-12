@@ -4,6 +4,7 @@ Depends on `legitimacy`: a vow extracted by an illegitimate authority is
 void; a vow to commit a wrong is defeasible. Per spec section 8.6:
 'Vows are binding but defeasible.'
 """
+
 from __future__ import annotations
 
 from erisml_compiler.em_dag.base import EthicalModule
@@ -72,8 +73,12 @@ class FidelityEM(EthicalModule):
         return EMOutput(
             module_name=self.name,
             score=DimensionScore(
-                value=0.0, confidence=1.0, uncertainty=0.0, direction="neutral",
-                source_spans=[], explanation="No commitments detected.",
+                value=0.0,
+                confidence=1.0,
+                uncertainty=0.0,
+                direction="neutral",
+                source_spans=[],
+                explanation="No commitments detected.",
             ),
             contributing_facts=[],
             upstream_dependencies=["legitimacy"],

@@ -10,6 +10,7 @@ Typical pairings:
     primary=llm,  critic=llm(diff model)  # cross-model consensus
     primary=rule, critic=mock       # ensure mock fixture matches rule output
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -84,8 +85,7 @@ def critic_pass(
     fact_overlap = _set_overlap(p_fact_kinds, c_fact_kinds)
 
     canonical_agreement = (
-        primary.canonical_form is not None
-        and primary.canonical_form == critic.canonical_form
+        primary.canonical_form is not None and primary.canonical_form == critic.canonical_form
     )
 
     notes: list[str] = []
@@ -104,14 +104,10 @@ def critic_pass(
     # ----- missing kinds in primary -----
     missing_in_primary = c_fact_kinds - p_fact_kinds
     if missing_in_primary:
-        notes.append(
-            f"Critic detected fact kinds primary missed: {sorted(missing_in_primary)}"
-        )
+        notes.append(f"Critic detected fact kinds primary missed: {sorted(missing_in_primary)}")
     missing_in_critic = p_fact_kinds - c_fact_kinds
     if missing_in_critic:
-        notes.append(
-            f"Primary detected fact kinds critic missed: {sorted(missing_in_critic)}"
-        )
+        notes.append(f"Primary detected fact kinds critic missed: {sorted(missing_in_critic)}")
 
     report = CriticReport(
         primary_extractor=primary_name,

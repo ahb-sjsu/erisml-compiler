@@ -4,6 +4,7 @@ Depends on `harm`. Care is the positive counterpart to harm: actively
 protecting vulnerable parties. We compute care strength from `care` facts
 and from the presence of vulnerable stakeholders with protectors.
 """
+
 from __future__ import annotations
 
 from erisml_compiler.em_dag.base import EthicalModule
@@ -38,8 +39,12 @@ class CareEM(EthicalModule):
             )
         else:
             score = DimensionScore(
-                value=0.0, confidence=1.0, uncertainty=0.0, direction="neutral",
-                source_spans=[], explanation="No care-related facts detected.",
+                value=0.0,
+                confidence=1.0,
+                uncertainty=0.0,
+                direction="neutral",
+                source_spans=[],
+                explanation="No care-related facts detected.",
             )
         return EMOutput(
             module_name=self.name,

@@ -1,4 +1,5 @@
 """Load a natural-language text document and attach metadata."""
+
 from __future__ import annotations
 
 import hashlib

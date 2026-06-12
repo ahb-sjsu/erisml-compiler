@@ -1,4 +1,5 @@
 """Annotation: extract stakeholders, commitments, events, ethical facts."""
+
 from erisml_compiler.annotation.base import (
     Extractor,
     ExtractorResult,

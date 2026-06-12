@@ -13,13 +13,14 @@ same 10 moral dimensions, they answer different questions:
 
 The delta lens (Track B) compares the two.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any, Sequence
 
 from erisml_compiler.ir.schemas import MORAL_DIMENSIONS, DimensionScore, MoralVector
-from erisml_compiler.monitor.base import ActivationCapture, LayerActivation
+from erisml_compiler.monitor.base import LayerActivation
 
 
 @dataclass
@@ -31,9 +32,7 @@ class LayerProbeResult:
     pooled_norm: float  # ||pooled||, a coarse activation-magnitude diagnostic
 
 
-def _logits_to_moral_vector(
-    logits, dimensions: Sequence[str] = MORAL_DIMENSIONS
-) -> MoralVector:
+def _logits_to_moral_vector(logits, dimensions: Sequence[str] = MORAL_DIMENSIONS) -> MoralVector:
     """Map a (D,) logits vector to a MoralVector. Logits are assumed to be
     in [-inf, +inf]; we map through tanh -> [-1, 1] and treat |value| as
     confidence. Direction is sign-of-value with a small dead band."""
@@ -112,9 +111,7 @@ class ActivationProbe:
         Accepts both the bare head state_dict and the wrapped form
         produced by `ProbeBackbone.state_dict_for_checkpoint()` (which
         nests under "head"). Raises ValueError on shape mismatch."""
-        if "head" in state_dict and not any(
-            k.startswith("net.") for k in state_dict
-        ):
+        if "head" in state_dict and not any(k.startswith("net.") for k in state_dict):
             sd = state_dict["head"]
         else:
             sd = state_dict
@@ -126,9 +123,7 @@ class ActivationProbe:
         if pooled.ndim != 1:
             raise ValueError(f"Expected pooled (D,), got {tuple(pooled.shape)}")
         if pooled.numel() != self.hidden_dim:
-            raise ValueError(
-                f"Pooled dim {pooled.numel()} != probe hidden_dim {self.hidden_dim}"
-            )
+            raise ValueError(f"Pooled dim {pooled.numel()} != probe hidden_dim {self.hidden_dim}")
 
         with torch.no_grad():
             x = pooled.to(self.device).unsqueeze(0).float()

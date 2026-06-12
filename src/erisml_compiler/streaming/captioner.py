@@ -1,11 +1,11 @@
 """Terminal captioner: render a stream of StreamEvents as live text."""
+
 from __future__ import annotations
 
 import sys
 from typing import IO, Iterable
 
 from erisml_compiler.streaming.streamer import StreamEvent
-
 
 GLYPHS = {
     "pass_start": "[#]",

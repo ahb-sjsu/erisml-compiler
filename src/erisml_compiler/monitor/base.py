@@ -13,6 +13,7 @@ final-layer "moral state" looks fine but whose middle layers encode
 something the head was trained to suppress is exactly the kind of thing
 the delta lens needs visibility into.
 """
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod

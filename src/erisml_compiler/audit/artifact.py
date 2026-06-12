@@ -1,4 +1,5 @@
 """Bundle a self-contained audit artifact (a folder of files)."""
+
 from __future__ import annotations
 
 import json
@@ -59,11 +60,15 @@ def _render_report(ir: CompilerIR) -> str:
     lines.append("")
     lines.append(f"## Stakeholders ({len(ir.stakeholders)})")
     for s in ir.stakeholders:
-        lines.append(f"- **{s.label}** ({s.id}) — type={s.type}, roles={s.roles}, vulnerability={s.vulnerability}")
+        lines.append(
+            f"- **{s.label}** ({s.id}) — type={s.type}, roles={s.roles}, vulnerability={s.vulnerability}"
+        )
     lines.append("")
     lines.append(f"## Commitments ({len(ir.commitments)})")
     for c in ir.commitments:
-        lines.append(f"- {c.id}: {c.type} by {c.holder} → {c.beneficiary or '(no beneficiary)'} | status={c.status}, legitimacy={c.legitimacy}")
+        lines.append(
+            f"- {c.id}: {c.type} by {c.holder} → {c.beneficiary or '(no beneficiary)'} | status={c.status}, legitimacy={c.legitimacy}"
+        )
     lines.append("")
     lines.append(f"## Ethical facts ({len(ir.ethical_facts)})")
     for f in ir.ethical_facts:
@@ -71,12 +76,16 @@ def _render_report(ir: CompilerIR) -> str:
     lines.append("")
     lines.append(f"## Conflicts ({len(ir.conflicts)})")
     for cf in ir.conflicts:
-        lines.append(f"- **{cf.name}** (severity={cf.severity}, status={cf.resolution_status}, escalation={cf.requires_escalation})")
+        lines.append(
+            f"- **{cf.name}** (severity={cf.severity}, status={cf.resolution_status}, escalation={cf.requires_escalation})"
+        )
     lines.append("")
     lines.append("## EM-DAG outputs")
     for name, out in ir.em_outputs.items():
         score = out.score
-        lines.append(f"- **{name}** (dim={out.module_name}): value={score.value:+.3f}, conf={score.confidence:.2f} — {score.explanation}")
+        lines.append(
+            f"- **{name}** (dim={out.module_name}): value={score.value:+.3f}, conf={score.confidence:.2f} — {score.explanation}"
+        )
     lines.append("")
     if ir.deme_verdict:
         v = ir.deme_verdict

@@ -8,6 +8,7 @@ V3 surface (9-dim, rank-1..6 MoralTensorV3) is available from
 `erisml_compiler.ir.v3` and is the consumer-side default for the
 DEME bridge from Phase 2 onward. See `docs/migration/deme_v3_alignment.md`.
 """
+
 from erisml_compiler.ir.schemas import (
     AuditRecord,
     Commitment,

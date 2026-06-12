@@ -5,10 +5,10 @@ opposite signs of significant magnitude. The MVP implementation looks at
 the final MoralVector and at the extractor-supplied conflicts; it leaves
 the conflict objects mostly intact (the extractor knows the most).
 """
+
 from __future__ import annotations
 
 from erisml_compiler.ir.schemas import CompilerIR, Conflict, MoralVector
-
 
 THRESHOLD = 0.5
 
@@ -46,8 +46,7 @@ def detect_conflicts(ir: CompilerIR, vector: MoralVector) -> list[Conflict]:
                     resolution_status="unresolved",
                     requires_escalation=abs(ns.value) > 0.85,
                     description=(
-                        f"Vector-level conflict between positive {pd} and "
-                        f"negative {nd}."
+                        f"Vector-level conflict between positive {pd} and " f"negative {nd}."
                     ),
                 )
             )

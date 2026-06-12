@@ -1,4 +1,5 @@
 """Export the IR as an ErisML-like YAML source file."""
+
 from __future__ import annotations
 
 from pathlib import Path

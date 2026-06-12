@@ -23,6 +23,7 @@ align cleanly:
   - V3 `privacy_protection` has no V2 source. Defaults to 0.0 with
     `metadata["migration"]["synthesised_dims"] = ["privacy_protection"]`.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING

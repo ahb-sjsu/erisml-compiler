@@ -4,11 +4,11 @@ Depends on multiple upstream modules. Repair-residue measures the moral
 debt remaining after an action: when harm has occurred or commitments have
 been violated, repair-residue is high (negative score = repair needed).
 """
+
 from __future__ import annotations
 
 from erisml_compiler.em_dag.base import EthicalModule
 from erisml_compiler.em_dag.modules._helpers import (
-    active_commitments,
     violated_commitments,
 )
 from erisml_compiler.ir.schemas import CompilerIR, DimensionScore, EMOutput
@@ -31,8 +31,12 @@ class RepairEM(EthicalModule):
             return EMOutput(
                 module_name=self.name,
                 score=DimensionScore(
-                    value=0.0, confidence=1.0, uncertainty=0.0, direction="neutral",
-                    source_spans=[], explanation="No repair debt detected.",
+                    value=0.0,
+                    confidence=1.0,
+                    uncertainty=0.0,
+                    direction="neutral",
+                    source_spans=[],
+                    explanation="No repair debt detected.",
                 ),
                 contributing_facts=[],
                 upstream_dependencies=list(self.dependencies),

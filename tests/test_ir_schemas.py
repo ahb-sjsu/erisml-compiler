@@ -1,4 +1,5 @@
 """Schema validation tests."""
+
 import pytest
 from pydantic import ValidationError
 
@@ -6,7 +7,6 @@ from erisml_compiler.ir.schemas import (
     Commitment,
     Conflict,
     DimensionScore,
-    Document,
     EthicalFact,
     SourceSpan,
     Stakeholder,

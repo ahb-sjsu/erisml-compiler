@@ -39,12 +39,13 @@ When erisml-lib is not installed, all entry points raise a clear
 ImportError pointing at the migration doc. Phase 2's fallback path
 remains active in the orchestrator for that case.
 """
+
 from __future__ import annotations
 
 import logging
 from typing import TYPE_CHECKING, Any
 
-from erisml_compiler.ir.schemas import CompilerIR, EthicalFact, Stakeholder
+from erisml_compiler.ir.schemas import CompilerIR, EthicalFact
 from erisml_compiler.ir.v3 import MoralTensorV3
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -61,7 +62,7 @@ _SEVERITY_MAGNITUDE: dict[str | None, float] = {
     "moderate": 0.5,
     "grave": 0.75,
     "catastrophic": 1.0,
-    None: 0.5,   # default when extractor didn't tag severity
+    None: 0.5,  # default when extractor didn't tag severity
 }
 
 # Maps the compiler's EthicalFactKind to the V2 EthicalFacts field(s) it
@@ -71,31 +72,31 @@ _SEVERITY_MAGNITUDE: dict[str | None, float] = {
 #   ("flag", True)        — set boolean field to True
 #   ("inc", magnitude)    — add magnitude to a float field
 _FACT_KIND_TO_V2_FIELD: dict[str, list[tuple[str, str]]] = {
-    "harm":              [("consequences.expected_harm", "max")],
-    "non_maleficence":   [("consequences.expected_harm", "max")],
-    "coercion":          [
+    "harm": [("consequences.expected_harm", "max")],
+    "non_maleficence": [("consequences.expected_harm", "max")],
+    "coercion": [
         ("autonomy_and_agency.coercion_or_undue_influence", "flag"),
         ("autonomy_and_agency.has_meaningful_choice", "unflag"),
     ],
-    "consent":           [
+    "consent": [
         ("rights_and_duties.has_valid_consent", "unflag_if_grave"),
         ("autonomy_and_agency.informed_consent", "flag_if_consent_present"),
     ],
-    "legitimacy":        [
+    "legitimacy": [
         ("procedural_and_legitimacy.legitimacy_score", "max"),
     ],
-    "vulnerability":     [
+    "vulnerability": [
         ("justice_and_fairness.exploits_vulnerable_population", "flag"),
         ("societal_and_environmental.burden_on_vulnerable_groups", "max"),
     ],
-    "uncertainty":       [("epistemic_status.uncertainty_level", "max")],
-    "externality":       [("societal_and_environmental.long_term_societal_risk", "max")],
-    "justice":           [("justice_and_fairness.distributive_pattern", "set_str")],
-    "care":              [("virtue_and_care.expresses_compassion", "flag")],
-    "truth":             [("virtue_and_care.respects_person_as_end", "flag")],
-    "deception":         [("virtue_and_care.betrays_trust", "flag")],
-    "role_duty":         [("rights_and_duties.role_duty_conflict", "flag")],
-    "reciprocity":       [],  # no clean V2 mapping; stored in metadata
+    "uncertainty": [("epistemic_status.uncertainty_level", "max")],
+    "externality": [("societal_and_environmental.long_term_societal_risk", "max")],
+    "justice": [("justice_and_fairness.distributive_pattern", "set_str")],
+    "care": [("virtue_and_care.expresses_compassion", "flag")],
+    "truth": [("virtue_and_care.respects_person_as_end", "flag")],
+    "deception": [("virtue_and_care.betrays_trust", "flag")],
+    "role_duty": [("rights_and_duties.role_duty_conflict", "flag")],
+    "reciprocity": [],  # no clean V2 mapping; stored in metadata
 }
 
 
@@ -285,7 +286,8 @@ def compile_to_v3_tensor(
     except Exception as e:  # noqa: BLE001
         log.warning(
             "V3 bridge: direct facts builder raised %s; falling back to V2 aggregation: %s",
-            type(e).__name__, e,
+            type(e).__name__,
+            e,
         )
         v2_facts = ir_to_v2_facts(ir)
         v3_facts = EthicalFactsV3.from_v2(v2_facts, parties=party_ids)
@@ -305,7 +307,8 @@ def compile_to_v3_tensor(
         except Exception as e:
             log.warning(
                 "V3 bridge: module %s raised %s; skipping",
-                getattr(module, "em_name", module.__class__.__name__), e,
+                getattr(module, "em_name", module.__class__.__name__),
+                e,
             )
             continue
         # The module's moral_tensor is rank-2 (9, n). Pull values.
@@ -317,16 +320,15 @@ def compile_to_v3_tensor(
         if arr.shape != (9, len(party_ids)):
             log.debug(
                 "V3 bridge: module %s returned shape %s; reshaping skipped",
-                module.em_name, arr.shape,
+                module.em_name,
+                arr.shape,
             )
             continue
         weight = float(getattr(module, "default_weight", 1.0))
         weighted_values += weight * arr
         weight_total += weight
         veto_flags.extend(getattr(mt, "veto_flags", []))
-        veto_locations.extend(
-            tuple(int(x) for x in v) for v in getattr(mt, "veto_locations", [])
-        )
+        veto_locations.extend(tuple(int(x) for x in v) for v in getattr(mt, "veto_locations", []))
         reason_codes.extend(getattr(mt, "reason_codes", []))
         # Accumulate per-party verdicts across modules.
         for pid, v in getattr(judgement, "per_party_verdicts", {}).items():
@@ -358,7 +360,9 @@ def compile_to_v3_tensor(
         veto_locations=veto_locations,
         reason_codes=reason_codes,
         metadata={
-            "build_strategy": "phase4_v3_bridge" if facts_source == "direct" else "phase3_v3_bridge",
+            "build_strategy": (
+                "phase4_v3_bridge" if facts_source == "direct" else "phase3_v3_bridge"
+            ),
             "facts_source": facts_source,
             "modules_invoked": [m.em_name for m in modules],
             "aggregation": aggregation,

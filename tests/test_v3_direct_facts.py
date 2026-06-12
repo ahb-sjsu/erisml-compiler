@@ -1,4 +1,5 @@
 """Phase 4 — direct EthicalFactsV3 builder + per-party divergence + IR metrics."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -12,7 +13,6 @@ from erisml_compiler.ir.schemas import CompilerIR
 from erisml_compiler.pipeline.orchestrator import CompileOptions, compile_document
 from erisml_compiler.tiers import CompilerTier
 
-
 EXAMPLES_DIR = Path(__file__).parent.parent / "examples"
 
 
@@ -21,7 +21,9 @@ def nazi_attic_ir() -> CompilerIR:
     return compile_document(
         EXAMPLES_DIR / "nazi_attic.txt",
         CompileOptions(
-            tier=CompilerTier.RULES, extractor="mock", canonicalizer=None,
+            tier=CompilerTier.RULES,
+            extractor="mock",
+            canonicalizer=None,
             tensor_rank=2,
         ),
     )
@@ -106,9 +108,9 @@ def test_per_party_verdicts_have_meaningful_distribution(nazi_attic_ir):
     """In nazi_attic, at least one party should get a non-neutral
     verdict (forbid for the harmed parties)."""
     verdicts = nazi_attic_ir.per_party_verdicts
-    assert any(v != "neutral" for v in verdicts.values()), (
-        f"All verdicts neutral suggests modules didn't engage: {verdicts}"
-    )
+    assert any(
+        v != "neutral" for v in verdicts.values()
+    ), f"All verdicts neutral suggests modules didn't engage: {verdicts}"
 
 
 # ---------- fairness metrics surfaced on IR ----------
@@ -137,6 +139,4 @@ def test_veto_locations_use_single_axis_convention(nazi_attic_ir):
     t = nazi_attic_ir.moral_tensor_v3
     if t.veto_locations:
         for loc in t.veto_locations:
-            assert len(loc) in (0, 1, t.rank), (
-                f"veto_location {loc} has unexpected length"
-            )
+            assert len(loc) in (0, 1, t.rank), f"veto_location {loc} has unexpected length"

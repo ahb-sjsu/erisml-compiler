@@ -1,11 +1,11 @@
 """EM-DAG layer tests: cycle detection, topological order, profile loading."""
+
 from pathlib import Path
 
 import pytest
 
 from erisml_compiler.em_dag import EMDAG, load_profile
 from erisml_compiler.em_dag.base import EthicalModule
-from erisml_compiler.em_dag.modules import LegitimacyEM, HarmEM, AutonomyEM
 from erisml_compiler.ir.schemas import (
     CompilerIR,
     DimensionScore,
@@ -13,7 +13,14 @@ from erisml_compiler.ir.schemas import (
     EMOutput,
 )
 
-PROFILE_PATH = Path(__file__).parent.parent / "src" / "erisml_compiler" / "em_dag" / "profiles" / "default.yaml"
+PROFILE_PATH = (
+    Path(__file__).parent.parent
+    / "src"
+    / "erisml_compiler"
+    / "em_dag"
+    / "profiles"
+    / "default.yaml"
+)
 
 
 def test_default_profile_loads_and_validates():
@@ -33,20 +40,25 @@ def test_default_profile_loads_and_validates():
 
 def test_dag_rejects_cycles():
     """Construct a synthetic cycle and ensure detection."""
+
     class A(EthicalModule):
         name, dimension, dependencies = "a", "physical_harm", ("b",)
+
         def evaluate(self, ir, upstream):
             return EMOutput(
                 module_name="a",
                 score=DimensionScore(value=0.0, direction="neutral"),
             )
+
     class B(EthicalModule):
         name, dimension, dependencies = "b", "rights_respect", ("a",)
+
         def evaluate(self, ir, upstream):
             return EMOutput(
                 module_name="b",
                 score=DimensionScore(value=0.0, direction="neutral"),
             )
+
     with pytest.raises(ValueError, match="cycle"):
         EMDAG([A(), B()])
 
@@ -54,11 +66,13 @@ def test_dag_rejects_cycles():
 def test_dag_rejects_missing_dependency():
     class C(EthicalModule):
         name, dimension, dependencies = "c", "physical_harm", ("nonexistent",)
+
         def evaluate(self, ir, upstream):
             return EMOutput(
                 module_name="c",
                 score=DimensionScore(value=0.0, direction="neutral"),
             )
+
     with pytest.raises(ValueError, match="dependency"):
         EMDAG([C()])
 

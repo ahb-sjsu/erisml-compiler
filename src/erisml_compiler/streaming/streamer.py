@@ -4,12 +4,13 @@ Each StreamEvent is a structured record describing what just changed in
 moral state. The captioner renders the stream as live text; the HTML
 report writer consumes the same stream to build the timeline section.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Iterator
 
-from erisml_compiler.ir.schemas import CompilerIR, EMOutput, MoralVector, TimelineEntry
+from erisml_compiler.ir.schemas import CompilerIR, EMOutput, MoralVector
 
 
 @dataclass

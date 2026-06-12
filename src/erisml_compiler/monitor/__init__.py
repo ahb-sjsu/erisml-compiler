@@ -10,6 +10,7 @@ internal moral state of a deployed model. Three lenses:
 The safety property: when the three lenses disagree, raise
 `requires_human_review` instead of collapsing to a verdict.
 """
+
 from __future__ import annotations
 
 from erisml_compiler.monitor.base import (

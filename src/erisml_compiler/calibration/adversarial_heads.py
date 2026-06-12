@@ -10,6 +10,7 @@ Heads' loss enters the total loss with a configurable lambda. The
 gradient-reversal layer (in losses.py) flips the sign on the way back
 to the encoder.
 """
+
 from __future__ import annotations
 
 import torch
@@ -64,10 +65,12 @@ class MultiHeadAdversarial(nn.Module):
             {"hidden_dim": 128, "n_layers": 2, "dropout": 0.4},
             {"hidden_dim": 256, "n_layers": 4, "dropout": 0.2},
         ]
-        self.heads = nn.ModuleList([
-            AdversarialHead(in_dim=in_dim, num_classes=num_classes, **configs[i % len(configs)])
-            for i in range(n_heads)
-        ])
+        self.heads = nn.ModuleList(
+            [
+                AdversarialHead(in_dim=in_dim, num_classes=num_classes, **configs[i % len(configs)])
+                for i in range(n_heads)
+            ]
+        )
         self.adversarial_lambda = adversarial_lambda
 
     def forward(self, z: torch.Tensor) -> list[torch.Tensor]:

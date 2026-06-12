@@ -26,6 +26,7 @@ Subjects missing entirely from `fact.subjects`:
   - this keeps the bridge correct on extractors that don't yet tag
     subjects (mock_extractor for whistleblower, for instance).
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
@@ -269,9 +270,9 @@ def ir_to_v3_facts(ir: CompilerIR) -> Any:
     epistemic_status = EpistemicStatusV3(
         uncertainty_level=_clamp01(epistemic_uncertainty),
         evidence_quality=(
-            "low" if epistemic_uncertainty > 0.6
-            else "medium" if epistemic_uncertainty > 0.3
-            else "high"
+            "low"
+            if epistemic_uncertainty > 0.6
+            else "medium" if epistemic_uncertainty > 0.3 else "high"
         ),
         novel_situation_flag=False,
     )

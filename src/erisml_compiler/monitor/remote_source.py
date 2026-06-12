@@ -22,6 +22,7 @@ development use), unacceptable for sustained monitoring. For sustained
 workloads, run the compiler directly on Atlas (use HuggingFaceActivationSource
 there) rather than driving it remotely from a CPU host.
 """
+
 from __future__ import annotations
 
 import base64
@@ -35,7 +36,6 @@ from erisml_compiler.monitor.base import (
     ActivationSource,
     LayerActivation,
 )
-
 
 # Atlas-side harness. Kept compact so it can be passed as a single
 # command-line argument. Reads (model_id, layers, text) from stdin as
@@ -187,9 +187,7 @@ class RemoteAtlasActivationSource(ActivationSource):
         # widen on the next call.
         return [0]
 
-    def capture(
-        self, text: str, *, layers: Sequence[int] | None = None
-    ) -> ActivationCapture:
+    def capture(self, text: str, *, layers: Sequence[int] | None = None) -> ActivationCapture:
         target = list(layers) if layers is not None else self._select_layers()
         req = {
             "model_id": self.model_id,
@@ -217,7 +215,7 @@ class RemoteAtlasActivationSource(ActivationSource):
                 f"stdout: {out[-2000:]!r}\n"
                 f"stderr: {err_bytes.decode('utf-8', errors='replace')[-2000:]!r}"
             )
-        payload_b64 = out[idx + len(marker):].strip().split("\n", 1)[0]
+        payload_b64 = out[idx + len(marker) :].strip().split("\n", 1)[0]
         payload = json.loads(base64.b64decode(payload_b64))
 
         import torch  # local import; remote_source still importable without torch on host

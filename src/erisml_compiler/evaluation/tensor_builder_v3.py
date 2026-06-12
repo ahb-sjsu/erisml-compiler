@@ -17,6 +17,7 @@ outputs and the IR's stakeholder list. Rank semantics:
 This file currently only supports ranks 1 and 2. Higher ranks raise
 `NotImplementedError` so the contract is honest about what's wired.
 """
+
 from __future__ import annotations
 
 from erisml_compiler.em_dag import EMDAG

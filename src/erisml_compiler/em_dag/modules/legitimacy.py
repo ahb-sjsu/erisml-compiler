@@ -1,4 +1,5 @@
 """LegitimacyEM: evaluates legitimacy-trust dimension. No upstream deps."""
+
 from __future__ import annotations
 
 from erisml_compiler.em_dag.base import EthicalModule
@@ -18,8 +19,11 @@ class LegitimacyEM(EthicalModule):
         legit_facts = facts_of_kind(ir, "legitimacy")
         coercion_facts = facts_of_kind(ir, "coercion")
         bad_legitimacy = [
-            f for f in legit_facts
-            if any(kw in (f.description or "").lower() for kw in ("void", "tyrann", "coerc", "fraud"))
+            f
+            for f in legit_facts
+            if any(
+                kw in (f.description or "").lower() for kw in ("void", "tyrann", "coerc", "fraud")
+            )
         ]
         all_bad = bad_legitimacy + coercion_facts
         score = aggregate_negative(all_bad, explanation_prefix="Legitimacy assessment: ")

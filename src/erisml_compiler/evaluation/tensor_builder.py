@@ -9,6 +9,7 @@ This is intentionally simple: it gives us a deterministic, reproducible
 timeline. Phase 2 will replace it with incremental FSM-driven updates
 (only re-evaluate EMs whose dependencies changed) for performance.
 """
+
 from __future__ import annotations
 
 from erisml_compiler.em_dag import EMDAG

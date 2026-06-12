@@ -12,6 +12,7 @@ A single RLEF record bundles:
 The format is intentionally simple JSON so downstream RL-trainer code can
 ingest it without a Pydantic dependency.
 """
+
 from __future__ import annotations
 
 import json

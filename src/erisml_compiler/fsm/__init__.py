@@ -14,6 +14,7 @@ state register with a transition function implemented as combinational
 logic. Bounded memory: O(n_commitments) state registers. Bounded computation
 per event: O(1) per FSM, summed across active FSMs.
 """
+
 from erisml_compiler.fsm.commitment_fsm import CommitmentFSM
 from erisml_compiler.fsm.consent_fsm import ConsentFSM
 from erisml_compiler.fsm.legitimacy_fsm import LegitimacyFSM

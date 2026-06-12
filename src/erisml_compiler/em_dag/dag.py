@@ -1,4 +1,5 @@
 """EMDAG: graph container and topological evaluator."""
+
 from __future__ import annotations
 
 import importlib
@@ -57,9 +58,7 @@ class EMDAG:
                     queue.append(nxt)
         if len(order) != len(self._modules):
             cycle_nodes = [n for n, d in in_degree.items() if d > 0]
-            raise ValueError(
-                f"EM-DAG contains a cycle involving: {cycle_nodes}"
-            )
+            raise ValueError(f"EM-DAG contains a cycle involving: {cycle_nodes}")
         return order
 
     # ------------------------------------------------------------ accessors

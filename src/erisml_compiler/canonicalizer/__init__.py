@@ -12,6 +12,7 @@ Two backends share the `Canonicalizer` interface:
 
 `auto_canonicalizer()` picks LaBSE if available, registry otherwise.
 """
+
 from erisml_compiler.canonicalizer.base import (
     CanonicalizationResult,
     Canonicalizer,

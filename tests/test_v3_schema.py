@@ -1,4 +1,5 @@
 """Phase 1 — MoralTensorV3 schema + V2 migration helpers."""
+
 from __future__ import annotations
 
 import pytest
@@ -14,7 +15,6 @@ from erisml_compiler.ir.v3 import (
     migrate_v2_vector_to_v3,
 )
 from erisml_compiler.ir.v3.tensor import K_DIM
-
 
 # ---------- dimension layout ----------
 
@@ -89,9 +89,7 @@ def test_rank_over_six_rejected():
 def test_values_shape_validation():
     bad = [[0.0] * (K_DIM - 1)]
     with pytest.raises(ValueError):
-        MoralTensorV3(
-            rank=2, shape=(K_DIM, 1), axis_names=("k", "n"), values=bad
-        )
+        MoralTensorV3(rank=2, shape=(K_DIM, 1), axis_names=("k", "n"), values=bad)
 
 
 def test_set_and_get_cell_roundtrip():
@@ -103,8 +101,11 @@ def test_set_and_get_cell_roundtrip():
 def test_metadata_keyed_by_indices():
     t = MoralTensorV3.zeros(shape=(K_DIM, 2))
     md = DimensionMetadata(
-        confidence=0.8, uncertainty=0.2, direction="positive",
-        source_spans=["seg_001:0-10"], explanation="test",
+        confidence=0.8,
+        uncertainty=0.2,
+        direction="positive",
+        source_spans=["seg_001:0-10"],
+        explanation="test",
     )
     t.set_metadata((2, 1), md)
     got = t.get_metadata(2, 1)
@@ -116,18 +117,22 @@ def test_metadata_keyed_by_indices():
 def test_veto_locations_are_arity_checked():
     with pytest.raises(ValueError, match="veto_location"):
         MoralTensorV3(
-            rank=2, shape=(K_DIM, 2), axis_names=("k", "n"),
+            rank=2,
+            shape=(K_DIM, 2),
+            axis_names=("k", "n"),
             values=[[0.0, 0.0]] * K_DIM,
-            veto_locations=[(0, 0, 0)],   # too long for rank=2
+            veto_locations=[(0, 0, 0)],  # too long for rank=2
         )
 
 
 def test_global_veto_allowed():
     t = MoralTensorV3(
-        rank=2, shape=(K_DIM, 2), axis_names=("k", "n"),
+        rank=2,
+        shape=(K_DIM, 2),
+        axis_names=("k", "n"),
         values=[[0.0, 0.0]] * K_DIM,
         veto_flags=["hard_constraint"],
-        veto_locations=[()],   # global
+        veto_locations=[()],  # global
     )
     assert t.veto_flags == ["hard_constraint"]
 
@@ -153,10 +158,16 @@ def test_json_roundtrip():
 def _full_v2_vector(value: float = 0.5) -> MoralVector:
     score = DimensionScore(value=value, confidence=0.8, uncertainty=0.1, direction="positive")
     return MoralVector(
-        physical_harm=score, rights_respect=score, fairness_equity=score,
-        autonomy_consent=score, legitimacy_trust=score, epistemic_quality=score,
-        care_protection=score, vow_fidelity=score,
-        third_party_externality=score, repair_residue=score,
+        physical_harm=score,
+        rights_respect=score,
+        fairness_equity=score,
+        autonomy_consent=score,
+        legitimacy_trust=score,
+        epistemic_quality=score,
+        care_protection=score,
+        vow_fidelity=score,
+        third_party_externality=score,
+        repair_residue=score,
     )
 
 
@@ -197,10 +208,16 @@ def test_migrate_v2_vector_splits_vow_fidelity():
     zero = DimensionScore(value=0.0)
     vow = DimensionScore(value=1.0, confidence=1.0, direction="positive")
     v2 = MoralVector(
-        physical_harm=zero, rights_respect=zero, fairness_equity=zero,
-        autonomy_consent=zero, legitimacy_trust=zero, epistemic_quality=zero,
-        care_protection=zero, vow_fidelity=vow,
-        third_party_externality=zero, repair_residue=zero,
+        physical_harm=zero,
+        rights_respect=zero,
+        fairness_equity=zero,
+        autonomy_consent=zero,
+        legitimacy_trust=zero,
+        epistemic_quality=zero,
+        care_protection=zero,
+        vow_fidelity=vow,
+        third_party_externality=zero,
+        repair_residue=zero,
     )
     t = migrate_v2_vector_to_v3(v2)
     leg_k = MORAL_DIMENSIONS_V3.index("legitimacy_trust")
@@ -217,13 +234,19 @@ def test_migrate_v2_vector_splits_vow_fidelity():
 def test_migrate_v2_tensor_produces_rank2():
     score = DimensionScore(value=0.5, confidence=0.7, direction="positive")
     v2_alice = MoralTensor(
-        stakeholder_id="alice", time_index=0,
+        stakeholder_id="alice",
+        time_index=0,
         by_dimension={
-            "physical_harm": score, "rights_respect": score,
-            "fairness_equity": score, "autonomy_consent": score,
-            "legitimacy_trust": score, "epistemic_quality": score,
-            "care_protection": score, "vow_fidelity": score,
-            "third_party_externality": score, "repair_residue": score,
+            "physical_harm": score,
+            "rights_respect": score,
+            "fairness_equity": score,
+            "autonomy_consent": score,
+            "legitimacy_trust": score,
+            "epistemic_quality": score,
+            "care_protection": score,
+            "vow_fidelity": score,
+            "third_party_externality": score,
+            "repair_residue": score,
         },
     )
     t = migrate_v2_tensor_to_v3([v2_alice], stakeholder_ids=["alice"])

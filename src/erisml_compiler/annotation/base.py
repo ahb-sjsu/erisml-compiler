@@ -1,4 +1,5 @@
 """Extractor abstract base and result type."""
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod

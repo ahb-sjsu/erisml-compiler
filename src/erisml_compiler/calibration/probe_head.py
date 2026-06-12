@@ -13,6 +13,7 @@ Architecture (mirrors sqnd-probe v10.16.9 in spirit, simplified):
 The VIB layer reparameterises z as N(mu, exp(log_var)) and samples z' for
 the probe head input during training. At inference, z' = mu.
 """
+
 from __future__ import annotations
 
 import torch
@@ -88,6 +89,7 @@ class ProbeBackbone(nn.Module):
     ):
         super().__init__()
         from sentence_transformers import SentenceTransformer
+
         self._st = SentenceTransformer(labse_model, device=device)
         for p in self._st.parameters():
             p.requires_grad_(False)

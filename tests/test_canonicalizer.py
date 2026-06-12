@@ -1,4 +1,5 @@
 """Tests for the canonicalizer backends."""
+
 from pathlib import Path
 
 import pytest
@@ -10,7 +11,13 @@ from erisml_compiler.canonicalizer.registry import RegistryCanonicalizer
 
 @pytest.fixture
 def known_forms():
-    path = Path(__file__).parent.parent / "src" / "erisml_compiler" / "ontology" / "canonical_forms.yaml"
+    path = (
+        Path(__file__).parent.parent
+        / "src"
+        / "erisml_compiler"
+        / "ontology"
+        / "canonical_forms.yaml"
+    )
     data = yaml.safe_load(path.read_text(encoding="utf-8"))
     return {tag: entry.get("description", "") for tag, entry in data["canonical_forms"].items()}
 
@@ -80,6 +87,7 @@ def test_labse_canonicalizer_if_available(known_forms):
     # Skip the network-dependent model load by default; this test is
     # marked optional. To opt in, set ERISML_TEST_LABSE=1.
     import os
+
     if not os.environ.get("ERISML_TEST_LABSE"):
         pytest.skip("Set ERISML_TEST_LABSE=1 to run LaBSE load tests.")
 

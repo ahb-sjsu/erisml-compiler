@@ -11,13 +11,13 @@ Optional dependency: `sentence-transformers`. Install via the `[ml]`
 extra. If the model fails to load (missing dep, no network, etc.) the
 auto-canonicalizer falls back to RegistryCanonicalizer.
 """
+
 from __future__ import annotations
 
 import os
 from typing import Any
 
 from erisml_compiler.canonicalizer.base import CanonicalizationResult, Canonicalizer
-
 
 _DEFAULT_MODEL = "sentence-transformers/LaBSE"
 
@@ -42,9 +42,7 @@ class LaBSECanonicalizer(Canonicalizer):
                 "package. Install via `pip install erisml-compiler[ml]`."
             ) from exc
 
-        self.model_name = model_name or os.environ.get(
-            "ERISML_LABSE_MODEL", _DEFAULT_MODEL
-        )
+        self.model_name = model_name or os.environ.get("ERISML_LABSE_MODEL", _DEFAULT_MODEL)
         self.threshold = float(os.environ.get("ERISML_LABSE_THRESHOLD", str(threshold)))
         self.device = device or os.environ.get("ERISML_LABSE_DEVICE", "cpu")
         self._model = SentenceTransformer(self.model_name, device=self.device)
@@ -65,8 +63,11 @@ class LaBSECanonicalizer(Canonicalizer):
     def canonicalize(self, summary: str, known_forms: dict[str, str]) -> CanonicalizationResult:
         if not summary.strip() or not known_forms:
             return CanonicalizationResult(
-                tag=None, confidence=0.0, matched_known_form=False,
-                evidence=["empty summary or empty registry"], backend=self.name,
+                tag=None,
+                confidence=0.0,
+                matched_known_form=False,
+                evidence=["empty summary or empty registry"],
+                backend=self.name,
             )
 
         # Embed the summary.
@@ -75,6 +76,7 @@ class LaBSECanonicalizer(Canonicalizer):
         # Embed each known form's description + tag, and compute cosine
         # similarity. Embeddings are normalized so cosine = dot product.
         import numpy as np
+
         scores: list[tuple[str, float]] = []
         for tag, description in known_forms.items():
             corpus_text = f"{tag.replace('_', ' ')}. {description}"
@@ -92,8 +94,7 @@ class LaBSECanonicalizer(Canonicalizer):
                 evidence=[
                     f"LaBSE cosine similarity={best_score:.3f} over "
                     f"{len(known_forms)} known forms.",
-                    f"Runner-up: {scores[1][0]} ({scores[1][1]:.3f})"
-                    if len(scores) > 1 else "",
+                    f"Runner-up: {scores[1][0]} ({scores[1][1]:.3f})" if len(scores) > 1 else "",
                 ],
                 backend=self.name,
             )

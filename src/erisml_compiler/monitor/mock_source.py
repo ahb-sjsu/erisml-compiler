@@ -7,6 +7,7 @@ positional drift, (b) a text-dependent fixed encoding, and (c) Gaussian
 noise seeded by the (text, layer) pair. This lets tests assert that the
 probe responds to text changes and to layer changes, not just to noise.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -56,9 +57,7 @@ class MockActivationSource(ActivationSource):
     def available_layers(self) -> list[int]:
         return list(range(self._n_layers))
 
-    def capture(
-        self, text: str, *, layers: Sequence[int] | None = None
-    ) -> ActivationCapture:
+    def capture(self, text: str, *, layers: Sequence[int] | None = None) -> ActivationCapture:
         torch = self._torch
         if layers is None:
             layers = self.available_layers()

@@ -10,15 +10,14 @@ Format note: the generated C++ targets **Vitis HLS** (Xilinx). Pragmas
 follow `#pragma HLS` style. The output is a `.cpp` file ready to drop
 into a Vitis HLS project on NRP Coder.
 """
+
 from __future__ import annotations
 
 from textwrap import dedent
-from typing import Any
 
 from erisml_compiler.fsm.commitment_fsm import _TRANSITIONS as COMMITMENT_TRANSITIONS
 from erisml_compiler.fsm.consent_fsm import _TRANSITIONS as CONSENT_TRANSITIONS
 from erisml_compiler.fsm.legitimacy_fsm import _TRANSITIONS as LEGITIMACY_TRANSITIONS
-
 
 # ============================================================================
 # FSM emission
@@ -49,7 +48,7 @@ def _transition_switch(
     terminal_states: list[str] | None = None,
 ) -> str:
     body = [
-        f"    // Terminal states are absorbing.",
+        "    // Terminal states are absorbing.",
     ]
     if terminal_states:
         terminal_or = " || ".join(
@@ -63,7 +62,9 @@ def _transition_switch(
         body.append(f"    case {prefix.upper()}_{state.upper()}:")
         body.append("        switch (event_tag) {")
         for evt, next_state in trans.items():
-            body.append(f"        case {prefix.upper()}_EVT_{evt.upper()}: return {prefix.upper()}_{next_state.upper()};")
+            body.append(
+                f"        case {prefix.upper()}_EVT_{evt.upper()}: return {prefix.upper()}_{next_state.upper()};"
+            )
         body.append("        default: return current;")
         body.append("        }")
     body.append("    default: return current;")
@@ -105,12 +106,22 @@ def emit_fsm_cpp() -> str:
     """Emit the three FSMs (Commitment, Legitimacy, Consent) as one .cpp file."""
     # Commitment
     commit_states = [
-        "active", "active_but_defeasible", "defeated", "fulfilled", "violated", "void", "expired",
+        "active",
+        "active_but_defeasible",
+        "defeated",
+        "fulfilled",
+        "violated",
+        "void",
+        "expired",
     ]
     commit_events = [
-        "fulfilling_event", "violating_event", "expiration_event",
-        "defeasibility_condition_triggered", "defeasibility_resolved_in_favor",
-        "defeasibility_overrides", "legitimacy_collapses",
+        "fulfilling_event",
+        "violating_event",
+        "expiration_event",
+        "defeasibility_condition_triggered",
+        "defeasibility_resolved_in_favor",
+        "defeasibility_overrides",
+        "legitimacy_collapses",
     ]
     commit_block = _emit_one_fsm(
         "Commitment",
@@ -122,11 +133,20 @@ def emit_fsm_cpp() -> str:
 
     # Legitimacy
     legit_states = [
-        "fully_legitimate", "defeasible", "coercive", "tyrannical", "fraudulent", "void",
+        "fully_legitimate",
+        "defeasible",
+        "coercive",
+        "tyrannical",
+        "fraudulent",
+        "void",
     ]
     legit_events = [
-        "procedural_violation", "coercion_detected", "restored",
-        "escalates", "catastrophic_intent", "evidence_revealed",
+        "procedural_violation",
+        "coercion_detected",
+        "restored",
+        "escalates",
+        "catastrophic_intent",
+        "evidence_revealed",
     ]
     legit_block = _emit_one_fsm(
         "Legitimacy",
@@ -139,7 +159,10 @@ def emit_fsm_cpp() -> str:
     # Consent
     consent_states = ["not_obtained", "obtained", "coerced", "withdrawn"]
     consent_events = [
-        "consent_given", "coerced_assent", "withdrawn", "coerced_revisit",
+        "consent_given",
+        "coerced_assent",
+        "withdrawn",
+        "coerced_revisit",
     ]
     consent_block = _emit_one_fsm(
         "Consent",
@@ -164,7 +187,7 @@ def emit_fsm_cpp() -> str:
 
         extern "C" {
         """)
-    footer = "\n}  // extern \"C\"\n"
+    footer = '\n}  // extern "C"\n'
     return header + "\n".join([commit_block, legit_block, consent_block]) + footer
 
 
@@ -191,10 +214,10 @@ def emit_em_dag_pipeline(
     """
     from erisml_compiler.em_dag import load_profile
     from pathlib import Path
+
     if profile_path is None:
         profile_path = (
-            Path(__file__).resolve().parent.parent
-            / "em_dag" / "profiles" / "default.yaml"
+            Path(__file__).resolve().parent.parent / "em_dag" / "profiles" / "default.yaml"
         )
     dag = load_profile(profile_path)
 
@@ -284,7 +307,7 @@ def emit_em_dag_pipeline(
     aggregate += "\n" + "\n".join(out_assignments)
     aggregate += "\n}\n"
 
-    footer = "\n}  // extern \"C\"\n"
+    footer = '\n}  // extern "C"\n'
     return header + "\n".join(module_stubs) + aggregate + footer
 
 

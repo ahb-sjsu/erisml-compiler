@@ -5,13 +5,13 @@ The diff is computed on the canonical JSON dump, organised by collection
 reviewer sees per-entity additions, removals, and per-field changes
 rather than a raw text diff.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Any
 
 from erisml_compiler.ir.schemas import CompilerIR
-
 
 # Top-level collections we diff entity-by-entity (keyed by `id`).
 _KEYED_COLLECTIONS = (
@@ -150,13 +150,9 @@ def diff_irs(old: CompilerIR, new: CompilerIR) -> IRDiff:
         all_ids = set(old_items) | set(new_items)
         for eid in sorted(all_ids):
             if eid not in old_items:
-                diff.entity_diffs.append(
-                    EntityDiff(collection=col, entity_id=eid, added=True)
-                )
+                diff.entity_diffs.append(EntityDiff(collection=col, entity_id=eid, added=True))
             elif eid not in new_items:
-                diff.entity_diffs.append(
-                    EntityDiff(collection=col, entity_id=eid, removed=True)
-                )
+                diff.entity_diffs.append(EntityDiff(collection=col, entity_id=eid, removed=True))
             else:
                 changes = _field_diffs(old_items[eid], new_items[eid])
                 if changes:

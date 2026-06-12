@@ -1,4 +1,5 @@
 """FSM tests: commitment, legitimacy, consent state machines."""
+
 from erisml_compiler.fsm import CommitmentFSM, ConsentFSM, LegitimacyFSM
 from erisml_compiler.ir.schemas import Commitment
 

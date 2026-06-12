@@ -8,6 +8,7 @@ the same num_classes) a layerwise-aggregated MoralVector.
 The aggregation is intentionally coarse — argmax over confidence per
 dimension. The delta lens (Track B) does the actual comparison work.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -131,9 +132,7 @@ class IEIPMonitor:
         self._probes[layer_index] = p
         return p
 
-    def monitor(
-        self, text: str, *, layers: Sequence[int] | None = None
-    ) -> MonitorTrace:
+    def monitor(self, text: str, *, layers: Sequence[int] | None = None) -> MonitorTrace:
         capture = self.source.capture(text, layers=layers)
         return self.monitor_capture(capture)
 

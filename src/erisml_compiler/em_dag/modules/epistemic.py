@@ -1,4 +1,5 @@
 """EpistemicEM: evaluates epistemic-quality dimension. No upstream deps."""
+
 from __future__ import annotations
 
 from erisml_compiler.em_dag.base import EthicalModule
@@ -21,8 +22,11 @@ class EpistemicEM(EthicalModule):
         deception_facts = facts_of_kind(ir, "deception")
         all_facts = truth_facts + deception_facts
         bad = [
-            f for f in all_facts
-            if any(kw in (f.description or "").lower() for kw in ("decept", "lie", "withh", "manipul"))
+            f
+            for f in all_facts
+            if any(
+                kw in (f.description or "").lower() for kw in ("decept", "lie", "withh", "manipul")
+            )
         ]
         score = aggregate_negative(bad, explanation_prefix="Epistemic assessment: ")
         return EMOutput(

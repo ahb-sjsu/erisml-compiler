@@ -4,6 +4,7 @@ Most tests use synthetic tensors directly so they don't require the
 LaBSE network download. The `train_probe` smoke test is gated on
 `ERISML_TEST_LABSE=1` since it downloads ~500MB on first run.
 """
+
 import os
 import pytest
 
@@ -16,7 +17,6 @@ from erisml_compiler.calibration.adversarial_heads import (
 from erisml_compiler.calibration.bond_index import compute_bond_index
 from erisml_compiler.calibration.dataset import (
     ProbeBatch,
-    ProbeTrainingDataset,
     synthetic_dataset,
 )
 from erisml_compiler.calibration.losses import (
@@ -25,7 +25,6 @@ from erisml_compiler.calibration.losses import (
     spectral_decoupling_loss,
     vib_kl_loss,
 )
-
 
 # ---------- losses ----------
 
@@ -44,7 +43,7 @@ def test_spectral_decoupling_high_when_correlated():
     torch.manual_seed(0)
     idx = torch.randint(0, 4, (128,))
     n = torch.nn.functional.one_hot(idx, num_classes=4).float()
-    z = n.clone()                          # z literally is the nuisance
+    z = n.clone()  # z literally is the nuisance
     z = torch.cat([z, torch.randn(128, 12)], dim=1)
     loss = spectral_decoupling_loss(z, n)
     assert loss.item() > 0.1

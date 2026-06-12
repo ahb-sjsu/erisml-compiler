@@ -26,11 +26,11 @@ A failure mode does NOT automatically force a verdict — by design, the
 monitor's only authorised output is `requires_human_review` plus the
 report. Verdicts remain DEME's job.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Sequence
 
 from erisml_compiler.delta.compare import DeltaResult
 from erisml_compiler.delta.equivariance import EquivarianceReport
@@ -194,9 +194,7 @@ def detect_failure_modes(
         fired.append(FailureMode.TEXT_INTERNAL_MISMATCH)
         details[FailureMode.TEXT_INTERNAL_MISMATCH.value] = d
 
-    hit, d = _detect_layerwise_drift(
-        trace, monotone_run_min=monotone_run_min, slope_min=slope_min
-    )
+    hit, d = _detect_layerwise_drift(trace, monotone_run_min=monotone_run_min, slope_min=slope_min)
     if hit:
         fired.append(FailureMode.LAYERWISE_DRIFT)
         details[FailureMode.LAYERWISE_DRIFT.value] = d
@@ -206,9 +204,7 @@ def detect_failure_modes(
         fired.append(FailureMode.GROUP_SYMMETRY_BREAK)
         details[FailureMode.GROUP_SYMMETRY_BREAK.value] = d
 
-    hit, d = _detect_probe_uncertainty_spike(
-        delta, uncertainty_ceiling=uncertainty_ceiling
-    )
+    hit, d = _detect_probe_uncertainty_spike(delta, uncertainty_ceiling=uncertainty_ceiling)
     if hit:
         fired.append(FailureMode.PROBE_UNCERTAINTY_SPIKE)
         details[FailureMode.PROBE_UNCERTAINTY_SPIKE.value] = d

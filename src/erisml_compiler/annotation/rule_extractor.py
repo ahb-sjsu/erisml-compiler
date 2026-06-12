@@ -15,6 +15,7 @@ The rules are organised by concern:
 Phase 2 will augment this with a learned classifier; Phase 3 will replace it
 with an LLM extractor for cases where rules fail.
 """
+
 from __future__ import annotations
 
 import re
@@ -44,8 +45,7 @@ COERCION_KEYWORDS = re.compile(
 )
 
 DECEPTION_KEYWORDS = re.compile(
-    r"\b(lied?|lying|deceiv(?:ed|ing)?|conceal(?:ed|ing)?|hide|hid|"
-    r"hidden|withheld|misled?)\b",
+    r"\b(lied?|lying|deceiv(?:ed|ing)?|conceal(?:ed|ing)?|hide|hid|" r"hidden|withheld|misled?)\b",
     flags=re.IGNORECASE,
 )
 
@@ -62,8 +62,7 @@ PROFESSION_KEYWORDS = re.compile(
 )
 
 VULNERABILITY_KEYWORDS = re.compile(
-    r"\b(refugees?|innocents?|children|elderly|disabled|patients?|"
-    r"hidden|defenseless)\b",
+    r"\b(refugees?|innocents?|children|elderly|disabled|patients?|" r"hidden|defenseless)\b",
     flags=re.IGNORECASE,
 )
 
@@ -86,11 +85,16 @@ class RuleExtractor(Extractor):
         # (Phase 2: replace with proper NER.)
         result.stakeholders.append(
             Stakeholder(
-                id="self", label="Document narrator/subject", type="individual",
-                roles=["agent"], agency="full",
-                vulnerability="moderate", consent_status="n/a",
+                id="self",
+                label="Document narrator/subject",
+                type="individual",
+                roles=["agent"],
+                agency="full",
+                vulnerability="moderate",
+                consent_status="n/a",
                 source_spans=[seg.segment_id + f":0-{len(seg.text)}" for seg in segments[:1]],
-                confidence=0.6, requires_review=True,
+                confidence=0.6,
+                requires_review=True,
             )
         )
 
@@ -107,11 +111,15 @@ class RuleExtractor(Extractor):
                 if not any(s.id == sid for s in result.stakeholders):
                     result.stakeholders.append(
                         Stakeholder(
-                            id=sid, label=m.group(0), type="community",
+                            id=sid,
+                            label=m.group(0),
+                            type="community",
                             roles=["nonconsenting_third_party"],
-                            agency="collective_limited", vulnerability="high",
+                            agency="collective_limited",
+                            vulnerability="high",
                             consent_status="not_obtained",
-                            source_spans=[seg_span_full], confidence=0.7,
+                            source_spans=[seg_span_full],
+                            confidence=0.7,
                             requires_review=True,
                         )
                     )
@@ -122,11 +130,15 @@ class RuleExtractor(Extractor):
                 if not any(s.id == sid for s in result.stakeholders):
                     result.stakeholders.append(
                         Stakeholder(
-                            id=sid, label=m.group(0), type="group",
+                            id=sid,
+                            label=m.group(0),
+                            type="group",
                             roles=["patient", "dependent"],
-                            agency="incapacitated", vulnerability="extreme",
+                            agency="incapacitated",
+                            vulnerability="extreme",
                             consent_status="n/a",
-                            source_spans=[seg_span_full], confidence=0.7,
+                            source_spans=[seg_span_full],
+                            confidence=0.7,
                             requires_review=True,
                         )
                     )
@@ -139,7 +151,9 @@ class RuleExtractor(Extractor):
                 if not any(c.id == cid for c in result.commitments):
                     result.commitments.append(
                         Commitment(
-                            id=cid, type="role_duty", holder="self",
+                            id=cid,
+                            type="role_duty",
+                            holder="self",
                             beneficiary=None,
                             content=f"role_duty_of_{profession}",
                             voluntariness="voluntary",
@@ -157,15 +171,19 @@ class RuleExtractor(Extractor):
                 cid = f"commitment_{evt_counter:03d}"
                 result.events.append(
                     Event(
-                        id=eid, time_index=evt_counter - 1,
-                        type="commitment_made", actor="self",
+                        id=eid,
+                        time_index=evt_counter - 1,
+                        type="commitment_made",
+                        actor="self",
                         content=m.group(0).lower(),
                         source_spans=[seg_span_full],
                     )
                 )
                 result.commitments.append(
                     Commitment(
-                        id=cid, type="vow", holder="self",
+                        id=cid,
+                        type="vow",
+                        holder="self",
                         content=seg.text[:80],
                         voluntariness="voluntary",
                         created_at_event=eid,
@@ -181,24 +199,28 @@ class RuleExtractor(Extractor):
                 fact_counter += 1
                 result.ethical_facts.append(
                     EthicalFact(
-                        id=f"fact_{fact_counter:03d}", kind="coercion",
+                        id=f"fact_{fact_counter:03d}",
+                        kind="coercion",
                         subjects=["self"],
                         description=(
                             f"Coercive language detected: '{seg.text[:80]}...'"
-                            if len(seg.text) > 80 else
-                            f"Coercive language detected: '{seg.text}'"
+                            if len(seg.text) > 80
+                            else f"Coercive language detected: '{seg.text}'"
                         ),
-                        severity="grave", confidence=0.7,
+                        severity="grave",
+                        confidence=0.7,
                         source_spans=[seg_span_full],
                     )
                 )
                 fact_counter += 1
                 result.ethical_facts.append(
                     EthicalFact(
-                        id=f"fact_{fact_counter:03d}", kind="legitimacy",
+                        id=f"fact_{fact_counter:03d}",
+                        kind="legitimacy",
                         subjects=[],
                         description="Authority issuing threats has defeasible or void legitimacy.",
-                        severity="grave", confidence=0.7,
+                        severity="grave",
+                        confidence=0.7,
                         source_spans=[seg_span_full],
                     )
                 )
@@ -207,23 +229,24 @@ class RuleExtractor(Extractor):
             collective_present = COLLECTIVE_TARGETS.search(seg.text)
             harm_signal = re.search(
                 r"\b(kill|murder|harm|destroy|hurt|threaten)\b",
-                seg.text, flags=re.IGNORECASE,
+                seg.text,
+                flags=re.IGNORECASE,
             )
             if collective_present and harm_signal:
                 fact_counter += 1
                 collective_label = collective_present.group(0).lower()
                 result.ethical_facts.append(
                     EthicalFact(
-                        id=f"fact_{fact_counter:03d}", kind="externality",
+                        id=f"fact_{fact_counter:03d}",
+                        kind="externality",
                         subjects=[
-                            s.id for s in result.stakeholders
-                            if collective_label in s.label.lower()
+                            s.id for s in result.stakeholders if collective_label in s.label.lower()
                         ],
                         description=(
-                            f"Catastrophic non-consensual risk to "
-                            f"{collective_label}."
+                            f"Catastrophic non-consensual risk to " f"{collective_label}."
                         ),
-                        severity="catastrophic", confidence=0.75,
+                        severity="catastrophic",
+                        confidence=0.75,
                         source_spans=[seg_span_full],
                     )
                 )
@@ -233,10 +256,12 @@ class RuleExtractor(Extractor):
                 fact_counter += 1
                 result.ethical_facts.append(
                     EthicalFact(
-                        id=f"fact_{fact_counter:03d}", kind="deception",
+                        id=f"fact_{fact_counter:03d}",
+                        kind="deception",
                         subjects=["self"],
                         description="Deception or concealment language detected.",
-                        severity="moderate", confidence=0.65,
+                        severity="moderate",
+                        confidence=0.65,
                         source_spans=[seg_span_full],
                     )
                 )
@@ -246,13 +271,16 @@ class RuleExtractor(Extractor):
                 fact_counter += 1
                 result.ethical_facts.append(
                     EthicalFact(
-                        id=f"fact_{fact_counter:03d}", kind="care",
+                        id=f"fact_{fact_counter:03d}",
+                        kind="care",
                         subjects=[
-                            s.id for s in result.stakeholders
+                            s.id
+                            for s in result.stakeholders
                             if s.vulnerability in ("high", "extreme")
                         ],
                         description="Protective duty toward vulnerable parties detected.",
-                        severity="grave", confidence=0.7,
+                        severity="grave",
+                        confidence=0.7,
                         source_spans=[seg_span_full],
                     )
                 )

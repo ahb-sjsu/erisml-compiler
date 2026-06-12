@@ -13,6 +13,7 @@ Mathematical references:
   - Confusion loss: -H(p(y_n | z)). Drives the nuisance posterior
     toward uniform, i.e., no classifier can predict y_n from z.
 """
+
 from __future__ import annotations
 
 import torch
@@ -41,7 +42,7 @@ def spectral_decoupling_loss(
     if n_samples <= 1:
         return torch.tensor(0.0, device=z.device)
     cov = (z_c.t() @ n_c) / (n_samples - 1)
-    return (cov ** 2).sum()
+    return (cov**2).sum()
 
 
 def vib_kl_loss(

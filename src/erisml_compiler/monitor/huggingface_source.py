@@ -13,6 +13,7 @@ layers per forward pass. For Qwen2.5-7B (D=3584) at T=128 tokens, a
 single capture is ~1.8 MB per layer. We default to capturing every 4th
 layer plus the final layer to keep this bounded.
 """
+
 from __future__ import annotations
 
 from typing import Sequence
@@ -23,20 +24,19 @@ from erisml_compiler.monitor.base import (
     LayerActivation,
 )
 
-
 # Per-architecture candidate paths to the transformer block list. We try
 # in order; first one that resolves wins. The duplicate (`model.layers`
 # vs `model.model.layers`) is because `AutoModel` returns the base model
 # directly for Qwen/LLaMA-family architectures, whereas
 # `AutoModelForCausalLM` wraps it under `.model`. We accept both.
 _LAYER_PATH_BY_ARCH = {
-    "qwen2":    [("model", "layers"), ("layers",)],
-    "qwen3":    [("model", "layers"), ("layers",)],
-    "llama":    [("model", "layers"), ("layers",)],
-    "mistral":  [("model", "layers"), ("layers",)],
-    "gpt2":     [("transformer", "h"), ("h",)],
-    "bert":     [("encoder", "layer"), ("bert", "encoder", "layer")],
-    "roberta":  [("encoder", "layer"), ("roberta", "encoder", "layer")],
+    "qwen2": [("model", "layers"), ("layers",)],
+    "qwen3": [("model", "layers"), ("layers",)],
+    "llama": [("model", "layers"), ("layers",)],
+    "mistral": [("model", "layers"), ("layers",)],
+    "gpt2": [("transformer", "h"), ("h",)],
+    "bert": [("encoder", "layer"), ("bert", "encoder", "layer")],
+    "roberta": [("encoder", "layer"), ("roberta", "encoder", "layer")],
 }
 
 
@@ -137,9 +137,7 @@ class HuggingFaceActivationSource(ActivationSource):
         else:
             for li in layers:
                 if li < 0 or li >= total_layers:
-                    raise ValueError(
-                        f"layer {li} outside [0, {total_layers}) for {model_id}"
-                    )
+                    raise ValueError(f"layer {li} outside [0, {total_layers}) for {model_id}")
             self._selected = list(layers)
 
         # Hidden dim — fields differ slightly across architectures.
@@ -174,9 +172,7 @@ class HuggingFaceActivationSource(ActivationSource):
     def available_layers(self) -> list[int]:
         return list(range(self._total_layers))
 
-    def capture(
-        self, text: str, *, layers: Sequence[int] | None = None
-    ) -> ActivationCapture:
+    def capture(self, text: str, *, layers: Sequence[int] | None = None) -> ActivationCapture:
         torch = self._torch
         if layers is not None and set(layers) - set(self._selected):
             raise ValueError(
