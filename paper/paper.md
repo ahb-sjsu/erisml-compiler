@@ -152,7 +152,39 @@ job. The threat model and trust-boundary diagram are documented in
 The package is distributed on PyPI as `erisml-compiler` and on GitHub
 under MIT license. The CLI exposes 12 subcommands including
 `compile`, `validate`, `rlef`, `report`, `bundle`, `calibrate`,
-`correct`, `diff`, `silicon-emit`, `monitor`, `delta`, and `version`. The project ships
+`correct`, `diff`, `silicon-emit`, `monitor`, `delta`, and `version`.
+
+# End-to-end demonstration
+
+To verify that the full Phase 4 pipeline runs against a real
+production-class model, we instantiate the I-EIP Monitor with a
+`HuggingFaceActivationSource` over `Qwen/Qwen2.5-7B-Instruct`
+(28 transformer layers, hidden dimension 3584) hosted on a
+dual-Quadro-GV100 workstation reachable from the host via Tailscale +
+paramiko. We hook every fourth layer plus the final layer
+(layer indices 0, 4, 8, 12, 16, 20, 24, 27) and run the monitor +
+delta + equivariance pipeline on the three bundled scenarios
+(`nazi_attic`, `medical_confidentiality`, `whistleblower`) with
+random (uncalibrated) per-layer probes.
+
+The structural findings reproduce across runs. Activation norms climb
+monotonically through the residual stream on every scenario (e.g.
+`nazi_attic`: 8.8 → 398 → … → 571 at layer 24, dropping to 402 at the
+final layer). Trace hashes are deterministic. The BIP equivariance
+check (`ρ_ℓ = identity`) under a lowercase rewrite fails specifically
+at the final layer on two of three scenarios but passes throughout on
+the third — consistent with the final layer being the locus of
+output-distribution commitment and therefore the most surface-form
+sensitive. With random probes the divergence and direction-break
+counts are noise — calibrated probes against a real moral-language
+corpus are deferred to a separate paper — but the structural
+behaviour (hook resolution, audit-chain anchoring, equivariance
+sensitivity localisation) is precisely what the Phase 4 design
+predicts.
+
+The experiment harness is shipped at
+`scripts/experiments/atlas_phase4_experiment.py` and the per-scenario
+JSON reports at `experiments/phase4/` in the repository. The project ships
 three bundled examples — `nazi_attic.txt`,
 `medical_confidentiality.txt`, `whistleblower.txt` — that cover the
 hardest cases in classical normative ethics (the

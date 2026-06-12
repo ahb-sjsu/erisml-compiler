@@ -67,6 +67,32 @@ def test_mock_source_subset_of_layers():
     assert cap.layer_indices() == [0, 3, 7]
 
 
+def test_layer_path_resolver_handles_both_qwen_loaders():
+    """AutoModel returns base; AutoModelForCausalLM wraps under .model.
+    The resolver must accept both."""
+    import torch.nn as nn
+
+    from erisml_compiler.monitor.huggingface_source import _resolve_layers
+
+    class FakeBase:
+        def __init__(self):
+            self.layers = nn.ModuleList([nn.Linear(4, 4) for _ in range(3)])
+
+    class FakeWrapper:
+        def __init__(self):
+            self.model = FakeBase()
+
+    # AutoModel-style (layers directly under the returned model).
+    base = FakeBase()
+    layers_a = _resolve_layers(base, "qwen2")
+    assert len(layers_a) == 3
+
+    # AutoModelForCausalLM-style (layers under .model).
+    wrap = FakeWrapper()
+    layers_b = _resolve_layers(wrap, "qwen2")
+    assert len(layers_b) == 3
+
+
 def test_mock_source_rejects_out_of_range_layer():
     src = MockActivationSource(n_layers=4)
     with pytest.raises(ValueError):

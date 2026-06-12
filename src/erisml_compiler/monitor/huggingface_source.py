@@ -24,34 +24,39 @@ from erisml_compiler.monitor.base import (
 )
 
 
-# Per-architecture map: how to reach the transformer block list. Keep
-# narrow; extend explicitly as new architectures are supported.
+# Per-architecture candidate paths to the transformer block list. We try
+# in order; first one that resolves wins. The duplicate (`model.layers`
+# vs `model.model.layers`) is because `AutoModel` returns the base model
+# directly for Qwen/LLaMA-family architectures, whereas
+# `AutoModelForCausalLM` wraps it under `.model`. We accept both.
 _LAYER_PATH_BY_ARCH = {
-    # LLaMA / Mistral / Qwen2 / Qwen2.5 family: model.model.layers
-    "qwen2": ("model", "layers"),
-    "qwen3": ("model", "layers"),
-    "llama": ("model", "layers"),
-    "mistral": ("model", "layers"),
-    # Older GPT-2-like: transformer.h
-    "gpt2": ("transformer", "h"),
-    # BERT-family: encoder.layer
-    "bert": ("encoder", "layer"),
-    "roberta": ("encoder", "layer"),
+    "qwen2":    [("model", "layers"), ("layers",)],
+    "qwen3":    [("model", "layers"), ("layers",)],
+    "llama":    [("model", "layers"), ("layers",)],
+    "mistral":  [("model", "layers"), ("layers",)],
+    "gpt2":     [("transformer", "h"), ("h",)],
+    "bert":     [("encoder", "layer"), ("bert", "encoder", "layer")],
+    "roberta":  [("encoder", "layer"), ("roberta", "encoder", "layer")],
 }
 
 
 def _resolve_layers(model, model_type: str):
     """Return the layer ModuleList for the given model.
 
-    Falls back to a recursive search if the architecture is not in
-    `_LAYER_PATH_BY_ARCH`.
+    Tries the candidate paths for the architecture first, then falls
+    back to a recursive search if none resolve.
     """
-    path = _LAYER_PATH_BY_ARCH.get(model_type)
-    if path is not None:
+    candidates = _LAYER_PATH_BY_ARCH.get(model_type, [])
+    for path in candidates:
         node = model
+        ok = True
         for attr in path:
+            if not hasattr(node, attr):
+                ok = False
+                break
             node = getattr(node, attr)
-        return node
+        if ok:
+            return node
 
     # Fallback: scan for the first ModuleList containing modules with a
     # name matching "*Layer*" or "*Block*". This is best-effort.

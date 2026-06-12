@@ -60,11 +60,14 @@ model = AutoModel.from_pretrained(model_id, dtype=torch_dtype, trust_remote_code
 # Resolve layers — same map as huggingface_source.py.
 mt = getattr(model.config, "model_type", "").lower()
 if mt in ("qwen2", "qwen3", "llama", "mistral"):
-    layer_mods = model.model.layers
+    if hasattr(model, "model") and hasattr(model.model, "layers"):
+        layer_mods = model.model.layers
+    else:
+        layer_mods = model.layers  # AutoModel returns the base model directly
 elif mt == "gpt2":
-    layer_mods = model.transformer.h
+    layer_mods = getattr(model, "transformer", model).h
 elif mt in ("bert", "roberta"):
-    layer_mods = model.encoder.layer
+    layer_mods = getattr(model, "encoder", model).layer
 else:
     raise SystemExit(f"unsupported model_type={mt!r}")
 
