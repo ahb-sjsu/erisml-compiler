@@ -4,6 +4,28 @@ This file states **what is built**, **what is stubbed**, and **what is deferred*
 so a maintainer can compare the running code against the 30-section design spec
 (`ErisML-Compiler.md`) without confusion.
 
+## Component truth table (as of v0.7.0)
+
+| Component                        | Current status              | Production readiness         |
+|----------------------------------|-----------------------------|------------------------------|
+| Text compiler (12-pass pipeline) | shipped                     | alpha                        |
+| DEME V2 (10-dim MoralVector)     | shipped                     | stable-ish (backward-compat) |
+| DEME V3 bridge (Phases 1–4)      | shipped                     | alpha                        |
+| Rank 1–6 tensors (Phase 5)       | shipped                     | alpha                        |
+| Action / coalition `a` axis      | stub (length only)          | research                     |
+| Coalition `c` axis               | real (4 enumeration modes)  | alpha                        |
+| Strategic layer (Phase 6)        | shipped (Shapley + welfare) | alpha                        |
+| DecisionProof (Phase 6)          | shipped (hash-chained)      | alpha                        |
+| I-EIP Monitor (Phase 4)          | shipped                     | sampled-audit only           |
+| Probe extractor (Tier 2.5)       | shipped                     | needs calibrated checkpoints |
+| Calibration provenance on traces | not shipped                 | future (v0.8.0)              |
+| Full ρ-estimation equivariance   | not shipped (identity only) | future (v0.8.0)              |
+| MoralTensor-Bench                | not shipped                 | future (v0.8.0)              |
+| `--strict-v3` enforcement        | shipped (v0.7.0)            | alpha                        |
+| Runtime gating                   | not shipped                 | deferred                     |
+| Web app / FastAPI surface        | not shipped                 | deferred                     |
+| Silicon emit (Vitis HLS C++)     | shipped                     | no FPGA bring-up yet         |
+
 ## Phase 4 additions (in-flight on `main`)
 
 Phase 4 ships the I-EIP Monitor (spec §31 follow-on) — Internal /

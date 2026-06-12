@@ -47,6 +47,15 @@ import logging as _logging
 _v3_log = _logging.getLogger(__name__)
 
 
+class StrictV3Error(RuntimeError):
+    """Raised when --strict-v3 is set and the V3 dispatch path fails.
+
+    The fallback to the Phase 2 V2-migration builder is suppressed in
+    strict mode so a silent downgrade cannot invalidate research /
+    production results.
+    """
+
+
 def _produce_v3_tensor(ir, em_outputs, dag, options):
     """V3 tensor dispatch:
     - rank 1-2 → Phase 3-4 bridge (per-party V3 facts → DEME V3 modules)
@@ -54,7 +63,10 @@ def _produce_v3_tensor(ir, em_outputs, dag, options):
       time / action / coalition / uncertainty axes)
 
     Falls back to the Phase 2 V2-migration tensor builder on ImportError
-    (erisml-lib not installed) or any module exception.
+    (erisml-lib not installed) or any module exception — UNLESS
+    `options.strict_v3` is True, in which case the failure re-raises as
+    `StrictV3Error` (or the original ImportError) so callers can fail
+    loudly instead of silently downgrading.
     """
     rank = options.tensor_rank
     try:
@@ -77,10 +89,21 @@ def _produce_v3_tensor(ir, em_outputs, dag, options):
                 coalition_mode=options.coalition_mode,
             )
             return build_moral_tensor_v3_rank3plus(ir, rank=rank, config=cfg)
-    except ImportError:
+    except ImportError as e:
+        if options.strict_v3:
+            raise StrictV3Error(
+                f"strict_v3=True but erisml-lib (V3 modules) is not installed. "
+                f"Install with `pip install 'erisml-compiler[deme-v3]'` or set "
+                f"strict_v3=False to allow the Phase 2 fallback. Underlying: {e}"
+            ) from e
         _v3_log.info("erisml-lib not installed; using Phase 2 fanout path")
         return build_moral_tensor_v3(ir, em_outputs, dag, rank=min(rank, 2))
     except Exception as e:  # noqa: BLE001
+        if options.strict_v3:
+            raise StrictV3Error(
+                f"strict_v3=True but V3 bridge raised {type(e).__name__}: {e}. "
+                f"Set strict_v3=False to allow the Phase 2 fallback."
+            ) from e
         _v3_log.warning(
             "V3 bridge raised %s; falling back to Phase 2 fanout: %s",
             type(e).__name__,
@@ -111,6 +134,12 @@ class CompileOptions:
     emit_strategic_analysis: bool = True
     emit_decision_proof: bool = True
     coalition_mode: str = "all_subsets"  # for strategic Shapley
+    # When True, the V3 dispatch path (rank 1-6 bridge + higher-rank
+    # builder) must succeed. Any ImportError (erisml-lib missing) or
+    # exception in the bridge re-raises instead of silently falling back
+    # to the Phase 2 V2-migration builder. For research / production
+    # workloads where a silent downgrade would invalidate results.
+    strict_v3: bool = False
 
 
 def _resolve_em_profile(em_profile: str | Path | None) -> EMDAG:

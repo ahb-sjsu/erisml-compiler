@@ -1,0 +1,156 @@
+What's publishable
+
+  Three things are worth thinking about as separate publication tracks:
+
+  1. The compiler itself — software-paper / artifact track. This is the most concretely publishable thing right now. The repo is feature-complete through Phase 4,
+  MIT-licensed, has CI, 142 tests, and a structured ontology of trust boundaries (T1/T2/T3) that the I-EIP Monitor docs make explicit. Good venues: JOSS (Journal of   Open Source Software — short paper describing the software, ~1000 words, rolling review, peer reviewed); NeurIPS Datasets & Benchmarks if you reframe around the
+  moral-IR + 3 example scenarios as a benchmark; IEEE Software or JSS for a longer engineering paper. The thing JOSS will want is one paragraph each on (a)
+  statement of need, (b) summary of the software, (c) state of the field — all of which you already have in the README.
+
+  2. The I-EIP Monitor as a method paper. This is the more novel contribution. "Three-lens monitoring of moral state" + the BIP equivariance test as a
+  probe-validity check + 5 named failure modes that escalate to requires_human_review rather than overruling DEME — that's a methodological story with empirical
+  hooks (the divergence 0.70 / 6-direction-breaks result on nazi_attic is a concrete demonstration). Good venues: AIES (AAAI/ACM Conference on AI, Ethics, and
+  Society); FAccT; NeurIPS Safety workshop; AI Safety Camp preprint then conference. The pitch is: most "alignment monitors" produce a scalar score; we produce a
+  structured disagreement report that preserves the dimensions that justify or defeat a candidate action.
+
+  3. The compiler + spec together as a foundational position paper. "Structure-preserving moral compilation" as a thesis: that scalar reward / scalar score / scalar   verdict discards the dimensions that are the moral content. This would slot into your existing Geometric Ethics book series and could go to Minds & Machines,
+  Philosophy & Technology, or AI & Ethics (Springer Nature). Given how the AI&Law manuscript went last time, I'd suggest AI & Ethics as the lowest-risk first venue.
+  What's not yet ready to publish: claims about trained probes (you have the calibration stack but no calibrated checkpoints against a real moral corpus), claims
+  about silicon performance (the emit works but the bitstream is blocked), and claims about the activation lens on Atlas-hosted models (the source exists and the
+  harness was verified to run, but no peer-reviewable experiment yet).
+
+  My recommendation for the fastest publication: JOSS submission for the software (low risk, ~3 weeks turnaround) + an AIES-2027 method paper for the I-EIP Monitor
+  (deadline typically early March; you'd want one real experiment on Atlas with a 7B model before submission). Both can run in parallel.
+
+
+
+Engineering concerns I would fix next
+1. Release/version skew
+
+This is the first thing I would clean up. main appears to be at v0.7.0, but PyPI and GitHub Releases are at v0.4.0. That means a researcher who follows pip install erisml-compiler will not get the current DEME V3 Phase 6 state described in the README.
+
+Action: cut v0.7.0, publish to PyPI, and add a top-level “version matrix”:
+
+PyPI 0.4.0: Phase 4 I-EIP monitor
+main 0.7.0: DEME V3 Phase 6 / rank 1-6 tensors / strategic proof
+2. The probe path needs calibration provenance
+
+The monitor docs are admirably honest about probe poisoning: trained ActivationProbe weights can be corrupted at training time, serialization time, or load time, and checkpoint provenance is the caller’s responsibility.
+
+For a safety research tool, I would make checkpoint provenance a first-class object, not a recommendation. Every monitor trace should include:
+
+{
+  "probe_checkpoint_hash": "...",
+  "probe_training_corpus_hash": "...",
+  "probe_schema_version": "...",
+  "calibration_metrics": {...},
+  "calibration_date": "...",
+  "model_id": "...",
+  "model_weight_fingerprint": "..."
+}
+
+Without that, activation-lens claims will be hard to defend.
+
+3. ρ = identity is fine for MVP, but not enough for I-EIP claims
+
+The repo’s delta/equivariance docs say the current check uses ρℓ(g)=identity, with default rewrites limited to surface-form transformations like whitespace, case, and trailing period. That is a careful MVP choice, but it is not the full I-EIP representation-map framework from the whitepaper, which estimates ρℓ(g) over activation pairs and supports transformations like paraphrase, unit change, name substitution, order permutation, and role swap.
+
+Action: create a Phase 5/6 milestone for:
+
+transform registry
+semantic rewrite validation
+ρ estimation
+calibration corpus hashing
+per-transform thresholds
+equivariance benchmark suite
+4. Broad V3 fallback could hide regressions
+
+The orchestrator catches ImportError and also catches broad Exception from the V3 bridge/higher-rank path, then falls back to the Phase 2 fanout tensor builder. That is great for demo robustness, but risky for research validity because a real V3 bug can silently downgrade the result unless the warning is inspected.
+
+Action: add a strict flag:
+
+eris-compile compile examples/nazi_attic.txt --rank 6 --strict-v3
+
+In strict mode, V3 bridge failures should fail the command and fail CI.
+
+5. The CLI and docs need one reconciliation pass
+
+The README says the extractor stack includes Mock, Rule, LLM, and Probe; the orchestrator supports "probe" in CompileOptions; but the raw CLI --extractor choices shown by GitHub are only mock, rule, and llm.
+
+Action: either expose probe in the CLI or document why the probe extractor is not exposed through compile yet.
+
+6. deme-v3 dependency packaging needs tightening
+
+The deme-v3 extra currently lists only numpy and comments that erisml-lib publication is pending / local editable install is needed. If the V3 bridge depends on erisml-lib modules such as Geneva and Triage, the install path should be explicit and machine-checkable.
+
+Action: once dependency compatibility is stable, make it something like:
+
+deme-v3 = [
+  "numpy>=1.24",
+  "erisml-lib>=3.0.0"
+]
+
+Or explicitly keep it optional but fail loudly in --strict-v3 mode.
+
+7. The documentation still has some phase drift
+
+SCOPE.md is valuable because it distinguishes built/stubbed/deferred, but it also still contains older caveats from earlier phases. For example, it says Phase 4 ships the monitor and identifies identity-ρ and surface rewrites; elsewhere, the current README says full DEME V3 Phase 6 is complete. That is not contradictory, but it can read as confusing because the repo evolved quickly in one day.
+
+Action: add a single truth table:
+
+Component                     Current status     Production status
+Text compiler                 shipped            alpha
+DEME V2                       shipped            stable-ish
+DEME V3 bridge                shipped            alpha
+Rank 3-6 tensors              shipped            alpha
+Action/coalition axes          partial/stubbed    research
+I-EIP monitor                 shipped            sampled audit only
+Runtime gating                not shipped         future
+Web app                       not shipped         deferred
+Silicon emit                  shipped            no FPGA verification
+8. The empirical validation story needs a named benchmark
+
+The tests are broad, but the system now needs a benchmark that proves the central thesis empirically. I would create:
+
+MoralTensor-Bench v0.1
+
+Include cases like:
+
+vow / promise / oath paraphrases
+Nazi attic / murderer-at-door variants
+third-party risk imposition
+authority legitimacy swaps
+coerced consent
+medical confidentiality
+whistleblower duties
+corporate externality
+military proportionality
+AI reward-hacking redescription
+
+Metrics should include stakeholder recall, commitment detection, legitimacy classification, third-party-risk detection, canonical-form invariance, tensor-rank preservation, and premature-contraction rate.
+
+Fit with your broader thesis
+
+This implementation is very well aligned with the thesis we developed:
+
+Moral reasoning requires tensorial representation because obligations are relational, stakeholder-indexed, temporally extended, and defeasible.
+
+The repo operationalizes that: the README explicitly rejects flat “good/bad/safe/unsafe” labeling and centers stakeholder identity, commitments, legitimate authority, and imposed risk.
+
+The I-EIP extension is also in the right direction, but the current code is wisely conservative. The whitepaper says I-EIP does not solve alignment, cannot detect deceptive alignment with consistent internal representations, cannot catch goals pursued through I-EIP-compliant representations, and only checks transformations in the registry. The repo’s monitor design respects that by raising review flags rather than pretending the activation lens is a moral authority.
+
+My recommended next milestone
+
+I would make the next milestone:
+
+v0.8.0 — Reproducible MoralTensor Benchmark + Strict V3 + Calibrated Probe Provenance
+
+Minimum deliverables:
+
+Publish v0.7.0 to PyPI.
+Add --strict-v3.
+Add probe_checkpoint_hash and calibration provenance to monitor traces.
+Add a real ρ estimation module behind an experimental flag.
+Add MoralTensor-Bench with 50–100 gold scenarios.
+Add a make reproduce-nazi-attic command that emits IR, V3 tensor, DEME verdict, audit hash, monitor trace, delta report, RLEF record, and HTML report.
+Add a “current limitations” block to the README matching the repo’s actual state.

@@ -51,13 +51,15 @@ def cli() -> None:
 )
 @click.option(
     "--extractor",
-    type=click.Choice(["mock", "rule", "llm"]),
+    type=click.Choice(["mock", "rule", "llm", "probe"]),
     default="rule",
-    help="Extractor backend (ignored for tier=geometric).",
+    help="Extractor backend (ignored for tier=geometric). 'probe' requires "
+    "calibrated checkpoints from `eris-compile calibrate`; falls back to "
+    "an uncalibrated probe if no checkpoint is configured.",
 )
 @click.option(
     "--critic",
-    type=click.Choice(["mock", "rule", "llm"]),
+    type=click.Choice(["mock", "rule", "llm", "probe"]),
     default=None,
     help="Critic extractor for cross-extractor consensus. Default: none.",
 )
@@ -118,6 +120,16 @@ def cli() -> None:
     default=0,
     help="Base seed for the Monte Carlo sampler.",
 )
+@click.option(
+    "--strict-v3",
+    "strict_v3",
+    is_flag=True,
+    default=False,
+    help="Fail loudly if the V3 dispatch path raises (erisml-lib missing or "
+    "bridge exception) instead of silently falling back to the Phase 2 "
+    "V2-migration builder. Use for research / production runs where a "
+    "silent downgrade would invalidate results.",
+)
 @click.option("--stream", is_flag=True, help="Stream real-time captions to stdout.")
 def cmd_compile(
     input_file: Path,
@@ -133,6 +145,7 @@ def cmd_compile(
     tensor_n_samples: int,
     tensor_sample_noise_std: float,
     tensor_sample_seed: int,
+    strict_v3: bool,
     stream: bool,
 ) -> None:
     """Compile a document to an IR JSON file."""
@@ -177,6 +190,7 @@ def cmd_compile(
             tensor_n_samples=tensor_n_samples,
             tensor_sample_noise_std=tensor_sample_noise_std,
             tensor_sample_seed=tensor_sample_seed,
+            strict_v3=strict_v3,
         ),
     )
     export_json(ir, out_path)

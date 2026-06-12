@@ -51,10 +51,17 @@ monitor = [
 deme-v3 = [
     # erisml-lib carries the DEME V3 modules (Geneva, Triage, etc.) that
     # the V3 bridge invokes. When this extra is not installed, the
-    # compiler falls back to the Phase 2 V2-migration tensor builder.
-    # Pinned >=3.0 (the V3 sprint). PyPI publication pending; install
-    # editable from local source until that lands.
+    # compiler falls back to the Phase 2 V2-migration tensor builder
+    # (unless --strict-v3 is set, in which case it fails loudly).
     "numpy>=1.24",
+    # NOTE: erisml-lib 3.0.0 is not yet on PyPI; for now this extra
+    # documents the dependency but does NOT install it. Install
+    # editable from source:
+    #   git clone https://github.com/ahb-sjsu/erisml-lib
+    #   pip install -e ./erisml-lib
+    # When erisml-lib is published, uncomment the line below and bump
+    # the extra to install transitively:
+    # "erisml-lib>=3.0.0",
 ]
 test = [
     "pytest>=8.0",
