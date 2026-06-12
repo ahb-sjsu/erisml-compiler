@@ -108,30 +108,59 @@ Probes are trained via `eris-compile calibrate`, checkpointed with
 
 ## DEME V3 alignment
 
-Rolling onto DEME V3's tensor + module model in a documented six-phase
-migration (`docs/migration/deme_v3_alignment.md`). Phases 1–4 of that
-migration are on `main`:
+The compiler is fully aligned with DEME V3's tensor + module model
+(see `docs/migration/deme_v3_alignment.md` for the migration history).
+**All six phases of the alignment have shipped.** Six V3 surface fields
+on `CompilerIR`:
 
-- `ir/v3/` — `MoralTensorV3` Pydantic schema (ranks 1–6, axes
-  `(k, n, τ, a, c, s)`, validators for shape / first-axis-length /
-  single-axis veto convention) + V2→V3 migration helpers.
-- `evaluation/tensor_builder_v3.py` — produces rank-1 (global) or
-  rank-2 (per-stakeholder) tensors as the orchestrator's
-  Phase-2-style fallback when erisml-lib is absent.
-- `erisml_backend/v3_bridge.py` — the production path: builds
-  `EthicalFactsV3` from compiler IR (via `v3_facts_direct.py` —
-  per-party attribution from `EthicalFact.subjects`), invokes
-  registered V3 modules (`GenevaEMV3`, `TriageEMV3`), aggregates
-  their per-party `MoralTensor`s by `default_weight`, surfaces
-  per-party verdicts + Gini-over-harm + worst-off party as IR
-  top-level fields.
-- The compiler's V2 surface (10-dim `MoralVector`, per-stakeholder
-  `MoralTensor`, V2 EM-DAG) remains alive for backward-compatibility;
-  Phase 5–6 of the migration may deprecate it once silicon and the
-  I-EIP Monitor migrate.
+- `ir.moral_tensor_v3: MoralTensorV3` — ranks 1–6 over axes `(k, n, τ, a, c, s)`
+- `ir.per_party_verdicts: dict[stakeholder_id, str]` — conservative aggregate
+- `ir.fairness_metrics: dict[str, float]` — `gini_harm`, `worst_off_harm_value`
+- `ir.strategic_analysis: dict` — Shapley values per stakeholder + welfare metrics
+- `ir.decision_proof: dict` — hash-chained tamper-evident decision provenance
+- `ir.schema_version = "erisml_compiler_ir_v0.2"`
 
-`--rank N` on `eris-compile compile` selects the V3 tensor rank
-(1 or 2 today; 3–6 land in V3-5).
+Modules:
+
+- `ir/v3/` — `MoralTensorV3` Pydantic schema (ranks 1–6, validators for
+  shape / first-axis-length / single-axis veto convention) + V2→V3
+  migration helpers. JSON-serialisable mirror of
+  `erisml.ethics.moral_tensor.MoralTensor`.
+- `evaluation/tensor_builder_v3.py` — Phase-2-style fallback (rank 1
+  or 2) when erisml-lib is absent; the bridge takes over otherwise.
+- `erisml_backend/v3_facts_direct.py` — builds `EthicalFactsV3`
+  directly from compiler IR with per-party attribution from
+  `EthicalFact.subjects`; cross-dimensional propagation rules
+  (coercion → harm + rights, externality → harm + societal, …) make
+  signals from one fact-kind register on multiple V3 dimensions.
+- `erisml_backend/v3_bridge.py` — invokes registered V3 modules
+  (`GenevaEMV3`, `TriageEMV3`), aggregates by `default_weight`,
+  produces rank-1 / rank-2 tensors with per-party verdicts +
+  fairness metrics.
+- `erisml_backend/v3_higher_rank.py` — stacks rank-2 slices into
+  ranks 3-6. Real axes: τ (event-timeline filtering), s (Monte Carlo).
+- `erisml_backend/v3_phase6.py` — Shapley attribution + welfare
+  metrics + hash-chained `DecisionProof`. Also injects real
+  coalition semantics on the c axis: per-coalition rank-2 slices
+  via `grand_only` / `all_subsets` / `singletons_only` / `pairwise`
+  enumeration, with non-coalition members zeroed.
+
+The V2 surface (10-dim `MoralVector`, per-stakeholder `MoralTensor`,
+V2 EM-DAG) remains alive for backward compatibility. The V2
+`moral_vectors` field and `timeline` list still populate on every
+compile; consumers gradually migrating to V3 can keep both.
+
+CLI knobs:
+
+```
+eris-compile compile <input> \
+  --rank {1..6} \
+  --n-actions N --n-coalitions N --n-samples N \
+  --sample-noise STD --sample-seed N
+```
+
+The `--coalition-mode` for strategic-side Shapley enumeration is fixed
+at `all_subsets` today; expose as a CLI flag in a future iteration.
 
 ## Audit
 
@@ -236,7 +265,7 @@ audit on sampled inputs.
 | 2 | shipped v0.2.0 | LLM adapters (NRP + vLLM), critic pass, canonicaliser, real DEME, IR diff + correction |
 | 3 | shipped v0.3.0 | Probe extractor (Tier 2.5) + calibration stack + sqnd-probe losses; silicon-emit (Vitis HLS C++) |
 | 4 | shipped v0.4.0 | I-EIP Monitor: Internal / Activation / Delta lenses + 5 failure-mode detectors + trust-boundary docs |
-| 5 | on `main` (V3-1..4) | DEME V3 alignment — 9-dim ranks-1..6 `MoralTensorV3`, per-party verdicts, Gini + worst-off fairness, bridge invoking GenevaEMV3 + TriageEMV3 directly (see `docs/migration/deme_v3_alignment.md`) |
+| 5 (DEME V3) | shipped v0.5.0–v0.7.0 | Full DEME V3 alignment in six sub-phases: ranks-1..6 `MoralTensorV3`, per-party verdicts, Gini + worst-off fairness, V3 bridge invoking GenevaEMV3 + TriageEMV3 + per-party direct facts, temporal (τ) + Monte Carlo (s) axes, real coalitions on c, Shapley attribution, hash-chained DecisionProof |
 | 5+ | deferred | Production web app: React frontend + FastAPI HTTP layer + three-pane editor |
 | 5+ | deferred | Batch corpus mode, PostgreSQL + Celery, RLEF dataset generation |
 | 5+ | partially blocked | Silicon hardware bring-up on the U55C (Vitis HLS emit is shipped; on-FPGA bitstream gated by NRP Coder pipeline) |

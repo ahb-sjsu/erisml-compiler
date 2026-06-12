@@ -205,8 +205,8 @@ verdicts, distributional veto locations, Gini + worst-off fairness
 metrics, and a sprint-tiered module hierarchy (Constitutional,
 Core Safety, Rights/Fairness, Soft Values, Meta-Governance).
 
-The compiler is rolling onto V3 over a documented six-phase migration
-(`docs/migration/deme_v3_alignment.md`). What's landed today:
+The compiler is fully aligned with DEME V3 over a documented six-phase
+migration (`docs/migration/deme_v3_alignment.md`). All six phases shipped:
 
 | Phase | Deliverable |
 |---|---|
@@ -217,32 +217,51 @@ The compiler is rolling onto V3 over a documented six-phase migration
 | 5 | Ranks 3–6 with temporal (τ via event-timeline filtering), coalition + action axes (a, c — currently stub axes), and Monte Carlo over fact confidence (s); `--rank N` + `--n-{actions,coalitions,samples}` CLI flags |
 | 6 | Real `CoalitionContext` semantics on the c axis (`--coalition-mode all_subsets`); Shapley attribution + welfare metrics on `ir.strategic_analysis`; hash-chained `DecisionProof` on `ir.decision_proof` linking to `audit.ir_hash`. **V3 migration complete.** |
 
+After Phase 6, `CompilerIR` carries six V3 surface fields:
+
+```python
+ir.moral_tensor_v3       # MoralTensorV3, ranks 1-6
+ir.per_party_verdicts    # dict[stakeholder_id, str]
+ir.fairness_metrics      # dict with gini_harm + worst_off_harm_value
+ir.strategic_analysis    # dict with shapley_values + welfare_metrics
+ir.decision_proof        # dict with hash-chained provenance
+ir.schema_version        # "erisml_compiler_ir_v0.2"
+```
+
 The V2 surface remains alive — `moral_vectors`, `moral_tensors`, the V2
 EM-DAG — so existing IRs still parse and the legacy `MoralVector` API still
-works. Phase 5+ may deprecate the V2 fields after the silicon and Monitor
-paths migrate.
+works. The V2 fields may be deprecated in a future major version after
+the silicon and Monitor paths migrate.
 
 ## Status
 
-**Phases 1–4 on `main`, plus DEME V3 alignment Phases 1–4** — alpha.
-**194 tests passing** across IR (V2 + V3), EM-DAG, FSMs, canonicalizer,
-critic, correction, calibration, export, silicon emit, activation lens,
-delta lens, equivariance, failure-mode detectors, V3 schema, V3 pipeline,
-V3 bridge, V3 direct-facts builder. CI green on Ubuntu × Python
-3.10/3.11/3.12, ruff lint + black format checks both clean.
+**v0.7.0 — alpha. Phases 1–4 on `main`, plus DEME V3 alignment Phases
+1–6 (complete).** **224 tests passing** across IR (V2 + V3), EM-DAG,
+FSMs, canonicalizer, critic, correction, calibration, export, silicon
+emit, activation lens, delta lens, equivariance, failure-mode
+detectors, V3 schema, V3 pipeline, V3 bridge, V3 direct-facts builder,
+V3 higher-rank, V3 strategic + decision-proof. CI green on Ubuntu ×
+Python 3.10/3.11/3.12; ruff lint + black format checks both clean.
 
-End-to-end verified:
+End-to-end verified on the bundled `nazi_attic` example:
 
-- NRP LLM integration on the bundled `nazi_attic` example (the LLM picks the
-  wrong canonical form, the canonicalizer corrects it, the critic pass
-  triggers `requires_human_review`).
-- I-EIP Monitor on the same example: divergence 0.70, 6 direction breaks,
-  two failure modes fire, `requires_human_review=True`.
-- **DEME V3 bridge** on the same example: rank-2 `(9, 4)` tensor over
-  speaker / hidden_refugees / nazis / village. Per-party harm splits cleanly:
-  speaker 0.76 (forbid), village 0.83 (forbid), nazis 0.18 (neutral),
-  refugees 0.0 (prefer). Gini over harm = 0.43.
-- Vitis HLS C++ emit for FSMs + EM-DAG (NRP Coder bitstream blocked
+- **NRP LLM integration**: the LLM picks the wrong canonical form, the
+  canonicalizer corrects it, the critic pass triggers
+  `requires_human_review`.
+- **I-EIP Monitor**: divergence 0.70, 6 direction breaks, two failure
+  modes fire, `requires_human_review=True`.
+- **DEME V3 rank-2**: per-party harm splits cleanly — speaker 0.76
+  (forbid), village 0.83 (forbid), nazis 0.18 (neutral), refugees 0.0
+  (prefer). Gini over harm = 0.43, worst-off = village.
+- **Strategic analysis**: Shapley values per stakeholder = `{speaker:
+  7.11, refugees: 7.70, nazis: 7.88, village: 7.18}`, exact computation.
+- **DecisionProof**: SHA-256 `proof_hash` chains to the IR's
+  `audit.ir_hash`; forbidden options = `[speaker, village]`; layer
+  outputs = `[v3_bridge, strategic]`.
+- **Rank-4 with real coalitions** (`--coalition-mode all_subsets
+  --n-coalitions 4`): c-axis std = 0.43 (real per-coalition variation),
+  a-axis std = 0 (still stub — actions require IR additions).
+- **Vitis HLS C++ emit** for FSMs + EM-DAG (NRP Coder bitstream blocked
   separately — see SCOPE.md).
 
 ## Citing

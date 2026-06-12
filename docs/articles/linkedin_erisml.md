@@ -99,6 +99,18 @@ that harm distribution is 0.43 — a real, quantitative measure of
 how unequally the cost lands. None of that survives a scalar
 collapse.
 
+The structure goes further. The compiler also computes a Shapley
+value per stakeholder — the same game-theoretic attribution used in
+mechanism design, telling you each party's *marginal contribution to
+collective welfare*. It records a hash-chained `DecisionProof`
+linking back to the audit record so that — months later, in a
+regulatory hearing — you can prove no field of the verdict was
+modified after the fact. And when you ask the compiler for a
+rank-4 tensor under `--coalition-mode all_subsets`, you get a real
+per-coalition view: which subsets of stakeholders, acting together,
+produce which moral outcomes. The tensor structure scales with the
+question.
+
 That last point is not rhetorical. The deterministic core of ErisML
 — three small finite-state machines (Commitment, Legitimacy, Consent)
 plus the 10-module ethical DAG — has been carefully designed to be
@@ -234,7 +246,7 @@ The compiler and its full toolchain are available now:
 - **DOI** (concept, always latest): [10.5281/zenodo.20659432](https://doi.org/10.5281/zenodo.20659432)
 - **Paper draft**: in the repository under `paper/paper.md` (JOSS submission imminent)
 
-It is MIT licensed. 194 tests pass on Ubuntu × Python 3.10/3.11/3.12,
+It is MIT licensed. 224 tests pass on Ubuntu × Python 3.10/3.11/3.12,
 with ruff lint and black format both clean. The bundled examples
 include the three scenarios I named in this article, with
 hand-curated reference IR you can compare your own extractions
