@@ -1,0 +1,38 @@
+# Canonical moral situations.
+#
+# Per spec section 12 Pass 7, canonical forms normalise semantically equivalent
+# moral situations into a shared tag. The MVP registry is small and used
+# only for testing the round-trip; Phase 2 will add a learned canonicaliser
+# that handles novel cases.
+#
+# Each entry maps a canonical tag to a brief description and to the example
+# texts in `examples/` that exhibit it.
+
+canonical_forms:
+  coercive_murderous_interrogation_with_collective_reprisal:
+    description: >
+      An agent under coercive interrogation by an illegitimate authority,
+      where truthful disclosure would lead to murder of innocents and
+      where the authority threatens collective reprisal for deception.
+    examples: ["nazi_attic"]
+    truth_duty: defeated
+    deception_status: permitted_or_required_for_protection
+
+  professional_privilege_versus_duty_to_warn:
+    description: >
+      A professional bound by confidentiality (doctor, lawyer, clergy)
+      learns information that signals imminent serious harm to a third
+      party. The role-duty of confidentiality conflicts with the
+      protective duty owed to identifiable potential victims.
+    examples: ["medical_confidentiality"]
+    confidentiality_status: defeasible
+    duty_to_warn_trigger: serious_imminent_harm
+
+  institutional_loyalty_versus_public_truth_telling:
+    description: >
+      An employee, member, or insider discovers institutional wrongdoing
+      that affects the public. Role-duty loyalty conflicts with the
+      truth-telling duty owed to non-consenting affected parties.
+    examples: ["whistleblower"]
+    loyalty_status: defeasible
+    public_disclosure_threshold: serious_harm_to_public_interest

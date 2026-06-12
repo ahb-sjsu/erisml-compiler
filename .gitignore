@@ -1,0 +1,82 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+*.egg
+.eggs/
+build/
+dist/
+*.whl
+develop-eggs/
+.installed.cfg
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+.hypothesis/
+htmlcov/
+coverage.xml
+*.cover
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.ruff_cache/
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS
+Thumbs.db
+desktop.ini
+
+# Project-specific
+out/
+*.pt
+*.pth
+*.ckpt
+*.bin
+*.safetensors
+
+# LaTeX build products (none here, just in case)
+*.aux
+*.log
+*.toc
+*.bbl
+*.blg
+
+# The big spec docs we don't need to track in the package repo
+ErisML-Compiler.docx
+ErisML-Compiler.md
+media/
+
+# Local-only experiments
+scratch/
+local/
+.env
+.env.*
+!.env.example

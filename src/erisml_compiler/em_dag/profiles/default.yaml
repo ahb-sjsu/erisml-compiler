@@ -1,0 +1,24 @@
+name: "default_em_dag_v0.1"
+description: >
+  The default EM-DAG profile for Phase 1. Ten modules covering the ten
+  MoralVector dimensions of spec section 14. Dependency edges encode
+  compositional relations between ethical concerns: legitimacy gates
+  autonomy and fidelity; harm gates externality and care; repair-residue
+  composes harm, externality, and fidelity.
+
+modules:
+  # ---- root modules (no dependencies) ----
+  - module: "erisml_compiler.em_dag.modules.harm:HarmEM"
+  - module: "erisml_compiler.em_dag.modules.rights:RightsEM"
+  - module: "erisml_compiler.em_dag.modules.fairness:FairnessEM"
+  - module: "erisml_compiler.em_dag.modules.legitimacy:LegitimacyEM"
+  - module: "erisml_compiler.em_dag.modules.epistemic:EpistemicEM"
+
+  # ---- second-tier (depend on root modules) ----
+  - module: "erisml_compiler.em_dag.modules.autonomy:AutonomyEM"   # depends on legitimacy
+  - module: "erisml_compiler.em_dag.modules.fidelity:FidelityEM"   # depends on legitimacy
+  - module: "erisml_compiler.em_dag.modules.externality:ExternalityEM"  # depends on harm
+  - module: "erisml_compiler.em_dag.modules.care:CareEM"           # depends on harm
+
+  # ---- composition tier ----
+  - module: "erisml_compiler.em_dag.modules.repair:RepairEM"        # depends on harm, externality, fidelity

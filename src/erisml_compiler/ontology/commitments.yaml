@@ -1,0 +1,17 @@
+# Commitment types per spec section 13.3 and 8.6.
+commitment_types:
+  vow: "A solemn binding promise, often with religious or moral weight."
+  promise: "An explicit undertaking to perform or refrain from an action."
+  contract: "An exchange-of-considerations agreement, typically enforceable."
+  oath: "A formally sworn statement, often before an authority."
+  covenant: "A long-horizon mutual undertaking, often between communities."
+  role_duty: "An obligation arising from one's role (parent, doctor, officer)."
+  policy: "An institutional commitment of an organisation."
+
+defeasibility_conditions:
+  coerced_vow: "Vow extracted under duress."
+  vow_to_commit_wrong: "Vow whose content is itself unethical."
+  catastrophic_nonconsensual_externality: "Fulfilment imposes catastrophic harm on a non-consenting third party."
+  higher_duty_conflict: "Conflict with a higher-tier duty (e.g., protection of innocents)."
+  legitimacy_collapse: "Authority to whom the vow was made loses legitimacy."
+  impossibility: "Performance has become impossible."

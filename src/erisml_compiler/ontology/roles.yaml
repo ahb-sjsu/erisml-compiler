@@ -1,0 +1,15 @@
+# Stakeholder roles per spec section 12 Pass 3.
+roles:
+  agent: "Party who acts."
+  patient: "Party acted upon."
+  beneficiary: "Party who receives benefit from an action."
+  victim: "Party harmed by an action."
+  bystander: "Party in proximity but not directly engaged."
+  nonconsenting_third_party: "Party affected without their consent."
+  authority: "Party with legitimate or claimed legitimate authority."
+  coercer: "Party exercising coercive power."
+  dependent: "Party reliant on another for care."
+  future_person: "Party who does not yet exist; affected by long-horizon actions."
+  collective: "Group treated as a single stakeholder."
+  vow_holder: "Party who has made a vow, promise, or oath."
+  protector: "Party actively protecting another from harm."

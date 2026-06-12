@@ -1,0 +1,8 @@
+{
+  "corrector_id": "demo@example.org",
+  "rationale": "Demo correction: re-tag village vulnerability as 'extreme' and add a clarifying note.",
+  "patches": [
+    {"op": "set", "path": "stakeholders.village.vulnerability", "value": "extreme"},
+    {"op": "set", "path": "canonical_form", "value": "coercive_murderous_interrogation_with_collective_reprisal"}
+  ]
+}

@@ -1,0 +1,32 @@
+# MoralVector dimensions per spec section 14.
+dimensions:
+  physical_harm:
+    description: "Risk of bodily injury or death."
+    em_module: harm
+  rights_respect:
+    description: "Respect for basic rights and protections."
+    em_module: rights
+  fairness_equity:
+    description: "Fair treatment and anti-discrimination."
+    em_module: fairness
+  autonomy_consent:
+    description: "Respect for agency and consent."
+    em_module: autonomy
+  legitimacy_trust:
+    description: "Procedural legitimacy, authority validity, trust preservation."
+    em_module: legitimacy
+  epistemic_quality:
+    description: "Truthfulness, uncertainty, evidence quality."
+    em_module: epistemic
+  care_protection:
+    description: "Care for vulnerable or dependent parties."
+    em_module: care
+  vow_fidelity:
+    description: "Promise, oath, covenant, contract, or role-commitment fidelity."
+    em_module: fidelity
+  third_party_externality:
+    description: "Risk imposed on non-consenting affected parties."
+    em_module: externality
+  repair_residue:
+    description: "Need for apology, restitution, reconciliation, or later repair."
+    em_module: repair

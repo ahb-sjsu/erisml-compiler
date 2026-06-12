@@ -1,0 +1,133 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  # -----------------------------------------------------------------
+  # Core Python tests — fast, no heavy ML deps
+  # -----------------------------------------------------------------
+  test-core:
+    name: Python ${{ matrix.python-version }} (core)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install (core + test)
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e '.[test]'
+
+      - name: Pytest (core suite)
+        run: |
+          pytest tests/test_ir_schemas.py \
+                 tests/test_pipeline.py \
+                 tests/test_em_dag.py \
+                 tests/test_fsm.py \
+                 tests/test_export.py \
+                 tests/test_critic.py \
+                 tests/test_canonicalizer.py \
+                 tests/test_correction.py \
+                 tests/test_silicon.py \
+                 -v --tb=short
+
+  # -----------------------------------------------------------------
+  # LLM + calibration tests — heavier deps (torch CPU)
+  # -----------------------------------------------------------------
+  test-llm-calibration:
+    name: Python ${{ matrix.python-version }} (llm + calibration)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install (llm + calibration + test)
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -e '.[llm,calibration,test]'
+
+      - name: Pytest (llm + calibration)
+        run: |
+          pytest tests/test_llm_extractor.py \
+                 tests/test_calibration.py \
+                 -v --tb=short
+
+  # -----------------------------------------------------------------
+  # Package-build smoke (ensures pyproject.toml installs cleanly)
+  # -----------------------------------------------------------------
+  package:
+    name: Package build smoke
+    runs-on: ubuntu-latest
+    needs: [test-core]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install build + twine
+        run: python -m pip install --upgrade build twine
+      - name: Build sdist + wheel
+        run: python -m build
+      - name: Twine check
+        run: twine check dist/*
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  # -----------------------------------------------------------------
+  # CLI smoke: install and run a representative end-to-end command
+  # -----------------------------------------------------------------
+  cli-smoke:
+    name: CLI smoke
+    runs-on: ubuntu-latest
+    needs: [test-core]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+      - name: eris-compile version
+        run: eris-compile version
+      - name: Compile nazi_attic example end-to-end
+        run: |
+          mkdir -p out
+          eris-compile compile examples/nazi_attic.txt \
+            --extractor mock --canonicalizer registry \
+            --out out/nazi_attic.json
+          eris-compile validate out/nazi_attic.json
+          eris-compile rlef out/nazi_attic.json --out out/nazi_attic.rlef.json
+      - name: Silicon emit smoke
+        run: |
+          eris-compile silicon-emit --out-dir out/silicon
+          test -f out/silicon/erisml_fsm.cpp
+          test -f out/silicon/erisml_em_dag.cpp
+          test -f out/silicon/erisml_top.cpp
+          test -f out/silicon/Makefile
