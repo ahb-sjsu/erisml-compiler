@@ -10,6 +10,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from erisml_compiler import __schema_version__
+from erisml_compiler.ir.v3 import MoralTensorV3  # noqa: F401  used as forward ref
 
 
 # =============================================================================
@@ -389,6 +390,11 @@ class CompilerIR(BaseModel):
     conflicts: list[Conflict] = Field(default_factory=list)
     moral_vectors: list[MoralVector] = Field(default_factory=list)
     moral_tensors: list[MoralTensor] = Field(default_factory=list)
+    # DEME V3 alignment (additive in Phase 2; will become canonical
+    # in Phase 4). Stored alongside the V2 fields above; consumers may
+    # prefer this one. Forward-ref string keeps schemas.py importable
+    # without pulling in numpy / erisml-lib transitively.
+    moral_tensor_v3: "MoralTensorV3 | None" = None
     timeline: list[TimelineEntry] = Field(default_factory=list)
     em_outputs: dict[str, EMOutput] = Field(default_factory=dict)
     deme_verdict: DEMEVerdict | None = None

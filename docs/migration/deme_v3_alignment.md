@@ -179,7 +179,7 @@ on a feature branch from `origin/main` not touching that file.
 ## Status tracker
 
 - [x] Phase 1: IR schema for ranks 1-6 — done 2026-06-12 (22 tests, V2 untouched)
-- [ ] Phase 2: Tensor builder produces rank-2 by default
+- [x] Phase 2: Tensor builder produces rank-2 by default — done 2026-06-12 (12 new tests, V2 untouched, --rank CLI flag, end-to-end nazi_attic rank-2 verified)
 - [ ] Phase 3: EM-DAG migration to V3 module tiers
 - [ ] Phase 4: V3 facts + V3 judgement at the bridge
 - [ ] Phase 5: Coalition + temporal axes (ranks 3-6)

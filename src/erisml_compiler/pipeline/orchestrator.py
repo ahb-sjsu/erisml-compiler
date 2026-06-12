@@ -34,6 +34,7 @@ from erisml_compiler.erisml_backend.deme_bridge import DEMEBridge
 from erisml_compiler.evaluation.conflict_detector import detect_conflicts
 from erisml_compiler.evaluation.moral_vector import build_moral_vector_from_em_outputs
 from erisml_compiler.evaluation.tensor_builder import build_timeline
+from erisml_compiler.evaluation.tensor_builder_v3 import build_moral_tensor_v3
 from erisml_compiler.ingestion.structured_loader import load_structured_input
 from erisml_compiler.ingestion.text_loader import load_text_document
 from erisml_compiler.ir.schemas import CompilerIR, PassRecord
@@ -51,6 +52,7 @@ class CompileOptions:
     llm_adapter: object | None = None  # for tier="llm" or critic="llm"
     probe_config: object | None = None  # ProbeExtractorConfig for tier="probe"
     fail_unknown_mock: bool = True
+    tensor_rank: int = 2               # DEME V3 rank for ir.moral_tensor_v3
 
 
 def _resolve_em_profile(em_profile: str | Path | None) -> EMDAG:
@@ -191,6 +193,12 @@ def compile_document(
         ir.em_outputs = em_outputs
         final_vector = build_moral_vector_from_em_outputs(em_outputs, dag)
         ir.moral_vectors = [final_vector]
+        # DEME V3 alignment (Phase 2): produce the rank-N tensor
+        # alongside the V2 moral_vectors. Phase 4 will make V3 the only
+        # producer; for now both ship.
+        ir.moral_tensor_v3 = build_moral_tensor_v3(
+            ir, em_outputs, dag, rank=options.tensor_rank,
+        )
 
     # Pass 9-10: ErisML IR is the in-memory `ir` itself; DEME evaluation.
     with record_pass(passes, 10, "deme_evaluation", tier_value):

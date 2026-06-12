@@ -46,6 +46,10 @@ def cli() -> None:
               help="EM-DAG YAML profile. Default: bundled default profile.")
 @click.option("--canonicalizer", type=click.Choice(["auto", "registry", "labse"]), default="auto",
               help="Canonicalizer backend. 'auto' picks LaBSE if available, registry otherwise.")
+@click.option("--rank", "tensor_rank", type=click.IntRange(1, 6), default=2,
+              help="DEME V3 tensor rank to produce on ir.moral_tensor_v3. "
+                   "1 = global vector (k,), 2 = per-stakeholder (k,n). "
+                   "Ranks 3-6 land in Phase 5 of the V3 alignment.")
 @click.option("--stream", is_flag=True, help="Stream real-time captions to stdout.")
 def cmd_compile(
     input_file: Path,
@@ -55,6 +59,7 @@ def cmd_compile(
     critic: str | None,
     em_profile: Path | None,
     canonicalizer: str,
+    tensor_rank: int,
     stream: bool,
 ) -> None:
     """Compile a document to an IR JSON file."""
@@ -86,7 +91,7 @@ def cmd_compile(
         input_file,
         CompileOptions(
             tier=tier_enum, extractor=extractor, critic=critic,
-            em_profile=em_profile, canonicalizer=canon,
+            em_profile=em_profile, canonicalizer=canon, tensor_rank=tensor_rank,
         ),
     )
     export_json(ir, out_path)
@@ -94,6 +99,9 @@ def cmd_compile(
     click.echo(f"[+] Canonical form: {ir.canonical_form}")
     if ir.deme_verdict:
         click.echo(f"[+] Verdict: {ir.deme_verdict.verdict}  (confidence {ir.deme_verdict.confidence:.2f})")
+    if ir.moral_tensor_v3 is not None:
+        t = ir.moral_tensor_v3
+        click.echo(f"[+] DEME V3 tensor: rank={t.rank} shape={t.shape} axes={t.axis_names}")
     if ir.audit:
         click.echo(f"[+] IR hash: {ir.audit.ir_hash}")
 
