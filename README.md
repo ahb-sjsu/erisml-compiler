@@ -264,6 +264,51 @@ End-to-end verified on the bundled `nazi_attic` example:
 - **Vitis HLS C++ emit** for FSMs + EM-DAG (NRP Coder bitstream blocked
   separately — see SCOPE.md).
 
+## Current limitations
+
+The project is **alpha**. The contract surface is intentionally honest
+about what isn't yet load-bearing. See `SCOPE.md` for the full
+component truth table.
+
+- **Probe calibration is uncalibrated by default.** Random-init
+  `ActivationProbe` instances mark themselves
+  `is_calibrated=False` in trace provenance, but the I-EIP Monitor's
+  numeric output is therefore noise. Calibrated checkpoints against a
+  real moral-language corpus are pending (next milestone — see
+  `docs/plans/release-planning-01.txt`).
+- **Equivariance check is identity-ρ only.** The shipped delta-lens
+  invariance test uses `ρℓ(g) = identity` with surface-form rewrites
+  (whitespace / case / punctuation). The full I-EIP representation-map
+  framework (paraphrase, role swap, unit change, etc., with
+  ρℓ estimated over activation pairs) is future work.
+- **The `a` (action) axis on ranks 4-6 is a stub.** It has parametric
+  length but values replicate. The `c` (coalition) axis is real (four
+  enumeration modes). Genuine action semantics require IR additions
+  outside this migration's scope.
+- **Silicon emit is C++ only — no FPGA bring-up.** Vitis HLS sources
+  are produced and verified through hardware emulation (70/70 PASS),
+  but on-FPGA bitstreams are gated by the NRP Coder pipeline.
+- **No standalone benchmark.** Validation runs on three bundled
+  scenarios (nazi_attic, medical_confidentiality, whistleblower). A
+  named MoralTensor-Bench v0.1 is the next milestone.
+- **erisml-lib (DEME V3) not yet on PyPI.** Install from source until
+  publication; `pip install 'erisml-compiler[deme-v3]'` documents the
+  dependency but doesn't transitively install it.
+- **`--strict-v3` exists for a reason.** Without it, V3 dispatch
+  failures silently fall back to the V2 migration builder. Research
+  and production runs should pass `--strict-v3` so a regression in
+  the bridge can't quietly downgrade the result.
+
+## Reproduce the bundled example
+
+```bash
+make reproduce-nazi-attic
+```
+
+emits IR + RLEF record + V3 tensor + DEME verdict + audit hash +
+Monitor trace + Delta report + HTML report + audit bundle + plain-text
+summary in `out/reproduce_nazi_attic/`. Idempotent; safe in CI.
+
 ## Citing
 
 If you use this work academically, please cite via the Zenodo DOI. The

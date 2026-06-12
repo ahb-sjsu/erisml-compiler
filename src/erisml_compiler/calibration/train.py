@@ -187,18 +187,47 @@ def train_probe(
 
 
 def save_checkpoint(
-    backbone: ProbeBackbone, path: str | Path, history: TrainingHistory | None = None
+    backbone: ProbeBackbone,
+    path: str | Path,
+    history: TrainingHistory | None = None,
+    *,
+    corpus_fingerprint: dict | None = None,
+    schema_version: str | None = None,
+    model_id: str | None = None,
+    model_weight_fingerprint: str | None = None,
 ) -> Path:
-    """Save the trainable parts of the backbone to a .pt file."""
+    """Save the trainable parts of the backbone to a .pt file with
+    embedded `CalibrationProvenance`.
+
+    Extra kwargs become provenance fields:
+      `corpus_fingerprint` — dict of size + class counts + lang
+            distribution (NOT raw texts); hashed for the
+            probe_training_corpus_hash.
+      `schema_version` — the IR schema this training ran against.
+      `model_id`, `model_weight_fingerprint` — about the upstream LM
+            the activations were drawn from.
+    """
+    from erisml_compiler.monitor.provenance import build_provenance_for_training
+
     p = Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
+    state_dict = backbone.state_dict_for_checkpoint()
+    provenance = build_provenance_for_training(
+        state_dict=state_dict,
+        history=history,
+        corpus_fingerprint=corpus_fingerprint,
+        schema_version=schema_version,
+        model_id=model_id,
+        model_weight_fingerprint=model_weight_fingerprint,
+    )
     payload = {
-        "state_dict": backbone.state_dict_for_checkpoint(),
+        "state_dict": state_dict,
         "history": {
             "epoch_losses": history.epoch_losses if history else [],
             "epoch_main_accs": history.epoch_main_accs if history else [],
             "notes": history.notes if history else [],
         },
+        "provenance": provenance.model_dump(),
     }
     torch.save(payload, p)
     return p
@@ -208,8 +237,18 @@ def load_checkpoint(
     path: str | Path,
     labse_model: str = "sentence-transformers/LaBSE",
     device: str = "cpu",
-) -> ProbeBackbone:
-    """Load a checkpoint and reconstruct the ProbeBackbone."""
+    *,
+    return_provenance: bool = False,
+):
+    """Load a checkpoint and reconstruct the ProbeBackbone.
+
+    By default returns the bare `ProbeBackbone` (back-compat). Pass
+    `return_provenance=True` to also receive the embedded
+    `CalibrationProvenance`; the call then returns
+    `(backbone, provenance)`.
+    """
+    from erisml_compiler.monitor.provenance import CalibrationProvenance
+
     payload = torch.load(path, map_location=device, weights_only=False)
     sd = payload["state_dict"]
     cfg = sd["config"]
@@ -221,4 +260,7 @@ def load_checkpoint(
     )
     backbone.load_state_dict_from_checkpoint(sd)
     backbone.eval()
-    return backbone
+    if not return_provenance:
+        return backbone
+    provenance = CalibrationProvenance.from_checkpoint_payload(payload, path=path)
+    return backbone, provenance

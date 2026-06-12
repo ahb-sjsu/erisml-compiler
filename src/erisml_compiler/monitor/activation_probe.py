@@ -30,6 +30,7 @@ class LayerProbeResult:
     logits: Any  # (num_classes,) torch tensor — the raw probe output
     moral_vector: MoralVector
     pooled_norm: float  # ||pooled||, a coarse activation-magnitude diagnostic
+    provenance: Any = None  # CalibrationProvenance | None — see monitor/provenance.py
 
 
 def _logits_to_moral_vector(logits, dimensions: Sequence[str] = MORAL_DIMENSIONS) -> MoralVector:
@@ -84,10 +85,13 @@ class ActivationProbe:
         n_layers: int = 2,
         device: str = "cpu",
         seed: int | None = None,
+        provenance: Any = None,
     ):
         from erisml_compiler.calibration.probe_head import ProbeHead
 
         import torch
+
+        from erisml_compiler.monitor.provenance import CalibrationProvenance
 
         self._torch = torch
         self.hidden_dim = hidden_dim
@@ -105,17 +109,31 @@ class ActivationProbe:
         ).to(device)
         self.head.eval()
 
-    def load_head_state(self, state_dict: dict) -> None:
+        # Default provenance: explicitly uncalibrated rather than None,
+        # so downstream consumers can branch on is_calibrated.
+        self.provenance: CalibrationProvenance = provenance or CalibrationProvenance.uncalibrated(
+            source="random", seed=seed
+        )
+
+    def load_head_state(self, state_dict: dict, *, provenance: Any = None) -> None:
         """Load a head's state_dict (e.g. from a Phase-3 checkpoint).
 
         Accepts both the bare head state_dict and the wrapped form
         produced by `ProbeBackbone.state_dict_for_checkpoint()` (which
-        nests under "head"). Raises ValueError on shape mismatch."""
+        nests under "head"). Raises ValueError on shape mismatch.
+
+        If a `provenance` is supplied (CalibrationProvenance), it
+        replaces the probe's default "uncalibrated" marker. Callers
+        loading from a .pt produced by `calibration.train.save_checkpoint`
+        should pass the provenance saved inside that file.
+        """
         if "head" in state_dict and not any(k.startswith("net.") for k in state_dict):
             sd = state_dict["head"]
         else:
             sd = state_dict
         self.head.load_state_dict(sd)
+        if provenance is not None:
+            self.provenance = provenance
 
     def probe_layer(self, layer_act: LayerActivation) -> LayerProbeResult:
         torch = self._torch
@@ -137,4 +155,5 @@ class ActivationProbe:
             logits=logits.cpu(),
             moral_vector=mv,
             pooled_norm=norm,
+            provenance=self.provenance,
         )

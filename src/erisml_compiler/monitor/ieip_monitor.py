@@ -52,6 +52,7 @@ class MonitorTrace:
                     "layer_name": r.layer_name,
                     "moral_vector": r.moral_vector.model_dump(),
                     "pooled_norm": r.pooled_norm,
+                    "provenance": (r.provenance.model_dump() if r.provenance is not None else None),
                 }
                 for r in self.per_layer
             ],
