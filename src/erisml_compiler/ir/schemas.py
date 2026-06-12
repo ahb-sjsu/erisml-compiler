@@ -401,6 +401,12 @@ class CompilerIR(BaseModel):
     # bridge when per-party evaluation runs; None otherwise.
     per_party_verdicts: dict[str, str] | None = None
     fairness_metrics: dict[str, float] | None = None
+    # DEME V3 strategic + decision-proof artifacts (Phase 6). Stored as
+    # plain dicts so the IR stays canonical JSON; the typed sources are
+    # erisml.ethics.layers.strategic.StrategicAnalysisResult and
+    # erisml.ethics.decision_proof.DecisionProof respectively.
+    strategic_analysis: dict[str, Any] | None = None
+    decision_proof: dict[str, Any] | None = None
     timeline: list[TimelineEntry] = Field(default_factory=list)
     em_outputs: dict[str, EMOutput] = Field(default_factory=dict)
     deme_verdict: DEMEVerdict | None = None

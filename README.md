@@ -5,7 +5,7 @@
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 [![Pydantic v2](https://img.shields.io/badge/pydantic-v2-green.svg)](https://docs.pydantic.dev/)
 [![Schema](https://img.shields.io/badge/IR%20schema-erisml__compiler__ir__v0.1-orange.svg)](SCOPE.md)
-[![Tests](https://img.shields.io/badge/tests-209%20passing-brightgreen.svg)](#status)
+[![Tests](https://img.shields.io/badge/tests-224%20passing-brightgreen.svg)](#status)
 [![Ruff](https://img.shields.io/badge/lint-ruff-blueviolet)](https://github.com/astral-sh/ruff)
 [![Black](https://img.shields.io/badge/code%20style-black-000000)](https://github.com/psf/black)
 [![Status: Alpha](https://img.shields.io/badge/status-alpha-red.svg)](SCOPE.md)
@@ -215,7 +215,7 @@ The compiler is rolling onto V3 over a documented six-phase migration
 | 3 | Bridge wires the IR through `EthicalFactsV3` and invokes registered V3 modules (Geneva, Triage) |
 | 4 | Per-party facts built directly from `EthicalFact.subjects`; per-party verdicts and Gini surfaced on the IR; `requires_human_review` is now per-stakeholder |
 | 5 | Ranks 3–6 with temporal (τ via event-timeline filtering), coalition + action axes (a, c — currently stub axes), and Monte Carlo over fact confidence (s); `--rank N` + `--n-{actions,coalitions,samples}` CLI flags |
-| 6 (planned) | Genuine `CoalitionContext` semantics on a/c axes; Strategic layer (Shapley + Nash) + `DecisionProof` audit chain |
+| 6 | Real `CoalitionContext` semantics on the c axis (`--coalition-mode all_subsets`); Shapley attribution + welfare metrics on `ir.strategic_analysis`; hash-chained `DecisionProof` on `ir.decision_proof` linking to `audit.ir_hash`. **V3 migration complete.** |
 
 The V2 surface remains alive — `moral_vectors`, `moral_tensors`, the V2
 EM-DAG — so existing IRs still parse and the legacy `MoralVector` API still

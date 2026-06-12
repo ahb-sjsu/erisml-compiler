@@ -74,6 +74,7 @@ def _produce_v3_tensor(ir, em_outputs, dag, options):
                 n_samples=options.tensor_n_samples,
                 sample_noise_std=options.tensor_sample_noise_std,
                 sample_seed=options.tensor_sample_seed,
+                coalition_mode=options.coalition_mode,
             )
             return build_moral_tensor_v3_rank3plus(ir, rank=rank, config=cfg)
     except ImportError:
@@ -106,6 +107,10 @@ class CompileOptions:
     tensor_n_samples: int = 1
     tensor_sample_noise_std: float = 0.05
     tensor_sample_seed: int = 0
+    # Phase 6 knobs.
+    emit_strategic_analysis: bool = True
+    emit_decision_proof: bool = True
+    coalition_mode: str = "all_subsets"  # for strategic Shapley
 
 
 def _resolve_em_profile(em_profile: str | Path | None) -> EMDAG:
@@ -275,5 +280,32 @@ def compile_document(
             passes=passes.copy(),
         )
         ir.audit = audit
+
+    # DEME V3 Phase 6: strategic analysis + decision proof. Best-effort;
+    # silently skipped when erisml-lib isn't installed or when there
+    # aren't enough stakeholders for meaningful analysis.
+    if options.emit_strategic_analysis and ir.moral_tensor_v3 is not None:
+        try:
+            from erisml_compiler.erisml_backend.v3_phase6 import compute_strategic_analysis
+
+            ir.strategic_analysis = compute_strategic_analysis(
+                ir,
+                ir.moral_tensor_v3,
+                coalition_mode=options.coalition_mode,
+            )
+        except Exception as e:  # noqa: BLE001
+            _v3_log.warning("Strategic analysis raised %s; skipping", e)
+
+    if options.emit_decision_proof and ir.moral_tensor_v3 is not None:
+        try:
+            from erisml_compiler.erisml_backend.v3_phase6 import build_decision_proof
+
+            ir.decision_proof = build_decision_proof(
+                ir,
+                ir.moral_tensor_v3,
+                strategic_analysis=ir.strategic_analysis,
+            )
+        except Exception as e:  # noqa: BLE001
+            _v3_log.warning("Decision proof emission raised %s; skipping", e)
 
     return ir

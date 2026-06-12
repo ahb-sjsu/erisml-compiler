@@ -54,6 +54,13 @@ class HigherRankConfig:
 
     `times` is set automatically from the IR's event timeline; the
     others are caller-controlled. Validates on construction.
+
+    `coalition_mode` selects which subsets of stakeholders the c axis
+    enumerates (Phase 6 — was stub in Phase 5):
+      grand_only: one coalition, all stakeholders together
+      singletons_only: each stakeholder alone
+      pairwise: singletons + pairs
+      all_subsets: every non-empty subset (capped at n_coalitions)
     """
 
     n_actions: int = 1
@@ -61,6 +68,7 @@ class HigherRankConfig:
     n_samples: int = 1
     sample_noise_std: float = 0.05  # gaussian width on fact.confidence
     sample_seed: int = 0
+    coalition_mode: str = "grand_only"  # Phase 6: real semantics on c axis
 
     def __post_init__(self) -> None:
         if not (1 <= self.n_actions <= MAX_ACTIONS):
@@ -169,60 +177,90 @@ def build_moral_tensor_v3_rank3plus(
     reason_codes: list[str] = []
     stub_axes: list[str] = []
 
-    # Inner-loop: for each (τ, s), build the corresponding rank-2
-    # tensor and broadcast across the (a, c) stub axes. The stub axes
-    # are honest: same rank-2 result replicated; metadata records this.
+    # Inner-loop: for each (τ, s, c), build the corresponding rank-2
+    # tensor and broadcast across the (a) stub axis. Phase 6 makes the
+    # c axis real when coalition_mode != "grand_only"; the a axis
+    # remains a stub.
     has_tau = "tau" in axis_layout
     has_s = "s" in axis_layout
     has_action = "a" in axis_layout
     has_coalition = "c" in axis_layout
+    coalition_is_real = has_coalition and config.coalition_mode != "grand_only"
 
-    for tau_idx, tau_val in (enumerate(time_indices) if has_tau else [(0, None)]):
+    for tau_idx, tau_val in enumerate(time_indices) if has_tau else [(0, None)]:
         snapshot = _snapshot_at_time(ir, tau_val) if has_tau else ir
 
-        for s_idx in (range(config.n_samples) if has_s else [0]):
+        for s_idx in range(config.n_samples) if has_s else [0]:
             perturbed = _perturb_for_sample(snapshot, s_idx, config) if has_s else snapshot
-            slice_tensor = compile_to_v3_tensor(perturbed, rank=2, populate_ir_metrics=False)
-            slice_arr = np.array(slice_tensor.values, dtype=float)  # shape (9, n_parties)
-            if slice_arr.shape != (9, n_parties):
-                log.warning(
-                    "rank-2 slice has shape %s, expected (9, %d); skipping",
-                    slice_arr.shape,
-                    n_parties,
+
+            if coalition_is_real:
+                # Phase 6: real per-coalition slices.
+                from erisml_compiler.erisml_backend.v3_phase6 import (
+                    build_coalition_c_axis_slices,
                 )
-                continue
 
-            # Place into the higher-rank tensor.
-            _write_slice(
-                data,
-                slice_arr,
-                axis_layout=axis_layout,
-                tau_idx=tau_idx if has_tau else None,
-                s_idx=s_idx if has_s else None,
-                n_actions=config.n_actions if has_action else 1,
-                n_coalitions=config.n_coalitions if has_coalition else 1,
-            )
-
-            # Collect vetoes (lift the (party_idx,) single-axis veto into
-            # the higher-rank coordinate so consumers can locate it).
-            for loc in slice_tensor.veto_locations:
-                if len(loc) == 1:
-                    veto_locs.append(
-                        _lift_party_veto_to_full(
-                            loc[0],
-                            axis_layout,
-                            tau_idx if has_tau else None,
-                            s_idx if has_s else None,
-                        )
+                c_slices, _c_labels = build_coalition_c_axis_slices(
+                    perturbed,
+                    coalition_mode=config.coalition_mode,
+                    n_coalitions_requested=config.n_coalitions,
+                )
+                if len(c_slices) != config.n_coalitions:
+                    log.warning(
+                        "coalition builder produced %d slices, expected %d; truncating",
+                        len(c_slices),
+                        config.n_coalitions,
                     )
-                elif len(loc) == 0:
-                    veto_locs.append(())
-            veto_flags.extend(slice_tensor.veto_flags)
-            reason_codes.extend(slice_tensor.reason_codes)
+                    c_slices = c_slices[: config.n_coalitions]
+                    while len(c_slices) < config.n_coalitions:
+                        c_slices.append(c_slices[-1] if c_slices else np.zeros((9, n_parties)))
+                for c_idx, slice_arr in enumerate(c_slices):
+                    _write_coalition_slice(
+                        data,
+                        slice_arr,
+                        axis_layout=axis_layout,
+                        tau_idx=tau_idx if has_tau else None,
+                        s_idx=s_idx if has_s else None,
+                        c_idx=c_idx,
+                    )
+            else:
+                # Phase 5 path: single rank-2 slice replicated across (a, c).
+                slice_tensor = compile_to_v3_tensor(perturbed, rank=2, populate_ir_metrics=False)
+                slice_arr = np.array(slice_tensor.values, dtype=float)
+                if slice_arr.shape != (9, n_parties):
+                    log.warning(
+                        "rank-2 slice has shape %s, expected (9, %d); skipping",
+                        slice_arr.shape,
+                        n_parties,
+                    )
+                    continue
+                _write_slice(
+                    data,
+                    slice_arr,
+                    axis_layout=axis_layout,
+                    tau_idx=tau_idx if has_tau else None,
+                    s_idx=s_idx if has_s else None,
+                    n_actions=config.n_actions if has_action else 1,
+                    n_coalitions=config.n_coalitions if has_coalition else 1,
+                )
+
+                for loc in slice_tensor.veto_locations:
+                    if len(loc) == 1:
+                        veto_locs.append(
+                            _lift_party_veto_to_full(
+                                loc[0],
+                                axis_layout,
+                                tau_idx if has_tau else None,
+                                s_idx if has_s else None,
+                            )
+                        )
+                    elif len(loc) == 0:
+                        veto_locs.append(())
+                veto_flags.extend(slice_tensor.veto_flags)
+                reason_codes.extend(slice_tensor.reason_codes)
 
     if has_action and config.n_actions > 1:
         stub_axes.append("a")
-    if has_coalition and config.n_coalitions > 1:
+    if has_coalition and config.n_coalitions > 1 and not coalition_is_real:
         stub_axes.append("c")
 
     return MoralTensorV3(
@@ -247,9 +285,14 @@ def build_moral_tensor_v3_rank3plus(
                 "n": "real (per-stakeholder)",
                 "tau": "real (event timeline)" if has_tau else "(absent)",
                 "a": "stub (axis length only)" if has_action else "(absent)",
-                "c": "stub (axis length only)" if has_coalition else "(absent)",
+                "c": (
+                    f"real (coalition_mode={config.coalition_mode})"
+                    if coalition_is_real
+                    else ("stub (axis length only)" if has_coalition else "(absent)")
+                ),
                 "s": "real (MC over fact confidence)" if has_s else "(absent)",
             },
+            "coalition_mode": config.coalition_mode,
         },
     )
 
@@ -327,6 +370,43 @@ def _perturb_for_sample(ir: CompilerIR, sample_idx: int, cfg: HigherRankConfig) 
         new_conf = max(0.0, min(1.0, fact.confidence + noise))
         perturbed_facts.append(fact.model_copy(update={"confidence": new_conf}))
     return ir.model_copy(update={"ethical_facts": perturbed_facts})
+
+
+def _write_coalition_slice(
+    data,
+    slice_arr,
+    *,
+    axis_layout: tuple[str, ...],
+    tau_idx: int | None,
+    s_idx: int | None,
+    c_idx: int,
+) -> None:
+    """Phase 6: place a (9, n) rank-2 slice at the c=c_idx position.
+
+    For rank 4 (k, n, a, c): replicates across the `a` stub axis.
+    For rank 5 (k, n, τ, a, c): pins τ and c, replicates across a.
+    For rank 6 (k, n, τ, a, c, s): pins τ, c, s, replicates across a.
+    """
+    idx: list = [slice(None), slice(None)]  # k, n full
+    for ax in axis_layout[2:]:
+        if ax == "tau":
+            idx.append(tau_idx)
+        elif ax == "s":
+            idx.append(s_idx)
+        elif ax == "a":
+            idx.append(slice(None))  # replicate across actions (still stub)
+        elif ax == "c":
+            idx.append(c_idx)
+        else:
+            raise ValueError(f"unknown axis name {ax!r}")
+    target = data[tuple(idx)]
+    if target.ndim == slice_arr.ndim:
+        target[:] = slice_arr
+    else:
+        expanded = slice_arr.reshape(slice_arr.shape + (1,) * (target.ndim - slice_arr.ndim))
+        import numpy as np
+
+        target[:] = np.broadcast_to(expanded, target.shape)
 
 
 def _write_slice(
