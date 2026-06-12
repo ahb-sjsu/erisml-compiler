@@ -7,6 +7,7 @@
 [![Schema](https://img.shields.io/badge/IR%20schema-erisml__compiler__ir__v0.1-orange.svg)](SCOPE.md)
 [![Tests](https://img.shields.io/badge/tests-142%20passing-brightgreen.svg)](#status)
 [![Status: Alpha](https://img.shields.io/badge/status-alpha-red.svg)](SCOPE.md)
+[![PyPI](https://img.shields.io/pypi/v/erisml-compiler.svg)](https://pypi.org/project/erisml-compiler/)
 
 A structure-preserving compiler from natural-language moral material into a
 canonical **ErisML Intermediate Representation** (IR) that can be evaluated by
@@ -31,7 +32,11 @@ deferred.
 ## Quick start
 
 ```bash
-# Install (editable; choose extras as needed)
+# Install from PyPI
+pip install erisml-compiler                        # core
+pip install 'erisml-compiler[llm,calibration,monitor]'  # full stack
+
+# Or, install from source (editable; choose extras as needed)
 pip install -e ".[test,calibration,monitor,notebook]"
 
 # Compile one of the bundled examples (text lens)

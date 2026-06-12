@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "erisml-compiler"
-version = "0.3.0"
+version = "0.4.0"
 description = "Structure-preserving compiler from natural language to ErisML"
 readme = "README.md"
 requires-python = ">=3.10"
