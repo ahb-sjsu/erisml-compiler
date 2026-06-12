@@ -92,13 +92,16 @@ Three extractor tiers cover the latency / faithfulness frontier:
 | `export/` | JSON, ErisML source, RLEF training records |
 | `viz/` | HTML report + timeline plot |
 | `streaming/` | Real-time captioner of pipeline events |
-| `cli.py` | `eris-compile {bundle,calibrate,compile,correct,diff,report,rlef,silicon-emit,validate,version}` |
+| `monitor/` | I-EIP Monitor activation lens: ActivationSource + ActivationProbe + IEIPMonitor |
+| `delta/` | Delta lens: compare_morals, BIP equivariance check, 5-mode failure detector |
+| `cli.py` | `eris-compile {bundle,calibrate,compile,correct,delta,diff,monitor,report,rlef,silicon-emit,validate,version}` |
 
 ### What is NOT yet in v0.3.0
 
-See `SCOPE.md` for the full list. Headline in-flight items: the I-EIP Monitor
-(Internal / Activation / Delta lenses) and the production web app / NRP
-deployment.
+See `SCOPE.md` for the full list. Headline in-flight items: the production
+web app, NRP runtime deployment, and silicon hardware verification on the
+U55C target. The I-EIP Monitor (Internal / Activation / Delta lenses) is
+implemented as of Phase 4 — see `docs/i_eip_monitor.md`.
 
 ## Project layout
 

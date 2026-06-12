@@ -4,6 +4,74 @@ This file states **what is built**, **what is stubbed**, and **what is deferred*
 so a maintainer can compare the running code against the 30-section design spec
 (`ErisML-Compiler.md`) without confusion.
 
+## Phase 4 additions (in-flight on `main`)
+
+Phase 4 ships the I-EIP Monitor (spec §31 follow-on) — Internal /
+Activation / Delta lenses on top of v0.3.0. Four parallel tracks, all
+green.
+
+### Track A — Activation lens (`monitor/`)
+
+- `ActivationSource` ABC + `LayerActivation` / `ActivationCapture`
+  dataclasses defining the per-layer activation contract.
+- `MockActivationSource` — deterministic, GPU-free; text-hash-anchored
+  hidden states with a layer-dependent positional drift so probes have
+  something structural to bite into. Used in CI.
+- `HuggingFaceActivationSource` — loads any HF causal LM (default
+  Qwen2.5-7B-Instruct), registers forward hooks on the resolved layer
+  list (LLaMA/Qwen2/3/Mistral, GPT-2, BERT/RoBERTa), pools to per-layer
+  `(D,)` vectors. Supports a `layers=` subset for memory bounding.
+- `RemoteAtlasActivationSource` — paramiko-driven Atlas inference. The
+  harness is a literal Python string baked into the source (no remote
+  `git pull` at runtime; trust boundary is the SSH user account).
+- `ActivationProbe` — per-layer head reusing the Phase-3 `ProbeHead`
+  shape; can load a `ProbeBackbone.state_dict_for_checkpoint()` payload
+  directly.
+- `IEIPMonitor` — orchestrator: capture → per-layer probe → aggregated
+  `MonitorTrace` with `trace_hash()` for audit-chain anchoring.
+- 18 tests in `tests/test_monitor.py`, all CPU/MockActivationSource.
+
+### Track B — Delta lens (`delta/`)
+
+- `compare_morals(text_mv, activation_mv, **thresholds)` →
+  `DeltaResult`. Per-dimension `value_delta`, `direction_match`,
+  `confidence_gap`, `joint_uncertainty`. Overall `divergence` in [0, 1]
+  with direction-break inflation. `flag_for_review` set when any of
+  three triggers fires.
+- `delta/equivariance.py` — BIP criterion `h_ℓ(g·x) ≈ ρ_ℓ(g)·h_ℓ(x)`
+  with `ρ_ℓ(g) = identity` (invariance test). Default rewrites are
+  surface-form only (whitespace, case, trailing period); semantic
+  rewrites are caller-supplied and validated.
+- `delta/failure_modes.py` — five named detectors:
+  `TEXT_INTERNAL_MISMATCH`, `LAYERWISE_DRIFT`, `GROUP_SYMMETRY_BREAK`,
+  `PROBE_UNCERTAINTY_SPIKE`, `AUDIT_CHAIN_BREAK`. Any firing sets
+  `requires_human_review = True`. The Monitor does NOT produce verdicts.
+- 20 tests in `tests/test_delta.py`.
+
+### Track C — CLI
+
+- `eris-compile monitor <text>` — runs the activation lens, emits a
+  JSON trace with per-layer MoralVectors and `trace_hash`.
+- `eris-compile delta <ir.json> <trace.json>` — runs the delta lens
+  and the five failure-mode detectors, emits a structured report.
+- CLI smoke tests in `tests/test_cli_monitor.py` (4 tests).
+
+### Track D — Trust-boundary docs
+
+- `docs/i_eip_monitor.md` — authoritative doc on the three lenses,
+  threat model (T1 probe poisoning, T2 activation spoofing, T3
+  group-action ambiguity), the trust-boundary diagram, the five
+  failure modes, and what the Monitor is NOT.
+
+### Phase 4 acceptance
+
+- 42 new tests (18+20+4); 142 total tests passing across Phases 1–4.
+- New CLI subcommands: `monitor`, `delta`.
+- New package extras: `[monitor]` pulls `torch`, `transformers`,
+  `paramiko`.
+- Atlas-side inventory captured in `scripts/atlas/probe_models.py` and
+  the user's memory note `reference_atlas_phase4_models.md`.
+
 ## Phase 3 additions (v0.3.0)
 
 Phase 3 ships three parallel tracks on top of v0.2.0:

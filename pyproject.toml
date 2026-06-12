@@ -42,6 +42,12 @@ calibration = [
     "numpy>=1.24",
     "tqdm>=4.66",
 ]
+monitor = [
+    "torch>=2.1",
+    "transformers>=4.40",
+    "numpy>=1.24",
+    "paramiko>=3.4",
+]
 test = [
     "pytest>=8.0",
     "pytest-cov>=5.0",
