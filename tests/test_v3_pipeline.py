@@ -199,14 +199,22 @@ def test_medical_confidentiality_also_produces_v3(medical_confidentiality_ir):
 # ---------- rank cap ----------
 
 
-def test_rank_above_2_raises_helpful_error():
-    with pytest.raises(NotImplementedError, match="Phase 2 supports rank 1 and 2"):
-        compile_document(
-            EXAMPLES_DIR / "nazi_attic.txt",
-            CompileOptions(
-                tier=CompilerTier.RULES,
-                extractor="mock",
-                canonicalizer=None,
-                tensor_rank=3,
-            ),
-        )
+def test_rank_above_2_succeeds_or_falls_back_gracefully():
+    """Phase 5 added support for ranks 3-6 via v3_higher_rank. When
+    erisml-lib is installed, the higher-rank builder produces a real
+    rank-3+ tensor. When erisml-lib isn't installed, the orchestrator
+    silently clamps to rank-2 via the Phase 2 fallback. Either is fine;
+    no NotImplementedError reaches the caller from `compile_document`.
+    """
+    ir = compile_document(
+        EXAMPLES_DIR / "nazi_attic.txt",
+        CompileOptions(
+            tier=CompilerTier.RULES,
+            extractor="mock",
+            canonicalizer=None,
+            tensor_rank=3,
+        ),
+    )
+    assert ir.moral_tensor_v3 is not None
+    # Bridge path -> rank 3; fallback path -> rank 2 (clamped).
+    assert ir.moral_tensor_v3.rank in (2, 3)
