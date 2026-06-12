@@ -80,17 +80,38 @@ def test_rank1_produces_global_vector():
 # ---------- migration metadata preserved ----------
 
 
-def test_migration_metadata_set_on_tensor(nazi_attic_ir):
+def test_build_strategy_metadata_recorded(nazi_attic_ir):
+    """Either path (Phase 2 fanout / Phase 3 bridge) tags itself in
+    metadata.build_strategy so downstream tooling can route on it."""
     md = nazi_attic_ir.moral_tensor_v3.metadata
-    assert md.get("migration", {}).get("source") == "v2_moral_vector"
-    assert "synthesised_dims" in md["migration"]
-    assert "privacy_protection" in md["migration"]["synthesised_dims"]
+    assert md.get("build_strategy") in {
+        "phase2_fanout_from_rank1",   # erisml-lib not available
+        "phase3_v3_bridge",            # erisml-lib available, bridge ran
+    }
+
+
+def test_phase2_fallback_carries_migration_metadata(monkeypatch):
+    """When the V3 bridge isn't available, the orchestrator falls back
+    to Phase 2's V2-migration tensor builder which embeds a `migration`
+    metadata block plus `repair_residue`. Force that path via the
+    bridge's ImportError check."""
+    from erisml_compiler.erisml_backend import v3_bridge as bridge_mod
+
+    def fake_import_error(*args, **kwargs):
+        raise ImportError("simulated missing erisml-lib")
+
+    monkeypatch.setattr(bridge_mod, "compile_to_v3_tensor", fake_import_error)
+    ir = compile_document(
+        EXAMPLES_DIR / "nazi_attic.txt",
+        CompileOptions(
+            tier=CompilerTier.RULES, extractor="mock", canonicalizer=None,
+            tensor_rank=2,
+        ),
+    )
+    md = ir.moral_tensor_v3.metadata
     assert md["build_strategy"] == "phase2_fanout_from_rank1"
-
-
-def test_repair_residue_carried_in_metadata(nazi_attic_ir):
-    md = nazi_attic_ir.moral_tensor_v3.metadata
-    # The mock extractor sets repair_residue; should show up.
+    assert md.get("migration", {}).get("source") == "v2_moral_vector"
+    assert "privacy_protection" in md["migration"]["synthesised_dims"]
     assert "repair_residue" in md
 
 
@@ -129,17 +150,21 @@ def test_compile_output_v3_tensor_roundtrips_json(tmp_path, nazi_attic_ir):
 # ---------- rank fanout invariant ----------
 
 
-def test_rank2_fanout_replicates_rank1_values(nazi_attic_ir):
-    """Until Phase 5, the rank-2 columns are identical (the rank-1 value
-    fanned across stakeholders). Verify the invariant so we know when
-    Phase 5 changes it."""
+def test_rank2_columns_are_uniform_until_per_party_facts_land(nazi_attic_ir):
+    """Until Phase 4 builds per-party facts from EthicalFact.subjects,
+    the rank-2 columns are identical for both paths:
+      - Phase 2 fanout: identical by construction (rank-1 replicated)
+      - Phase 3 bridge: identical because EthicalFactsV3.from_v2
+        distributes V2 aggregates uniformly across parties
+    Phase 4 / 5 will produce genuinely per-party values; this test
+    will need to be inverted at that point."""
     t = nazi_attic_ir.moral_tensor_v3
     n = t.shape[1]
     for k in range(9):
         col = [t.get_cell(k, j) for j in range(n)]
         assert len(set(col)) == 1, (
             f"rank-2 column {k} has divergent values {col}; "
-            f"if Phase 5 has landed, update this test"
+            f"if Phase 4/5 has landed, invert this assertion"
         )
 
 

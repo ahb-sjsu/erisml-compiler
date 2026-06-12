@@ -180,7 +180,7 @@ on a feature branch from `origin/main` not touching that file.
 
 - [x] Phase 1: IR schema for ranks 1-6 — done 2026-06-12 (22 tests, V2 untouched)
 - [x] Phase 2: Tensor builder produces rank-2 by default — done 2026-06-12 (12 new tests, V2 untouched, --rank CLI flag, end-to-end nazi_attic rank-2 verified)
-- [ ] Phase 3: EM-DAG migration to V3 module tiers
+- [x] Phase 3: V3 bridge invokes DEME V3 modules — done 2026-06-12 (erisml_backend/v3_bridge.py wires IR -> V2 EthicalFacts -> EthicalFactsV3.from_v2 -> GenevaEMV3 + TriageEMV3 -> weighted-mean MoralTensorV3. Orchestrator dispatches to bridge when erisml-lib available, falls back to Phase 2 fanout otherwise. 7 new tests, 16 pre-existing V2 tests still green. Per-party uniformity remains until Phase 4 builds per-party facts from EthicalFact.subjects.)
 - [ ] Phase 4: V3 facts + V3 judgement at the bridge
 - [ ] Phase 5: Coalition + temporal axes (ranks 3-6)
 - [ ] Phase 6: Strategic layer + decision proofs

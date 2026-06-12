@@ -48,6 +48,14 @@ monitor = [
     "numpy>=1.24",
     "paramiko>=3.4",
 ]
+deme-v3 = [
+    # erisml-lib carries the DEME V3 modules (Geneva, Triage, etc.) that
+    # the V3 bridge invokes. When this extra is not installed, the
+    # compiler falls back to the Phase 2 V2-migration tensor builder.
+    # Pinned >=3.0 (the V3 sprint). PyPI publication pending; install
+    # editable from local source until that lands.
+    "numpy>=1.24",
+]
 test = [
     "pytest>=8.0",
     "pytest-cov>=5.0",

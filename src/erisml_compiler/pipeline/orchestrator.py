@@ -35,6 +35,34 @@ from erisml_compiler.evaluation.conflict_detector import detect_conflicts
 from erisml_compiler.evaluation.moral_vector import build_moral_vector_from_em_outputs
 from erisml_compiler.evaluation.tensor_builder import build_timeline
 from erisml_compiler.evaluation.tensor_builder_v3 import build_moral_tensor_v3
+
+# V3 bridge import is lazy so the orchestrator stays importable when
+# erisml-lib is absent. See _produce_v3_tensor below.
+import logging as _logging
+_v3_log = _logging.getLogger(__name__)
+
+
+def _produce_v3_tensor(ir, em_outputs, dag, options):
+    """Phase 3 dispatch: try the V3 bridge first (erisml-lib modules);
+    fall back to the Phase 2 fanout when erisml-lib isn't installed
+    or the bridge call raises a non-ImportError.
+
+    The fallback path is *correct but coarse*: rank-2 columns are
+    identical (the V2-migrated rank-1 fanned across stakeholders).
+    The bridge path produces genuinely per-stakeholder values.
+    """
+    try:
+        from erisml_compiler.erisml_backend.v3_bridge import compile_to_v3_tensor  # noqa: PLC0415
+        return compile_to_v3_tensor(ir, rank=options.tensor_rank)
+    except ImportError:
+        _v3_log.info("erisml-lib not installed; using Phase 2 fanout path")
+        return build_moral_tensor_v3(ir, em_outputs, dag, rank=options.tensor_rank)
+    except Exception as e:  # noqa: BLE001
+        _v3_log.warning(
+            "V3 bridge raised %s; falling back to Phase 2 fanout: %s",
+            type(e).__name__, e,
+        )
+        return build_moral_tensor_v3(ir, em_outputs, dag, rank=options.tensor_rank)
 from erisml_compiler.ingestion.structured_loader import load_structured_input
 from erisml_compiler.ingestion.text_loader import load_text_document
 from erisml_compiler.ir.schemas import CompilerIR, PassRecord
@@ -196,9 +224,7 @@ def compile_document(
         # DEME V3 alignment (Phase 2): produce the rank-N tensor
         # alongside the V2 moral_vectors. Phase 4 will make V3 the only
         # producer; for now both ship.
-        ir.moral_tensor_v3 = build_moral_tensor_v3(
-            ir, em_outputs, dag, rank=options.tensor_rank,
-        )
+        ir.moral_tensor_v3 = _produce_v3_tensor(ir, em_outputs, dag, options)
 
     # Pass 9-10: ErisML IR is the in-memory `ir` itself; DEME evaluation.
     with record_pass(passes, 10, "deme_evaluation", tier_value):
