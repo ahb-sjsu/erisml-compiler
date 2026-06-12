@@ -5,51 +5,68 @@
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 [![Pydantic v2](https://img.shields.io/badge/pydantic-v2-green.svg)](https://docs.pydantic.dev/)
 [![Schema](https://img.shields.io/badge/IR%20schema-erisml__compiler__ir__v0.1-orange.svg)](SCOPE.md)
+[![Tests](https://img.shields.io/badge/tests-142%20passing-brightgreen.svg)](#status)
 [![Status: Alpha](https://img.shields.io/badge/status-alpha-red.svg)](SCOPE.md)
 
 A structure-preserving compiler from natural-language moral material into a
 canonical **ErisML Intermediate Representation** (IR) that can be evaluated by
-DEME, exported for RLEF training, and audited as a structured trace.
+DEME, exported for RLEF training, audited as a structured trace, and
+introspected by the I-EIP Monitor's three lenses.
 
 The compiler operationalises the thesis that **moral reasoning requires
 structure-preserving representation before decision contraction**. A scalar
 "good / bad / safe / unsafe" label discards the dimensions that justify or
 defeat a candidate action: who the stakeholders are, what commitments bind
 them, which authorities are legitimate, who bears imposed risk. The compiler
-preserves this tensorial structure as a first-class object.
+preserves this tensorial structure as a first-class object, then closes the
+loop by inspecting whether the text output and the model's internal state
+actually agree about it.
 
-See `ErisML-Compiler.md` for the full design spec (31 sections). See
-`SCOPE.md` for what each phase actually delivers versus what is deferred.
-This release (v0.3.0) bundles Phases 1–3 (IR + DEME + calibration + silicon
-emitters); Phase 4 (I-EIP Monitor: Internal / Activation / Delta lenses)
-is in-flight on the `main` branch.
+See `ErisML-Compiler.md` for the full design spec (31 sections) and `SCOPE.md`
+for what each phase actually delivers versus what is deferred. Current `main`
+covers Phases 1–4 (IR + DEME + calibration + silicon emitters + I-EIP
+Monitor); the production web app and silicon hardware verification are
+deferred.
 
 ## Quick start
 
 ```bash
 # Install (editable; choose extras as needed)
-pip install -e ".[test,notebook]"
+pip install -e ".[test,calibration,monitor,notebook]"
 
-# Compile one of the bundled examples
-eris-compile compile examples/nazi_attic.txt --out out/nazi_attic.json
+# Compile one of the bundled examples (text lens)
+eris-compile compile examples/nazi_attic.txt --out out/nazi_attic.ir.json
 
-# Validate an IR file
-eris-compile validate out/nazi_attic.json
+# Validate the IR
+eris-compile validate out/nazi_attic.ir.json
 
 # Export as an RLEF training record
-eris-compile rlef out/nazi_attic.json --out out/nazi_attic.rlef.json
+eris-compile rlef out/nazi_attic.ir.json --out out/nazi_attic.rlef.json
 
-# Run the test suite
+# Run the activation lens (mock source for offline use)
+eris-compile monitor "Soldiers at the door asking about hidden refugees." \
+    --source mock --hidden-dim 64 --n-layers 8 \
+    --out out/nazi_attic.trace.json
+
+# Compare the two lenses — fires requires_human_review when they disagree
+eris-compile delta out/nazi_attic.ir.json out/nazi_attic.trace.json \
+    --out out/nazi_attic.delta.json
+
+# Emit synthesizable Vitis HLS C++ for the silicon target
+eris-compile silicon-emit --out-dir out/silicon
+
+# Run the full test suite (142 tests, ~30s without LaBSE download)
 pytest
 
-# Open the quickstart notebook
+# Quickstart notebook
 jupyter notebook notebooks/quickstart.ipynb
 ```
 
 ## Architecture
 
 The compiler implements the 12-pass pipeline from spec §12 with a tiered
-extractor stack and silicon-castable evaluation kernel:
+extractor stack, a silicon-castable evaluation kernel, and the I-EIP Monitor
+on top.
 
 ```
 text  ──► ingest ──► segment ──► extract ──► canonicalize ──► tensorize
@@ -60,6 +77,12 @@ text  ──► ingest ──► segment ──► extract ──► canonicaliz
                           └──► EM-DAG (10 modules) ──► FSMs ──► DEME ──► audit
                                                     │
                                                     └──► silicon emit (Vitis HLS)
+
+                          (out-of-band, sampled audit)
+                          model ──► hooks ──► IEIPMonitor ──► Delta lens
+                                                                │
+                                                                └─► requires_human_review
+                                                                    + failure-mode report
 ```
 
 Three extractor tiers cover the latency / faithfulness frontier:
@@ -67,9 +90,24 @@ Three extractor tiers cover the latency / faithfulness frontier:
 - **Mock / Rule** — deterministic, real-time, silicon-castable.
 - **LLM** — NRP OpenAI-compatible (`gpt-oss`, `qwen3`, etc.) or local vLLM,
   with a critic pass that flags off-canon outputs for `requires_human_review`.
-- **Probe** — calibrated LaBSE-backed classifier head (Phase 3) using
+- **Probe** — calibrated LaBSE-backed classifier head using
   sqnd-probe v10.16.9 methods: spectral decoupling, VIB, multi-head GRL
   adversarial, confusion loss.
+
+Three lenses cover the alignment frontier:
+
+- **Text lens** (Phases 1–3) — what the model *says*.
+- **Activation lens** (Phase 4) — what the model *internally exhibits*
+  at chosen transformer layers (forward hooks on Qwen2.5-7B-Instruct,
+  LLaMA, Mistral, GPT-2, or BERT-family models).
+- **Delta lens** (Phase 4) — where they disagree, structured by moral
+  dimension, with five named failure modes
+  (`text_internal_mismatch`, `layerwise_drift`, `group_symmetry_break`,
+  `probe_uncertainty_spike`, `audit_chain_break`). Any firing sets
+  `requires_human_review`; the Monitor never overrules DEME.
+
+See `docs/i_eip_monitor.md` for the threat model, trust-boundary
+diagram, and the precise semantics of each failure mode.
 
 ### Layered architecture
 
@@ -94,56 +132,79 @@ Three extractor tiers cover the latency / faithfulness frontier:
 | `streaming/` | Real-time captioner of pipeline events |
 | `monitor/` | I-EIP Monitor activation lens: ActivationSource + ActivationProbe + IEIPMonitor |
 | `delta/` | Delta lens: compare_morals, BIP equivariance check, 5-mode failure detector |
-| `cli.py` | `eris-compile {bundle,calibrate,compile,correct,delta,diff,monitor,report,rlef,silicon-emit,validate,version}` |
+| `cli.py` | 12 subcommands: `bundle calibrate compile correct delta diff monitor report rlef silicon-emit validate version` |
 
-### What is NOT yet in v0.3.0
+### What is NOT yet in `main`
 
-See `SCOPE.md` for the full list. Headline in-flight items: the production
-web app, NRP runtime deployment, and silicon hardware verification on the
-U55C target. The I-EIP Monitor (Internal / Activation / Delta lenses) is
-implemented as of Phase 4 — see `docs/i_eip_monitor.md`.
+See `SCOPE.md` for the full list. Headline in-flight items:
+
+- **Production web app** (deferred from the Phase 4 redirect to the I-EIP Monitor)
+- **NRP runtime deployment** (orchestrator + pod templates)
+- **Silicon hardware verification** on the Xilinx U55C target — Vitis HLS C++
+  is emitted and builds; on-FPGA bring-up is gated by the NRP Coder bitstream
+  pipeline (see `project_epu_phase3_hw_blocked` in the user's notes).
 
 ## Project layout
 
 ```
 erisml-compiler/
-  ErisML-Compiler.docx        # Original design spec
-  ErisML-Compiler.md          # Same, converted to Markdown for reading
-  SCOPE.md                    # What is built vs stubbed vs deferred
+  ErisML-Compiler.docx        # Original design spec (31 sections)
+  ErisML-Compiler.md          # Same, converted to Markdown
+  SCOPE.md                    # What is built / stubbed / deferred
   README.md                   # This file
   LICENSE                     # MIT
-  pyproject.toml
+  pyproject.toml              # Extras: [llm] [calibration] [monitor] [test] [dev] [notebook]
   src/erisml_compiler/
     cli.py
-    config.py
-    ingestion/
-    segmentation/
-    annotation/
-    ontology/
-    ir/
-    evaluation/
-    erisml_backend/
-    audit/
-    export/
+    ingestion/  segmentation/  annotation/  ontology/  ir/  evaluation/
+    em_dag/     fsm/           canonicalizer/          correction/
+    calibration/  monitor/  delta/  silicon/  erisml_backend/
+    audit/        export/   viz/    streaming/
   examples/
     nazi_attic.txt
     medical_confidentiality.txt
     whistleblower.txt
-  tests/
-  notebooks/
-    quickstart.ipynb
+  tests/                      # 142 tests
+  notebooks/quickstart.ipynb
   docs/
     architecture.md
+    silicon_target.md
+    nrp_coder_deployment.md
+    i_eip_monitor.md          # I-EIP Monitor threat model & trust boundaries
+  scripts/atlas/
+    probe_models.py           # Recon: enumerate HF + GGUF models on Atlas
 ```
 
 ## Status
 
-v0.3.0 — alpha. 82 tests passing across IR, EM-DAG, FSMs, canonicalizer,
-critic, correction, calibration, export, and silicon emit. CLI exposes 10
-subcommands. NRP LLM integration verified end-to-end on the bundled
-`nazi_attic` example. Silicon emitters produce Vitis HLS C++ for FSMs and the
-EM-DAG; the web app, storage layer, and I-EIP Monitor (Phase 4) are in
-flight. See `SCOPE.md`.
+**Phases 1–4 on `main`** — alpha. **142 tests passing** across IR, EM-DAG,
+FSMs, canonicalizer, critic, correction, calibration, export, silicon emit,
+activation lens, delta lens, equivariance, and the failure-mode detectors.
+CI green on Ubuntu × Python 3.10/3.11/3.12.
+
+End-to-end verified:
+
+- NRP LLM integration on the bundled `nazi_attic` example (the LLM picks the
+  wrong canonical form, the canonicalizer corrects it, the critic pass
+  triggers `requires_human_review`).
+- I-EIP Monitor on the same example: divergence 0.70, 6 direction breaks,
+  two failure modes fire, `requires_human_review=True`.
+- Vitis HLS C++ emit for FSMs + EM-DAG (NRP Coder bitstream blocked
+  separately — see SCOPE.md).
+
+## Citing
+
+If you use this work academically, please cite the design spec:
+
+```bibtex
+@misc{bond2026erisml,
+  author = {Bond, Andrew H.},
+  title  = {ErisML Compiler: Structure-Preserving Compilation from
+            Natural Language to a Moral Intermediate Representation},
+  year   = {2026},
+  url    = {https://github.com/ahb-sjsu/erisml-compiler}
+}
+```
 
 ## License
 

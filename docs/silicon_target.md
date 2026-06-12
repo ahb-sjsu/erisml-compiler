@@ -104,18 +104,14 @@ The path I'd take:
   evaluator produces a single quantitative verdict with a confidence
   interval; whether deployment is lawful is a separate question.
 
-## Phase 5+ deliverables
+## Status
 
-A Phase-5+ silicon-target work package would deliver:
-
-1. A fixed-point port of the FSM + EM-DAG + DEME spine, verified
-   bit-exact against the Python reference on the calibration test vectors.
-2. An HLS-toolchain implementation producing synthesisable RTL.
-3. FPGA validation on a commodity board (e.g., Xilinx Zynq Ultrascale+
-   MPSoC ZCU104), with end-to-end timing and resource numbers.
-4. A formal-equivalence proof between the Python reference and the RTL
-   (via simulation-based equivalence or symbolic verification, depending
-   on toolchain).
-5. A reference design for integrating the silicon evaluator into an
-   agent stack (gate on output of policy network, refuse-or-allow signal,
-   audit trail to off-chip memory).
+| Item | Status |
+|---|---|
+| Strict subset language for FSM + EM-DAG | done — Tier-1 subset enforced |
+| Fixed-point port of the score arithmetic | done — `silicon/fixed_point.py`, parameterised on `--fp-total-bits` / `--fp-int-bits` |
+| HLS-toolchain implementation (Vitis HLS C++) | done — `eris-compile silicon-emit` emits `erisml_fsm.cpp`, `erisml_em_dag.cpp`, `erisml_top.cpp`, Makefile (CI verifies on every push) |
+| Bit-exact equivalence vs Python reference | not done — emit is verified to build; bit-exact equivalence sweep against `tests/test_pipeline.py` vectors is the next milestone |
+| FPGA synthesis + on-board validation | blocked — gated by the NRP Coder bitstream pipeline (see SCOPE.md / `project_epu_phase3_hw_blocked` in the user's notes); 70/70 PASS through hw_emu, hw bitstream auto-restarts ~2h |
+| Formal-equivalence proof Python ↔ RTL | future work |
+| Reference integration into an agent stack | future work — the `monitor/` and `delta/` packages (Phase 4) provide the out-of-band activation path; the silicon path remains the deterministic real-time gate |
