@@ -395,6 +395,10 @@ class CompilerIR(BaseModel):
     # prefer this one. Forward-ref string keeps schemas.py importable
     # without pulling in numpy / erisml-lib transitively.
     moral_tensor_v3: "MoralTensorV3 | None" = None
+    # DEME V3 distributional metrics (Phase 4). Populated by the V3
+    # bridge when per-party evaluation runs; None otherwise.
+    per_party_verdicts: dict[str, str] | None = None
+    fairness_metrics: dict[str, float] | None = None
     timeline: list[TimelineEntry] = Field(default_factory=list)
     em_outputs: dict[str, EMOutput] = Field(default_factory=dict)
     deme_verdict: DEMEVerdict | None = None

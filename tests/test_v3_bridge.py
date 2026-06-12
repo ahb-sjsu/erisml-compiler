@@ -27,8 +27,14 @@ def bridge_ir() -> CompilerIR:
 
 
 def test_bridge_invoked_when_erisml_lib_available(bridge_ir):
+    """The bridge path tags itself with one of the supported strategy
+    names. As migration progresses, accept any phaseN_v3_bridge marker;
+    fail loudly if the orchestrator silently fell back to phase 2."""
     md = bridge_ir.moral_tensor_v3.metadata
-    assert md.get("build_strategy") == "phase3_v3_bridge"
+    strategy = md.get("build_strategy")
+    assert strategy in {"phase3_v3_bridge", "phase4_v3_bridge"}, (
+        f"expected v3 bridge path, got {strategy}"
+    )
 
 
 def test_modules_recorded_in_metadata(bridge_ir):

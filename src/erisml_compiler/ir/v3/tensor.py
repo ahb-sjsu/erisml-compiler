@@ -149,11 +149,29 @@ class MoralTensorV3(BaseModel):
                 raise ValueError(
                     f"values shape {actual_shape} does not match declared shape {self.shape}"
                 )
-        # Validate veto-location arity.
+        # Validate veto-location arity. DEME V3 uses two conventions:
+        #   () global veto (applies to whole tensor)
+        #   (party_idx,) single-axis veto — length 1, interpreted as the
+        #       *party* axis (n) on rank-2+ tensors, or the dimension
+        #       axis (k) on rank-1 tensors. Bounds check against axis 1
+        #       for rank >= 2, axis 0 for rank 1.
+        #   (i0, ..., iN) full coordinate, length = rank
         for loc in self.veto_locations:
-            if len(loc) != 0 and len(loc) != self.rank:
+            length = len(loc)
+            if length == 0:
+                continue   # global, no bounds check
+            if length == 1:
+                axis = 0 if self.rank == 1 else 1
+                if loc[0] < 0 or loc[0] >= self.shape[axis]:
+                    raise ValueError(
+                        f"veto_location {loc} (single-axis) index out of range "
+                        f"for axis {axis} (length {self.shape[axis]})"
+                    )
+                continue
+            if length != self.rank:
                 raise ValueError(
-                    f"veto_location {loc} must have length 0 (global) or {self.rank}"
+                    f"veto_location {loc} must have length 0 (global), "
+                    f"1 (single-axis), or {self.rank} (full)"
                 )
             for i, idx in enumerate(loc):
                 if idx < 0 or idx >= self.shape[i]:

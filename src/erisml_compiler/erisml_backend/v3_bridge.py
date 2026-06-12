@@ -246,6 +246,7 @@ def compile_to_v3_tensor(
     *,
     rank: int = 2,
     aggregation: str = "weighted_mean",
+    populate_ir_metrics: bool = True,
 ) -> MoralTensorV3:
     """Run the V3 bridge and return a serialisable MoralTensorV3.
 
@@ -271,10 +272,24 @@ def compile_to_v3_tensor(
     import numpy as np  # noqa: PLC0415
     from erisml.ethics.facts_v3 import EthicalFactsV3  # noqa: PLC0415
 
+    from erisml_compiler.erisml_backend.v3_facts_direct import ir_to_v3_facts  # noqa: PLC0415
+
     party_ids = [s.id for s in ir.stakeholders] if ir.stakeholders else ["aggregate"]
 
-    v2_facts = ir_to_v2_facts(ir)
-    v3_facts = EthicalFactsV3.from_v2(v2_facts, parties=party_ids)
+    # Phase 4: build V3 facts directly with per-party attribution from
+    # EthicalFact.subjects. If the direct builder fails for any reason,
+    # fall back to the Phase 3 V2-aggregation path.
+    facts_source = "direct"
+    try:
+        v3_facts = ir_to_v3_facts(ir)
+    except Exception as e:  # noqa: BLE001
+        log.warning(
+            "V3 bridge: direct facts builder raised %s; falling back to V2 aggregation: %s",
+            type(e).__name__, e,
+        )
+        v2_facts = ir_to_v2_facts(ir)
+        v3_facts = EthicalFactsV3.from_v2(v2_facts, parties=party_ids)
+        facts_source = "v2_aggregation_fallback"
 
     modules = _instantiate_v3_modules()
     weighted_values = np.zeros((9, len(party_ids)), dtype=float)
@@ -282,6 +297,7 @@ def compile_to_v3_tensor(
     veto_flags: list[str] = []
     veto_locations: list[tuple[int, ...]] = []
     reason_codes: list[str] = []
+    judgements_per_party: dict[str, list[str]] = {pid: [] for pid in party_ids}
 
     for module in modules:
         try:
@@ -312,9 +328,22 @@ def compile_to_v3_tensor(
             tuple(int(x) for x in v) for v in getattr(mt, "veto_locations", [])
         )
         reason_codes.extend(getattr(mt, "reason_codes", []))
+        # Accumulate per-party verdicts across modules.
+        for pid, v in getattr(judgement, "per_party_verdicts", {}).items():
+            if pid in judgements_per_party:
+                judgements_per_party[pid].append(str(v))
 
     if weight_total > 0:
         weighted_values /= weight_total
+
+    # Conservative per-party verdict aggregation (most restrictive wins).
+    aggregated_per_party = _aggregate_per_party_verdicts(judgements_per_party)
+
+    # Fairness metrics computed at the harm dimension (k=0). The Gini
+    # coefficient over per-party harm is a clean signal that the
+    # workload of a decision lands unevenly; worst-off = highest-harm
+    # party.
+    fairness = _compute_fairness_metrics(weighted_values, party_ids)
 
     rank2 = MoralTensorV3(
         rank=2,
@@ -329,12 +358,17 @@ def compile_to_v3_tensor(
         veto_locations=veto_locations,
         reason_codes=reason_codes,
         metadata={
-            "build_strategy": "phase3_v3_bridge",
+            "build_strategy": "phase4_v3_bridge" if facts_source == "direct" else "phase3_v3_bridge",
+            "facts_source": facts_source,
             "modules_invoked": [m.em_name for m in modules],
             "aggregation": aggregation,
             "n_parties": len(party_ids),
         },
     )
+
+    if populate_ir_metrics:
+        ir.per_party_verdicts = aggregated_per_party or None
+        ir.fairness_metrics = fairness or None
 
     if rank == 1:
         # Mean collapse over the n axis -> rank-1 (k,) tensor.
@@ -349,6 +383,61 @@ def compile_to_v3_tensor(
             metadata={**rank2.metadata, "collapsed_from_rank2": True},
         )
     return rank2
+
+
+# ---------- per-party aggregation + fairness ------------------------------
+
+
+_VERDICT_RESTRICTIVENESS = {
+    "forbid": 4,
+    "avoid": 3,
+    "neutral": 2,
+    "prefer": 1,
+    "strongly_prefer": 0,
+}
+
+
+def _aggregate_per_party_verdicts(
+    judgements_per_party: dict[str, list[str]],
+) -> dict[str, str]:
+    """Conservative aggregation: per party, take the most restrictive
+    verdict across modules. Empty entries become 'neutral'."""
+    out: dict[str, str] = {}
+    for pid, verdicts in judgements_per_party.items():
+        if not verdicts:
+            out[pid] = "neutral"
+            continue
+        worst = max(verdicts, key=lambda v: _VERDICT_RESTRICTIVENESS.get(v, 2))
+        out[pid] = worst
+    return out
+
+
+def _compute_fairness_metrics(weighted_values, party_ids) -> dict[str, float]:
+    """Compute Gini + worst-off-harm metric from the harm dimension."""
+    import numpy as np  # noqa: PLC0415
+
+    if weighted_values.shape[1] == 0:
+        return {}
+    harm_row = weighted_values[0, :]  # k=0 = physical_harm
+    metrics: dict[str, float] = {}
+    metrics["gini_harm"] = float(_gini(np.abs(harm_row)))
+    metrics["worst_off_harm_value"] = float(harm_row.max())
+    return metrics
+
+
+def _gini(arr) -> float:
+    """Classic Gini coefficient (population definition)."""
+    import numpy as np  # noqa: PLC0415
+
+    if arr.size == 0:
+        return 0.0
+    a = np.sort(arr.flatten())
+    total = a.sum()
+    if total <= 0:
+        return 0.0
+    n = a.size
+    index = np.arange(1, n + 1)
+    return float((2 * (index * a).sum() - (n + 1) * total) / (n * total))
 
 
 def _canonical_k_labels() -> tuple[str, ...]:

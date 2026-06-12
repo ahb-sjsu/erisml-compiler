@@ -181,7 +181,7 @@ on a feature branch from `origin/main` not touching that file.
 - [x] Phase 1: IR schema for ranks 1-6 — done 2026-06-12 (22 tests, V2 untouched)
 - [x] Phase 2: Tensor builder produces rank-2 by default — done 2026-06-12 (12 new tests, V2 untouched, --rank CLI flag, end-to-end nazi_attic rank-2 verified)
 - [x] Phase 3: V3 bridge invokes DEME V3 modules — done 2026-06-12 (erisml_backend/v3_bridge.py wires IR -> V2 EthicalFacts -> EthicalFactsV3.from_v2 -> GenevaEMV3 + TriageEMV3 -> weighted-mean MoralTensorV3. Orchestrator dispatches to bridge when erisml-lib available, falls back to Phase 2 fanout otherwise. 7 new tests, 16 pre-existing V2 tests still green. Per-party uniformity remains until Phase 4 builds per-party facts from EthicalFact.subjects.)
-- [ ] Phase 4: V3 facts + V3 judgement at the bridge
+- [x] Phase 4: V3 facts + V3 judgement at the bridge — done 2026-06-12 (erisml_backend/v3_facts_direct.py constructs EthicalFactsV3 directly from compiler IR using EthicalFact.subjects for per-party attribution; bridge now uses it preferentially with V2-aggregation fallback. ir.per_party_verdicts + ir.fairness_metrics surfaced on CompilerIR. Per-stakeholder divergence confirmed on nazi_attic: speaker/village→harm 0.76/0.83/forbid, refugees→0.0/prefer, nazis→0.18/neutral, Gini=0.43. veto_location validator relaxed to accept DEME V3's (party_idx,) single-axis convention. 10 new tests, 51 V3 tests total green, 16 V2 still green.)
 - [ ] Phase 5: Coalition + temporal axes (ranks 3-6)
 - [ ] Phase 6: Strategic layer + decision proofs
 - [ ] Phase 7: Silicon emit migration

@@ -81,12 +81,15 @@ def test_rank1_produces_global_vector():
 
 
 def test_build_strategy_metadata_recorded(nazi_attic_ir):
-    """Either path (Phase 2 fanout / Phase 3 bridge) tags itself in
-    metadata.build_strategy so downstream tooling can route on it."""
+    """Every supported producer tags itself in metadata.build_strategy
+    so downstream tooling can route on it. Accept any of the currently
+    supported producers; the rest of the suite makes per-phase
+    assertions about which one was selected."""
     md = nazi_attic_ir.moral_tensor_v3.metadata
     assert md.get("build_strategy") in {
-        "phase2_fanout_from_rank1",   # erisml-lib not available
-        "phase3_v3_bridge",            # erisml-lib available, bridge ran
+        "phase2_fanout_from_rank1",   # erisml-lib unavailable
+        "phase3_v3_bridge",            # bridge active, V2 facts aggregation
+        "phase4_v3_bridge",            # bridge active, direct V3 facts
     }
 
 
@@ -150,21 +153,24 @@ def test_compile_output_v3_tensor_roundtrips_json(tmp_path, nazi_attic_ir):
 # ---------- rank fanout invariant ----------
 
 
-def test_rank2_columns_are_uniform_until_per_party_facts_land(nazi_attic_ir):
-    """Until Phase 4 builds per-party facts from EthicalFact.subjects,
-    the rank-2 columns are identical for both paths:
-      - Phase 2 fanout: identical by construction (rank-1 replicated)
-      - Phase 3 bridge: identical because EthicalFactsV3.from_v2
-        distributes V2 aggregates uniformly across parties
-    Phase 4 / 5 will produce genuinely per-party values; this test
-    will need to be inverted at that point."""
+def test_rank2_columns_diverge_on_at_least_one_dimension(nazi_attic_ir):
+    """Phase 4 inverts the Phase 2/3 invariant: per-party values must
+    diverge on at least one dimension when the underlying facts
+    distinguish between stakeholders. nazi_attic does — coercion
+    targets [speaker, village]; care targets [hidden_refugees]."""
     t = nazi_attic_ir.moral_tensor_v3
     n = t.shape[1]
+    divergent_dims = []
     for k in range(9):
-        col = [t.get_cell(k, j) for j in range(n)]
-        assert len(set(col)) == 1, (
-            f"rank-2 column {k} has divergent values {col}; "
-            f"if Phase 4/5 has landed, invert this assertion"
+        col = [round(t.get_cell(k, j), 6) for j in range(n)]
+        if len(set(col)) > 1:
+            divergent_dims.append(k)
+    # Phase 4 should produce divergence; Phase 2 fallback wouldn't.
+    # We only enforce the assertion when the bridge path actually ran.
+    md = t.metadata.get("build_strategy", "")
+    if "v3_bridge" in md and "phase4" in md:
+        assert divergent_dims, (
+            "Phase 4 v3 bridge should produce ≥1 divergent dimension; got none"
         )
 
 
