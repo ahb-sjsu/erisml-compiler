@@ -8,6 +8,7 @@
 [![Tests](https://img.shields.io/badge/tests-142%20passing-brightgreen.svg)](#status)
 [![Status: Alpha](https://img.shields.io/badge/status-alpha-red.svg)](SCOPE.md)
 [![PyPI](https://img.shields.io/pypi/v/erisml-compiler.svg)](https://pypi.org/project/erisml-compiler/)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20659432.svg)](https://doi.org/10.5281/zenodo.20659432)
 
 A structure-preserving compiler from natural-language moral material into a
 canonical **ErisML Intermediate Representation** (IR) that can be evaluated by
@@ -199,17 +200,24 @@ End-to-end verified:
 
 ## Citing
 
-If you use this work academically, please cite the design spec:
+If you use this work academically, please cite via the Zenodo DOI. The
+**concept DOI** always resolves to the latest release; the version DOI
+pins a specific release.
 
 ```bibtex
-@misc{bond2026erisml,
-  author = {Bond, Andrew H.},
-  title  = {ErisML Compiler: Structure-Preserving Compilation from
-            Natural Language to a Moral Intermediate Representation},
-  year   = {2026},
-  url    = {https://github.com/ahb-sjsu/erisml-compiler}
+@software{bond2026erisml,
+  author    = {Bond, Andrew H.},
+  title     = {ErisML Compiler: A Structure-Preserving Compiler from
+               Natural Language to a Moral Intermediate Representation},
+  year      = {2026},
+  version   = {0.4.0},
+  doi       = {10.5281/zenodo.20659432},
+  url       = {https://github.com/ahb-sjsu/erisml-compiler}
 }
 ```
+
+- **Concept DOI** (latest): https://doi.org/10.5281/zenodo.20659432
+- **v0.4.0 DOI**:           https://doi.org/10.5281/zenodo.20659433
 
 ## License
 

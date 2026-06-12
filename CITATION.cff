@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-message: "If you use this software in academic work, please cite the design spec or the JOSS paper."
+message: "If you use this software in academic work, please cite via the Zenodo DOI below."
 title: "ErisML Compiler: A structure-preserving compiler from natural language to a moral intermediate representation"
 authors:
   - family-names: Bond
@@ -11,6 +11,14 @@ date-released: "2026-06-12"
 license: MIT
 repository-code: "https://github.com/ahb-sjsu/erisml-compiler"
 url: "https://pypi.org/project/erisml-compiler/"
+doi: "10.5281/zenodo.20659432"
+identifiers:
+  - description: "This specific release (v0.4.0)"
+    type: doi
+    value: "10.5281/zenodo.20659433"
+  - description: "Concept DOI (always resolves to the latest release)"
+    type: doi
+    value: "10.5281/zenodo.20659432"
 keywords:
   - AI safety
   - alignment
