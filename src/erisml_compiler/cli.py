@@ -79,8 +79,44 @@ def cli() -> None:
     type=click.IntRange(1, 6),
     default=2,
     help="DEME V3 tensor rank to produce on ir.moral_tensor_v3. "
-    "1 = global vector (k,), 2 = per-stakeholder (k,n). "
-    "Ranks 3-6 land in Phase 5 of the V3 alignment.",
+    "1=(k,), 2=(k,n), 3=(k,n,τ) temporal, 4=(k,n,a,c) action×coalition "
+    "(stub axes), 5=(k,n,τ,s) temporal + MC, 6=full. "
+    "Ranks 3-6 require erisml-lib.",
+)
+@click.option(
+    "--n-actions",
+    "tensor_n_actions",
+    type=click.IntRange(1, 8),
+    default=1,
+    help="Length of the 'a' axis at rank 4 or 6 (stub today).",
+)
+@click.option(
+    "--n-coalitions",
+    "tensor_n_coalitions",
+    type=click.IntRange(1, 16),
+    default=1,
+    help="Length of the 'c' axis at rank 4 or 6 (stub today).",
+)
+@click.option(
+    "--n-samples",
+    "tensor_n_samples",
+    type=click.IntRange(1, 32),
+    default=1,
+    help="Length of the 's' axis at rank 5 or 6. Real Monte Carlo " "over EthicalFact.confidence.",
+)
+@click.option(
+    "--sample-noise",
+    "tensor_sample_noise_std",
+    type=click.FloatRange(0.0, 0.5),
+    default=0.05,
+    help="Gaussian noise std applied to fact confidences per MC sample.",
+)
+@click.option(
+    "--sample-seed",
+    "tensor_sample_seed",
+    type=int,
+    default=0,
+    help="Base seed for the Monte Carlo sampler.",
 )
 @click.option("--stream", is_flag=True, help="Stream real-time captions to stdout.")
 def cmd_compile(
@@ -92,6 +128,11 @@ def cmd_compile(
     em_profile: Path | None,
     canonicalizer: str,
     tensor_rank: int,
+    tensor_n_actions: int,
+    tensor_n_coalitions: int,
+    tensor_n_samples: int,
+    tensor_sample_noise_std: float,
+    tensor_sample_seed: int,
     stream: bool,
 ) -> None:
     """Compile a document to an IR JSON file."""
@@ -131,6 +172,11 @@ def cmd_compile(
             em_profile=em_profile,
             canonicalizer=canon,
             tensor_rank=tensor_rank,
+            tensor_n_actions=tensor_n_actions,
+            tensor_n_coalitions=tensor_n_coalitions,
+            tensor_n_samples=tensor_n_samples,
+            tensor_sample_noise_std=tensor_sample_noise_std,
+            tensor_sample_seed=tensor_sample_seed,
         ),
     )
     export_json(ir, out_path)

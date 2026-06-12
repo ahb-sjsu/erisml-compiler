@@ -51,10 +51,17 @@ def build_moral_tensor_v3(
     Returns:
         A `MoralTensorV3` whose JSON-serialisable shape matches DEME V3.
     """
+    # The Phase 2 fanout builder is the *fallback* path for when
+    # erisml-lib is unavailable. It supports rank 1 and 2 only — the
+    # higher-rank builder requires erisml-lib (V3 modules). Higher
+    # ranks land via `v3_higher_rank.build_moral_tensor_v3_rank3plus`
+    # in the bridge path; the orchestrator dispatches.
     if rank not in (1, 2):
         raise NotImplementedError(
-            f"Phase 2 supports rank 1 and 2; rank {rank} arrives in Phase 5. "
-            f"See docs/migration/deme_v3_alignment.md."
+            f"Phase 2 fallback supports rank 1 and 2 only; rank {rank} requires "
+            f"erisml-lib (V3 modules). Install with `pip install erisml-lib` and "
+            f"the higher-rank path in v3_higher_rank will activate. See "
+            f"docs/migration/deme_v3_alignment.md."
         )
 
     # Step 1: build the V2 vector via the existing projector (no change

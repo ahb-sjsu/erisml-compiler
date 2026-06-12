@@ -48,28 +48,44 @@ _v3_log = _logging.getLogger(__name__)
 
 
 def _produce_v3_tensor(ir, em_outputs, dag, options):
-    """Phase 3 dispatch: try the V3 bridge first (erisml-lib modules);
-    fall back to the Phase 2 fanout when erisml-lib isn't installed
-    or the bridge call raises a non-ImportError.
+    """V3 tensor dispatch:
+    - rank 1-2 → Phase 3-4 bridge (per-party V3 facts → DEME V3 modules)
+    - rank 3-6 → Phase 5 higher-rank builder (stacks rank-2 slices over
+      time / action / coalition / uncertainty axes)
 
-    The fallback path is *correct but coarse*: rank-2 columns are
-    identical (the V2-migrated rank-1 fanned across stakeholders).
-    The bridge path produces genuinely per-stakeholder values.
+    Falls back to the Phase 2 V2-migration tensor builder on ImportError
+    (erisml-lib not installed) or any module exception.
     """
+    rank = options.tensor_rank
     try:
-        from erisml_compiler.erisml_backend.v3_bridge import compile_to_v3_tensor
+        if rank <= 2:
+            from erisml_compiler.erisml_backend.v3_bridge import compile_to_v3_tensor
 
-        return compile_to_v3_tensor(ir, rank=options.tensor_rank)
+            return compile_to_v3_tensor(ir, rank=rank)
+        else:
+            from erisml_compiler.erisml_backend.v3_higher_rank import (
+                HigherRankConfig,
+                build_moral_tensor_v3_rank3plus,
+            )
+
+            cfg = HigherRankConfig(
+                n_actions=options.tensor_n_actions,
+                n_coalitions=options.tensor_n_coalitions,
+                n_samples=options.tensor_n_samples,
+                sample_noise_std=options.tensor_sample_noise_std,
+                sample_seed=options.tensor_sample_seed,
+            )
+            return build_moral_tensor_v3_rank3plus(ir, rank=rank, config=cfg)
     except ImportError:
         _v3_log.info("erisml-lib not installed; using Phase 2 fanout path")
-        return build_moral_tensor_v3(ir, em_outputs, dag, rank=options.tensor_rank)
+        return build_moral_tensor_v3(ir, em_outputs, dag, rank=min(rank, 2))
     except Exception as e:  # noqa: BLE001
         _v3_log.warning(
             "V3 bridge raised %s; falling back to Phase 2 fanout: %s",
             type(e).__name__,
             e,
         )
-        return build_moral_tensor_v3(ir, em_outputs, dag, rank=options.tensor_rank)
+        return build_moral_tensor_v3(ir, em_outputs, dag, rank=min(rank, 2))
 
 
 @dataclass
@@ -82,7 +98,14 @@ class CompileOptions:
     llm_adapter: object | None = None  # for tier="llm" or critic="llm"
     probe_config: object | None = None  # ProbeExtractorConfig for tier="probe"
     fail_unknown_mock: bool = True
-    tensor_rank: int = 2  # DEME V3 rank for ir.moral_tensor_v3
+    tensor_rank: int = 2  # DEME V3 rank for ir.moral_tensor_v3 (1-6)
+    # Higher-rank axes (rank >= 3 only). a/c are stub axes today; s is
+    # real Monte Carlo over fact.confidence.
+    tensor_n_actions: int = 1
+    tensor_n_coalitions: int = 1
+    tensor_n_samples: int = 1
+    tensor_sample_noise_std: float = 0.05
+    tensor_sample_seed: int = 0
 
 
 def _resolve_em_profile(em_profile: str | Path | None) -> EMDAG:
