@@ -30,10 +30,12 @@ from erisml_compiler.projections.base import (
     Projection,
     ProjectionResult,
 )
+from erisml_compiler.projections.care_ethics import CareEthicsProjection
 from erisml_compiler.projections.consequentialist import (
     ConsequentialistProjection,
 )
 from erisml_compiler.projections.deontic import DeonticProjection
+from erisml_compiler.projections.virtue import VirtueProjection
 from erisml_compiler.projections.substrate import (
     AuthorityLegitimacy,
     ConsentState,
@@ -45,6 +47,7 @@ from erisml_compiler.projections.substrate import (
 
 __all__ = [
     "AuthorityLegitimacy",
+    "CareEthicsProjection",
     "ConsentState",
     "ConsequentialistProjection",
     "DeonticProjection",
@@ -53,6 +56,7 @@ __all__ = [
     "MoralSubstrate",
     "Projection",
     "ProjectionResult",
+    "VirtueProjection",
     "substrate_from_graph",
     "substrate_from_ir",
 ]

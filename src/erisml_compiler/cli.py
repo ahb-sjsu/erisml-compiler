@@ -84,10 +84,11 @@ def cli() -> None:
     "--projection",
     "projections_csv",
     type=str,
-    default="consequentialist_distributive,deontic_kantian",
+    default="consequentialist_distributive,deontic_kantian,virtue_aristotelian,care_ethics_relational",
     help=(
         "Comma-separated framework projections to run. Available: "
-        "consequentialist_distributive, deontic_kantian. Default: both."
+        "consequentialist_distributive, deontic_kantian, "
+        "virtue_aristotelian, care_ethics_relational. Default: all four."
     ),
 )
 @click.option(

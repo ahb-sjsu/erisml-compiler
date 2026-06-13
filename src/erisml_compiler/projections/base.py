@@ -21,7 +21,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from erisml_compiler.projections.substrate import MoralSubstrate
 
@@ -57,6 +57,40 @@ class GateFinding(BaseModel):
     detail: dict[str, Any] = Field(default_factory=dict)
 
 
+VerdictPolarity = Literal["permit", "forbid", "escalate", "neutral"]
+"""Cross-projection-comparable verdict polarity. Each framework still
+emits its own native `verdict` string, but `polarity` normalises to
+this small set so the orchestrator can flag genuine cross-framework
+disagreement without false alarms from vocabulary differences."""
+
+
+_DEFAULT_POLARITY_MAP: dict[str, VerdictPolarity] = {
+    # consequentialist
+    "permitted": "permit",
+    "requires_human_review": "escalate",
+    "tragic_conflict_escalate": "escalate",
+    "forbidden_action": "forbid",
+    # deontic
+    "permissible": "permit",
+    "forbidden": "forbid",
+    "requires_review": "escalate",
+    # virtue
+    "virtuous": "permit",
+    "vicious": "forbid",
+    "requires_practical_wisdom": "escalate",
+    # care
+    "caring": "permit",
+    "uncaring": "forbid",
+    "requires_caring_attention": "escalate",
+}
+
+
+def polarity_for_verdict(verdict: str) -> VerdictPolarity:
+    """Map a framework-native verdict string to its cross-framework
+    polarity. Unknown verdicts default to `neutral` (no inferred sign)."""
+    return _DEFAULT_POLARITY_MAP.get(verdict.lower(), "neutral")
+
+
 class ProjectionResult(BaseModel):
     """Uniform interface across framework projections."""
 
@@ -68,7 +102,11 @@ class ProjectionResult(BaseModel):
     """Framework-relative verdict. Consequentialist verdicts are
     {permitted, requires_human_review, tragic_conflict_escalate, ...};
     deontic verdicts are {permissible, forbidden, requires_review}.
-    Cross-projection comparison treats these as opaque strings."""
+    Cross-projection comparison uses `polarity` instead of comparing
+    these strings directly."""
+    polarity: VerdictPolarity = "neutral"
+    """Normalised cross-framework polarity. Populated from
+    `polarity_for_verdict(verdict)` if not set explicitly."""
     confidence: float = 1.0
     findings: list[GateFinding] = Field(default_factory=list)
     """Framework-specific findings. For deontic this carries the
@@ -79,6 +117,12 @@ class ProjectionResult(BaseModel):
     """Bag for framework-specific output: tensors, Gini, virtue traits,
     etc. Each projection documents what it puts here."""
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _fill_polarity(self) -> "ProjectionResult":
+        if self.polarity == "neutral" and self.verdict:
+            object.__setattr__(self, "polarity", polarity_for_verdict(self.verdict))
+        return self
 
 
 class Projection(ABC):

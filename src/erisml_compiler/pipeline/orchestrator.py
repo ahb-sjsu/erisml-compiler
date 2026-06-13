@@ -124,7 +124,12 @@ class CompileOptions:
     extractor: str = "rule"  # "mock" | "rule" | "probe" | "llm"
     critic: str | None = None  # same set or None
     em_profile: str | Path | None = None  # path to YAML; default if None
-    projections: tuple[str, ...] = ("consequentialist_distributive", "deontic_kantian")
+    projections: tuple[str, ...] = (
+        "consequentialist_distributive",
+        "deontic_kantian",
+        "virtue_aristotelian",
+        "care_ethics_relational",
+    )
     """Which framework projections to run in Pass 8. The default runs
     both — the consequentialist (which populates the legacy moral_*
     fields for backward compat) and the deontic-Kantian
@@ -185,6 +190,7 @@ def _projection_result_to_dict(res) -> dict[str, Any]:
     return {
         "framework": res.framework,
         "verdict": res.verdict,
+        "polarity": res.polarity,
         "confidence": res.confidence,
         "findings": [f.model_dump() for f in res.findings],
         "framework_specific": fs_clean,
@@ -393,6 +399,20 @@ def compile_document(
             dres = dp.project(substrate, graph=ir.graph)
             projections_run[dp.framework] = dres
 
+        if "virtue_aristotelian" in options.projections:
+            from erisml_compiler.projections import VirtueProjection
+
+            vp = VirtueProjection()
+            vres = vp.project(substrate, graph=ir.graph)
+            projections_run[vp.framework] = vres
+
+        if "care_ethics_relational" in options.projections:
+            from erisml_compiler.projections import CareEthicsProjection
+
+            cep = CareEthicsProjection()
+            ceres = cep.project(substrate, graph=ir.graph)
+            projections_run[cep.framework] = ceres
+
         # Store projection results as JSON-serialisable dicts; the rich
         # in-memory MoralTensorV3 etc. stay accessible via ir.moral_tensor_v3.
         ir.projections = {
@@ -401,13 +421,19 @@ def compile_document(
         }
 
         # Surface verdict disagreement explicitly — no silent aggregation.
+        # Compare normalised *polarity* across frameworks, not the
+        # framework-native verdict strings (those differ even when the
+        # frameworks agree — "permitted" / "permissible" / "virtuous" /
+        # "caring" all mean "the act is OK in this framework's terms").
         verdicts = {fw: res.verdict for fw, res in projections_run.items()}
-        if len(set(verdicts.values())) > 1:
+        polarities = {fw: res.polarity for fw, res in projections_run.items()}
+        if len({p for p in polarities.values() if p != "neutral"}) > 1:
             ir.cross_projection_disagreement = {
                 "verdicts": verdicts,
+                "polarities": polarities,
                 "note": (
                     "Frameworks disagree on this case. The compiler "
-                    "surfaces both verdicts without aggregating; "
+                    "surfaces all verdicts without aggregating; "
                     "choosing between them is itself a metaethical "
                     "decision the compiler defers to the caller."
                 ),
