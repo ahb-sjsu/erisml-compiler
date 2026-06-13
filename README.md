@@ -298,6 +298,24 @@ component truth table.
   failures silently fall back to the V2 migration builder. Research
   and production runs should pass `--strict-v3` so a regression in
   the bridge can't quietly downgrade the result.
+- **The IR is not metaethically neutral.** The named-ethos profile
+  system (`--ethos-profile dear_abby_socialchem_v0.1` etc.) tunes
+  per-module weights *within* a fixed dimensional vocabulary, but the
+  IR itself bakes in commitments below that layer: a fixed dimension
+  set (harm, rights, fairness, legitimacy, epistemic, autonomy,
+  fidelity, externality, care, repair), per-stakeholder accounting as
+  the basic unit, distributional aggregates (Gini, Shapley, worst-off)
+  as the summarisation primitives. This is a
+  pluralist-consequentialist-with-deontic-side-constraints stance, not
+  a framework-neutral one. A Kantian framework that operates on
+  maxim-universalizability or treating-persons-as-mere-means as
+  *categorical* tests rather than as channel contributions is
+  expressible only partially today (autonomy_consent, legitimacy_trust,
+  and vow_fidelity already do non-magnitudinal deontic work, but the
+  universalizability test and mere-means check are missing as
+  modules). See
+  `docs/plans/release-planning-06-framework-pluralist-architecture.md`
+  for the path forward.
 
 ## Reproduce the bundled example
 
