@@ -25,6 +25,10 @@ dependencies = [
     "click>=8.1",
     "pyyaml>=6.0",
     "structlog>=24.1",
+    # Core runtime dep since v0.7.x: evaluation/spectral.py computes the
+    # eigenvalue spectral summary on every MoralTensorV3, and the
+    # rho-estimation module uses np.linalg. Promoted from `ml` extra.
+    "numpy>=1.24",
 ]
 
 [project.optional-dependencies]
