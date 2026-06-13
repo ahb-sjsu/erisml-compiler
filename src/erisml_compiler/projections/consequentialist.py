@@ -55,15 +55,18 @@ class ConsequentialistProjection(Projection):
         *,
         ir: CompilerIR | None = None,
         tensor_override: Any = None,
+        graph: Any = None,
         **kwargs: Any,
     ) -> ProjectionResult:
         """Run the EM-DAG over the substrate (via a CompilerIR view).
 
-        For v0 we require the caller to pass the full CompilerIR because
-        the EM-DAG modules and the V3 bridge expect a CompilerIR
-        (which the substrate is a view of). Future versions will let
-        the projection take only a substrate once the EM-DAG is
-        refactored to read from the substrate directly.
+        For v0 we still require the caller to pass the full CompilerIR
+        because the EM-DAG modules and the V3 bridge read from
+        CompilerIR-shaped objects. The graph IS available (passed as
+        `graph` and also reachable via `ir.graph`); we record graph-
+        derived summary statistics in `metadata` to demonstrate the
+        graph is the primary substrate even though the EM-DAG
+        subsystem hasn't been ported to read graph queries yet.
 
         `tensor_override` lets the orchestrator inject a tensor built
         via its V3-dispatch logic (strict_v3, higher-rank bridge,
@@ -74,9 +77,28 @@ class ConsequentialistProjection(Projection):
             raise ValueError(
                 "ConsequentialistProjection.project requires the full CompilerIR "
                 "via the `ir=` kwarg for v0. (The EM-DAG and V3 bridge still "
-                "read from CompilerIR; this constraint will be relaxed in a "
-                "future refactor.)"
+                "read from CompilerIR; this constraint will be relaxed when "
+                "the EM-DAG subsystem is ported to read graph queries — "
+                "release-planning-06 follow-up item.)"
             )
+
+        # Graph-aware bookkeeping: even though the EM-DAG still reads
+        # flat fields, record graph-derived statistics in metadata so
+        # the projection result documents its graph awareness.
+        graph_obj = graph if graph is not None else getattr(ir, "graph", None)
+        graph_summary: dict[str, Any] = {}
+        if graph_obj is not None:
+            from erisml_compiler.ir.graph import EdgeKind, NodeKind
+
+            graph_summary = {
+                "n_stakeholders": len(graph_obj.nodes_of_kind(NodeKind.STAKEHOLDER)),
+                "n_acts": len(graph_obj.nodes_of_kind(NodeKind.ACT)),
+                "n_commitments": len(graph_obj.nodes_of_kind(NodeKind.COMMITMENT)),
+                "n_facts": len(graph_obj.nodes_of_kind(NodeKind.FACT)),
+                "n_imposes_on_edges": len(graph_obj.edges_of_kind(EdgeKind.IMPOSES_ON)),
+                "n_coerces_edges": len(graph_obj.edges_of_kind(EdgeKind.COERCES)),
+                "n_treats_as_edges": len(graph_obj.edges_of_kind(EdgeKind.TREATS_AS)),
+            }
 
         timeline = build_timeline(ir, self.dag, ethos_weights=self.ethos_weights)
         em_outputs = self.dag.evaluate(ir)
@@ -123,5 +145,7 @@ class ConsequentialistProjection(Projection):
             metadata={
                 "dag_name": self.dag.name,
                 "ethos_applied": bool(self.ethos_weights),
+                "graph_aware": graph_obj is not None,
+                "graph_summary": graph_summary,
             },
         )

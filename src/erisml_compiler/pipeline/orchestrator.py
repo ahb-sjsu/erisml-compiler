@@ -381,7 +381,9 @@ def compile_document(
             _tensor_for_projection = _produce_v3_tensor(
                 ir, _em_for_tensor, dag, options, ethos_weights=ethos_weights,
             )
-            cres = cp.project(substrate, ir=ir, tensor_override=_tensor_for_projection)
+            cres = cp.project(
+                substrate, ir=ir, tensor_override=_tensor_for_projection, graph=ir.graph,
+            )
             projections_run[cp.framework] = cres
 
             # Back-fill legacy fields for backward compat.
