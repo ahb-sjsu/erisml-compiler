@@ -203,6 +203,21 @@ def cmd_compile(
     if ir.moral_tensor_v3 is not None:
         t = ir.moral_tensor_v3
         click.echo(f"[+] DEME V3 tensor: rank={t.rank} shape={t.shape} axes={t.axis_names}")
+        spectral = (t.metadata or {}).get("spectral")
+        if spectral:
+            from erisml_compiler.evaluation.spectral import principal_dimension_label
+
+            label = principal_dimension_label(spectral) or "?"
+            click.echo(
+                f"[+] Principal moral stress: {spectral.get('principal_stress', 0.0):.4f}  "
+                f"(axis={label}, concentration={spectral.get('principal_concentration', 0.0):.3f}, "
+                f"effective_rank={spectral.get('effective_moral_rank', 0.0):.2f})"
+            )
+            click.echo(
+                f"[+] Principal conflict   : {spectral.get('principal_conflict', 0.0):.4f}  "
+                f"(stress_spread={spectral.get('stress_spread', 0.0):.3f}, "
+                f"total_stress={spectral.get('total_stress', 0.0):.4f})"
+            )
     if ir.audit:
         click.echo(f"[+] IR hash: {ir.audit.ir_hash}")
 

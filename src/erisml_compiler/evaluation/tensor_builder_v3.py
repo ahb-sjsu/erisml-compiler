@@ -72,6 +72,9 @@ def build_moral_tensor_v3(
     rank1 = migrate_v2_vector_to_v3(v2_vector)
 
     if rank == 1:
+        from erisml_compiler.evaluation.spectral import attach_spectral_summary
+
+        attach_spectral_summary(rank1)
         return rank1
 
     # Step 3 (rank 2): fan the rank-1 across stakeholders.
@@ -116,4 +119,8 @@ def build_moral_tensor_v3(
     # Pass tensor-level metadata through.
     rank2.metadata.update(rank1.metadata)
     rank2.metadata["build_strategy"] = "phase2_fanout_from_rank1"
+
+    from erisml_compiler.evaluation.spectral import attach_spectral_summary
+
+    attach_spectral_summary(rank2)
     return rank2

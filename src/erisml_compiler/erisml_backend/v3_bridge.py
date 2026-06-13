@@ -374,10 +374,14 @@ def compile_to_v3_tensor(
         ir.per_party_verdicts = aggregated_per_party or None
         ir.fairness_metrics = fairness or None
 
+    # Attach spectral summary (eigenvalue scalars + per-axis spectra).
+    # See docs/plans/release-planning-04-eigenvalue-scalar.md.
+    from erisml_compiler.evaluation.spectral import attach_spectral_summary
+
     if rank == 1:
         # Mean collapse over the n axis -> rank-1 (k,) tensor.
         mean_vals = weighted_values.mean(axis=1).tolist()
-        return MoralTensorV3(
+        rank1 = MoralTensorV3(
             rank=1,
             shape=(9,),
             axis_names=("k",),
@@ -386,6 +390,10 @@ def compile_to_v3_tensor(
             veto_flags=veto_flags,
             metadata={**rank2.metadata, "collapsed_from_rank2": True},
         )
+        attach_spectral_summary(rank1)
+        return rank1
+
+    attach_spectral_summary(rank2)
     return rank2
 
 

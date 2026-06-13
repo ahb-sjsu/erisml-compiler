@@ -263,7 +263,7 @@ def build_moral_tensor_v3_rank3plus(
     if has_coalition and config.n_coalitions > 1 and not coalition_is_real:
         stub_axes.append("c")
 
-    return MoralTensorV3(
+    tensor = MoralTensorV3(
         rank=rank,
         shape=shape,
         axis_names=axis_layout,
@@ -295,6 +295,12 @@ def build_moral_tensor_v3_rank3plus(
             "coalition_mode": config.coalition_mode,
         },
     )
+    # Attach spectral summary (eigenvalue scalars + per-axis spectra).
+    # See docs/plans/release-planning-04-eigenvalue-scalar.md.
+    from erisml_compiler.evaluation.spectral import attach_spectral_summary
+
+    attach_spectral_summary(tensor)
+    return tensor
 
 
 # ---------- helpers -----------------------------------------------------
