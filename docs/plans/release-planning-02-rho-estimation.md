@@ -1,9 +1,30 @@
 # Release planning 02 — Real ρ estimation behind an experimental flag
 
-**Status:** design only; no implementation in this document.
+**Status:** core implementation landed (ρ-1, ρ-2, ρ-3). CLI subcommand,
+semantic validation gate, held-out residual baselines, and the
+equivariance benchmark suite remain future work (see Milestones).
 **Owner:** TBD.
-**Estimated effort:** 1.5–2 weeks once the calibration corpus is in hand.
+**Estimated effort:** ~10 days total; ~3 days landed in this commit.
 **Predecessor:** [release-planning-01](./release-planning-01.txt) item 3.
+
+## Landed in v0
+
+- `src/erisml_compiler/delta/transforms.py` — `Transform`,
+  `TransformFamily`, `TransformRegistry`, `default_registry()`, plus
+  4 bundled surface-family transforms.
+- `src/erisml_compiler/delta/rho_estimation.py` — `RhoEstimate`,
+  `fit_rho_procrustes`, `fit_rho_lstsq`, `compute_residuals`,
+  `equivariance_residual`, top-level `fit_rho`.
+- `src/erisml_compiler/delta/equivariance.py` extended with
+  `rho_map` + `residual_threshold` kwargs; `LayerEquivarianceResult`
+  gains an optional `rho_residual` field.
+- `FailureMode.RHO_NON_ORTHOGONAL` added.
+- `tests/test_rho_estimation.py` — 18 tests covering the math.
+
+Future work (per the Milestones table below): ρ-4 CLI fit-rho
+subcommand requires real activation captures + probe checkpoints;
+ρ-5 semantic-rewrite validation gate needs the LLM adapter; ρ-6/7
+need the curated paraphrase corpus.
 
 ## What this is
 

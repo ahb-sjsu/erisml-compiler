@@ -44,6 +44,11 @@ class FailureMode(str, Enum):
     GROUP_SYMMETRY_BREAK = "group_symmetry_break"
     PROBE_UNCERTAINTY_SPIKE = "probe_uncertainty_spike"
     AUDIT_CHAIN_BREAK = "audit_chain_break"
+    RHO_NON_ORTHOGONAL = "rho_non_orthogonal"
+    """ρ_ℓ(g) fitted on a transform that should be norm-preserving
+    (paraphrase, role-swap) came out far from orthogonal. Diagnostic:
+    the probe is picking up surface form rather than semantic
+    content under that transform."""
 
 
 @dataclass(frozen=True)

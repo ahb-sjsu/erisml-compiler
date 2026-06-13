@@ -61,6 +61,11 @@ class LayerEquivarianceResult:
     probe_logits_l2: float
     passed: bool  # both cosine sims above threshold
 
+    rho_residual: float | None = None
+    """ρ-corrected residual ||ρ·h - h_g|| / ||h_g||, populated only
+    when `check_equivariance` was called with a `rho_map` for this
+    (rewrite, layer) pair. None in identity-ρ mode (the default)."""
+
 
 @dataclass(frozen=True)
 class EquivarianceReport:
@@ -91,6 +96,7 @@ class EquivarianceReport:
                     "probe_logits_cosine_sim": r.probe_logits_cosine_sim,
                     "probe_logits_l2": r.probe_logits_l2,
                     "passed": r.passed,
+                    "rho_residual": r.rho_residual,
                 }
                 for r in self.per_layer_per_rewrite
             ],
@@ -147,6 +153,8 @@ def check_equivariance(
     layers: Sequence[int] | None = None,
     pooled_cosine_threshold: float = 0.95,
     probe_cosine_threshold: float = 0.9,
+    rho_map: Mapping[str, Mapping[int, object]] | None = None,
+    residual_threshold: float | None = None,
 ) -> EquivarianceReport:
     """Run the BIP equivariance check across rewrites and layers.
 
@@ -160,6 +168,14 @@ def check_equivariance(
             uses every layer with a probe.
         pooled_cosine_threshold / probe_cosine_threshold: a layer passes
             when both cosine sims exceed their respective thresholds.
+        rho_map: optional {rewrite_name: {layer_index: RhoEstimate}}.
+            When provided for a given (rewrite, layer), the ρ-corrected
+            residual ||ρ·h - h_g||/||h_g|| is computed in addition to
+            the identity-ρ cosine check. The layer passes iff cosines
+            pass AND the residual is below threshold.
+        residual_threshold: override threshold for ρ-corrected
+            residuals. When None, the RhoEstimate's own `residual_p95`
+            is used per-transform.
     """
     layer_targets = list(layers) if layers is not None else sorted(probes.keys())
 
@@ -192,6 +208,21 @@ def check_equivariance(
             ll2 = _l2(base_logits, new_logits)
 
             passed = pc >= pooled_cosine_threshold and lc >= probe_cosine_threshold
+
+            rho_residual: float | None = None
+            if rho_map is not None and rw.name in rho_map and la.layer_index in rho_map[rw.name]:
+                import numpy as np
+
+                from erisml_compiler.delta.rho_estimation import equivariance_residual
+
+                est = rho_map[rw.name][la.layer_index]
+                base_arr = np.asarray(base_pooled.float().cpu().numpy()).flatten()
+                new_arr = np.asarray(la.pooled.float().cpu().numpy()).flatten()
+                rho_residual = equivariance_residual(est, base_arr, new_arr)
+                thr = residual_threshold if residual_threshold is not None else est.residual_p95
+                if rho_residual > thr:
+                    passed = False
+
             if not passed:
                 failed_layers_set.add(la.layer_index)
 
@@ -204,6 +235,7 @@ def check_equivariance(
                     probe_logits_cosine_sim=lc,
                     probe_logits_l2=ll2,
                     passed=passed,
+                    rho_residual=rho_residual,
                 )
             )
 
@@ -216,5 +248,7 @@ def check_equivariance(
         config={
             "pooled_cosine_threshold": pooled_cosine_threshold,
             "probe_cosine_threshold": probe_cosine_threshold,
+            "rho_mode": "real" if rho_map else "identity",
+            "residual_threshold": residual_threshold,
         },
     )
