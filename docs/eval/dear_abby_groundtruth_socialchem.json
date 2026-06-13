@@ -1,0 +1,331 @@
+{
+  "dating_advice_ndjson": {
+    "profiles": {
+      "dear_abby_socialchem_v0.1": {
+        "mean_abs_dim_delta": {
+          "physical_harm": 0.0,
+          "rights_respect": 0.0,
+          "fairness_equity": 0.0,
+          "legitimacy_trust": 0.0,
+          "epistemic_quality": 0.0,
+          "autonomy_consent": 0.0,
+          "vow_fidelity": 0.0,
+          "third_party_externality": 0.0,
+          "care_protection": 0.0,
+          "repair_residue": 0.0
+        },
+        "mean_signed_dim_delta": {
+          "physical_harm": 0.0,
+          "rights_respect": 0.0,
+          "fairness_equity": 0.0,
+          "legitimacy_trust": 0.0,
+          "epistemic_quality": 0.0,
+          "autonomy_consent": 0.0,
+          "vow_fidelity": 0.0,
+          "third_party_externality": 0.0,
+          "care_protection": 0.0,
+          "repair_residue": 0.0
+        },
+        "principal_axis_flips": 0,
+        "verdict_flips": 0,
+        "n": 12
+      },
+      "aita_socialchem_v0.1": {
+        "mean_abs_dim_delta": {
+          "physical_harm": 0.0,
+          "rights_respect": 0.0,
+          "fairness_equity": 0.0,
+          "legitimacy_trust": 0.0,
+          "epistemic_quality": 0.0,
+          "autonomy_consent": 0.0,
+          "vow_fidelity": 0.0,
+          "third_party_externality": 0.0,
+          "care_protection": 0.0,
+          "repair_residue": 0.0
+        },
+        "mean_signed_dim_delta": {
+          "physical_harm": 0.0,
+          "rights_respect": 0.0,
+          "fairness_equity": 0.0,
+          "legitimacy_trust": 0.0,
+          "epistemic_quality": 0.0,
+          "autonomy_consent": 0.0,
+          "vow_fidelity": 0.0,
+          "third_party_externality": 0.0,
+          "care_protection": 0.0,
+          "repair_residue": 0.0
+        },
+        "principal_axis_flips": 0,
+        "verdict_flips": 0,
+        "n": 12
+      }
+    },
+    "per_question": [
+      {
+        "row": 0,
+        "baseline_verdict": "requires_human_review",
+        "baseline_principal_axis": null,
+        "dear_abby_socialchem_v0.1_verdict": "requires_human_review",
+        "dear_abby_socialchem_v0.1_principal_axis": null,
+        "dear_abby_socialchem_v0.1_largest_abs_shift_dim": "physical_harm",
+        "dear_abby_socialchem_v0.1_largest_abs_shift_value": 0.0,
+        "aita_socialchem_v0.1_verdict": "requires_human_review",
+        "aita_socialchem_v0.1_principal_axis": null,
+        "aita_socialchem_v0.1_largest_abs_shift_dim": "physical_harm",
+        "aita_socialchem_v0.1_largest_abs_shift_value": 0.0
+      },
+      {
+        "row": 1,
+        "baseline_verdict": "requires_human_review",
+        "baseline_principal_axis": null,
+        "dear_abby_socialchem_v0.1_verdict": "requires_human_review",
+        "dear_abby_socialchem_v0.1_principal_axis": null,
+        "dear_abby_socialchem_v0.1_largest_abs_shift_dim": "physical_harm",
+        "dear_abby_socialchem_v0.1_largest_abs_shift_value": 0.0,
+        "aita_socialchem_v0.1_verdict": "requires_human_review",
+        "aita_socialchem_v0.1_principal_axis": null,
+        "aita_socialchem_v0.1_largest_abs_shift_dim": "physical_harm",
+        "aita_socialchem_v0.1_largest_abs_shift_value": 0.0
+      },
+      {
+        "row": 2,
+        "baseline_verdict": "requires_human_review",
+        "baseline_principal_axis": null,
+        "dear_abby_socialchem_v0.1_verdict": "requires_human_review",
+        "dear_abby_socialchem_v0.1_principal_axis": null,
+        "dear_abby_socialchem_v0.1_largest_abs_shift_dim": "physical_harm",
+        "dear_abby_socialchem_v0.1_largest_abs_shift_value": 0.0,
+        "aita_socialchem_v0.1_verdict": "requires_human_review",
+        "aita_socialchem_v0.1_principal_axis": null,
+        "aita_socialchem_v0.1_largest_abs_shift_dim": "physical_harm",
+        "aita_socialchem_v0.1_largest_abs_shift_value": 0.0
+      },
+      {
+        "row": 3,
+        "baseline_verdict": "requires_human_review",
+        "baseline_principal_axis": null,
+        "dear_abby_socialchem_v0.1_verdict": "requires_human_review",
+        "dear_abby_socialchem_v0.1_principal_axis": null,
+        "dear_abby_socialchem_v0.1_largest_abs_shift_dim": "physical_harm",
+        "dear_abby_socialchem_v0.1_largest_abs_shift_value": 0.0,
+        "aita_socialchem_v0.1_verdict": "requires_human_review",
+        "aita_socialchem_v0.1_principal_axis": null,
+        "aita_socialchem_v0.1_largest_abs_shift_dim": "physical_harm",
+        "aita_socialchem_v0.1_largest_abs_shift_value": 0.0
+      },
+      {
+        "row": 4,
+        "baseline_verdict": "requires_human_review",
+        "baseline_principal_axis": null,
+        "dear_abby_socialchem_v0.1_verdict": "requires_human_review",
+        "dear_abby_socialchem_v0.1_principal_axis": null,
+        "dear_abby_socialchem_v0.1_largest_abs_shift_dim": "physical_harm",
+        "dear_abby_socialchem_v0.1_largest_abs_shift_value": 0.0,
+        "aita_socialchem_v0.1_verdict": "requires_human_review",
+        "aita_socialchem_v0.1_principal_axis": null,
+        "aita_socialchem_v0.1_largest_abs_shift_dim": "physical_harm",
+        "aita_socialchem_v0.1_largest_abs_shift_value": 0.0
+      },
+      {
+        "row": 5,
+        "baseline_verdict": "requires_human_review",
+        "baseline_principal_axis": null,
+        "dear_abby_socialchem_v0.1_verdict": "requires_human_review",
+        "dear_abby_socialchem_v0.1_principal_axis": null,
+        "dear_abby_socialchem_v0.1_largest_abs_shift_dim": "physical_harm",
+        "dear_abby_socialchem_v0.1_largest_abs_shift_value": 0.0,
+        "aita_socialchem_v0.1_verdict": "requires_human_review",
+        "aita_socialchem_v0.1_principal_axis": null,
+        "aita_socialchem_v0.1_largest_abs_shift_dim": "physical_harm",
+        "aita_socialchem_v0.1_largest_abs_shift_value": 0.0
+      },
+      {
+        "row": 6,
+        "baseline_verdict": "requires_human_review",
+        "baseline_principal_axis": null,
+        "dear_abby_socialchem_v0.1_verdict": "requires_human_review",
+        "dear_abby_socialchem_v0.1_principal_axis": null,
+        "dear_abby_socialchem_v0.1_largest_abs_shift_dim": "physical_harm",
+        "dear_abby_socialchem_v0.1_largest_abs_shift_value": 0.0,
+        "aita_socialchem_v0.1_verdict": "requires_human_review",
+        "aita_socialchem_v0.1_principal_axis": null,
+        "aita_socialchem_v0.1_largest_abs_shift_dim": "physical_harm",
+        "aita_socialchem_v0.1_largest_abs_shift_value": 0.0
+      },
+      {
+        "row": 7,
+        "baseline_verdict": "requires_human_review",
+        "baseline_principal_axis": null,
+        "dear_abby_socialchem_v0.1_verdict": "requires_human_review",
+        "dear_abby_socialchem_v0.1_principal_axis": null,
+        "dear_abby_socialchem_v0.1_largest_abs_shift_dim": "physical_harm",
+        "dear_abby_socialchem_v0.1_largest_abs_shift_value": 0.0,
+        "aita_socialchem_v0.1_verdict": "requires_human_review",
+        "aita_socialchem_v0.1_principal_axis": null,
+        "aita_socialchem_v0.1_largest_abs_shift_dim": "physical_harm",
+        "aita_socialchem_v0.1_largest_abs_shift_value": 0.0
+      },
+      {
+        "row": 8,
+        "baseline_verdict": "requires_human_review",
+        "baseline_principal_axis": null,
+        "dear_abby_socialchem_v0.1_verdict": "requires_human_review",
+        "dear_abby_socialchem_v0.1_principal_axis": null,
+        "dear_abby_socialchem_v0.1_largest_abs_shift_dim": "physical_harm",
+        "dear_abby_socialchem_v0.1_largest_abs_shift_value": 0.0,
+        "aita_socialchem_v0.1_verdict": "requires_human_review",
+        "aita_socialchem_v0.1_principal_axis": null,
+        "aita_socialchem_v0.1_largest_abs_shift_dim": "physical_harm",
+        "aita_socialchem_v0.1_largest_abs_shift_value": 0.0
+      },
+      {
+        "row": 9,
+        "baseline_verdict": "requires_human_review",
+        "baseline_principal_axis": null,
+        "dear_abby_socialchem_v0.1_verdict": "requires_human_review",
+        "dear_abby_socialchem_v0.1_principal_axis": null,
+        "dear_abby_socialchem_v0.1_largest_abs_shift_dim": "physical_harm",
+        "dear_abby_socialchem_v0.1_largest_abs_shift_value": 0.0,
+        "aita_socialchem_v0.1_verdict": "requires_human_review",
+        "aita_socialchem_v0.1_principal_axis": null,
+        "aita_socialchem_v0.1_largest_abs_shift_dim": "physical_harm",
+        "aita_socialchem_v0.1_largest_abs_shift_value": 0.0
+      },
+      {
+        "row": 10,
+        "baseline_verdict": "requires_human_review",
+        "baseline_principal_axis": null,
+        "dear_abby_socialchem_v0.1_verdict": "requires_human_review",
+        "dear_abby_socialchem_v0.1_principal_axis": null,
+        "dear_abby_socialchem_v0.1_largest_abs_shift_dim": "physical_harm",
+        "dear_abby_socialchem_v0.1_largest_abs_shift_value": 0.0,
+        "aita_socialchem_v0.1_verdict": "requires_human_review",
+        "aita_socialchem_v0.1_principal_axis": null,
+        "aita_socialchem_v0.1_largest_abs_shift_dim": "physical_harm",
+        "aita_socialchem_v0.1_largest_abs_shift_value": 0.0
+      },
+      {
+        "row": 11,
+        "baseline_verdict": "requires_human_review",
+        "baseline_principal_axis": null,
+        "dear_abby_socialchem_v0.1_verdict": "requires_human_review",
+        "dear_abby_socialchem_v0.1_principal_axis": null,
+        "dear_abby_socialchem_v0.1_largest_abs_shift_dim": "physical_harm",
+        "dear_abby_socialchem_v0.1_largest_abs_shift_value": 0.0,
+        "aita_socialchem_v0.1_verdict": "requires_human_review",
+        "aita_socialchem_v0.1_principal_axis": null,
+        "aita_socialchem_v0.1_largest_abs_shift_dim": "physical_harm",
+        "aita_socialchem_v0.1_largest_abs_shift_value": 0.0
+      }
+    ]
+  },
+  "morally_loaded_examples": {
+    "profiles": {
+      "dear_abby_socialchem_v0.1": {
+        "mean_abs_dim_delta": {
+          "physical_harm": 0.0,
+          "rights_respect": 0.0,
+          "fairness_equity": 0.0,
+          "legitimacy_trust": 0.016831700000000005,
+          "epistemic_quality": 0.0,
+          "autonomy_consent": 0.0,
+          "vow_fidelity": 0.16580279999999997,
+          "third_party_externality": 0.0,
+          "care_protection": 0.05000000000000001,
+          "repair_residue": 0.0
+        },
+        "mean_signed_dim_delta": {
+          "physical_harm": 0.0,
+          "rights_respect": 0.0,
+          "fairness_equity": 0.0,
+          "legitimacy_trust": 0.016831700000000005,
+          "epistemic_quality": 0.0,
+          "autonomy_consent": 0.0,
+          "vow_fidelity": -0.16580279999999997,
+          "third_party_externality": 0.0,
+          "care_protection": 0.05000000000000001,
+          "repair_residue": 0.0
+        },
+        "principal_axis_flips": 0,
+        "verdict_flips": 2,
+        "n": 3
+      },
+      "aita_socialchem_v0.1": {
+        "mean_abs_dim_delta": {
+          "physical_harm": 0.0,
+          "rights_respect": 0.0,
+          "fairness_equity": 0.0,
+          "legitimacy_trust": 0.06137793333333338,
+          "epistemic_quality": 0.0,
+          "autonomy_consent": 0.0,
+          "vow_fidelity": 0.08726699999999998,
+          "third_party_externality": 0.0,
+          "care_protection": 0.05000000000000001,
+          "repair_residue": 0.0
+        },
+        "mean_signed_dim_delta": {
+          "physical_harm": 0.0,
+          "rights_respect": 0.0,
+          "fairness_equity": 0.0,
+          "legitimacy_trust": -0.06137793333333338,
+          "epistemic_quality": 0.0,
+          "autonomy_consent": 0.0,
+          "vow_fidelity": -0.08726699999999998,
+          "third_party_externality": 0.0,
+          "care_protection": 0.05000000000000001,
+          "repair_residue": 0.0
+        },
+        "principal_axis_flips": 0,
+        "verdict_flips": 0,
+        "n": 3
+      }
+    },
+    "per_question": [
+      {
+        "row": 0,
+        "baseline_verdict": "tragic_conflict_escalate",
+        "baseline_principal_axis": null,
+        "dear_abby_socialchem_v0.1_verdict": "tragic_conflict_escalate",
+        "dear_abby_socialchem_v0.1_principal_axis": null,
+        "dear_abby_socialchem_v0.1_largest_abs_shift_dim": "vow_fidelity",
+        "dear_abby_socialchem_v0.1_largest_abs_shift_value": 0.16580279999999997,
+        "aita_socialchem_v0.1_verdict": "tragic_conflict_escalate",
+        "aita_socialchem_v0.1_principal_axis": null,
+        "aita_socialchem_v0.1_largest_abs_shift_dim": "legitimacy_trust",
+        "aita_socialchem_v0.1_largest_abs_shift_value": 0.09206690000000006
+      },
+      {
+        "row": 1,
+        "baseline_verdict": "permitted",
+        "baseline_principal_axis": null,
+        "dear_abby_socialchem_v0.1_verdict": "requires_human_review",
+        "dear_abby_socialchem_v0.1_principal_axis": null,
+        "dear_abby_socialchem_v0.1_largest_abs_shift_dim": "vow_fidelity",
+        "dear_abby_socialchem_v0.1_largest_abs_shift_value": 0.16580279999999997,
+        "aita_socialchem_v0.1_verdict": "permitted",
+        "aita_socialchem_v0.1_principal_axis": null,
+        "aita_socialchem_v0.1_largest_abs_shift_dim": "care_protection",
+        "aita_socialchem_v0.1_largest_abs_shift_value": 0.15000000000000002
+      },
+      {
+        "row": 2,
+        "baseline_verdict": "permitted",
+        "baseline_principal_axis": null,
+        "dear_abby_socialchem_v0.1_verdict": "requires_human_review",
+        "dear_abby_socialchem_v0.1_principal_axis": null,
+        "dear_abby_socialchem_v0.1_largest_abs_shift_dim": "vow_fidelity",
+        "dear_abby_socialchem_v0.1_largest_abs_shift_value": 0.16580279999999997,
+        "aita_socialchem_v0.1_verdict": "permitted",
+        "aita_socialchem_v0.1_principal_axis": null,
+        "aita_socialchem_v0.1_largest_abs_shift_dim": "vow_fidelity",
+        "aita_socialchem_v0.1_largest_abs_shift_value": 0.08726699999999998
+      }
+    ]
+  },
+  "ndjson_path": "data\\dear_abby_answers.ndjson",
+  "examples_used": [
+    "nazi_attic.txt",
+    "medical_confidentiality.txt",
+    "whistleblower.txt"
+  ]
+}
