@@ -4,7 +4,7 @@ This file states **what is built**, **what is stubbed**, and **what is deferred*
 so a maintainer can compare the running code against the 30-section design spec
 (`ErisML-Compiler.md`) without confusion.
 
-## Component truth table (as of v0.8.0)
+## Component truth table (as of v0.9.0)
 
 | Component                                | Current status              | Production readiness          |
 |------------------------------------------|-----------------------------|-------------------------------|
@@ -12,9 +12,13 @@ so a maintainer can compare the running code against the 30-section design spec
 | **MoralGraph (DAG-native substrate)**    | shipped (v0.8.0)            | alpha                         |
 | **Two-layer IR (substrate + projections)** | shipped (v0.8.0)          | alpha                         |
 | **ConsequentialistProjection**           | shipped (v0.8.0)            | alpha                         |
-| **DeonticProjection** (Kantian gates)    | shipped (v0.8.0)            | heuristic v0                  |
-| **VirtueProjection** (Aristotelian)      | shipped (v0.8.0)            | heuristic v0                  |
+| **DeonticProjection** (Kantian gates)    | shipped (v0.8.0)            | v1 KB + v2 Z3 SMT solver      |
+| **VirtueProjection** (Aristotelian)      | shipped (v0.8.0)            | v1 heuristic + v2 longitudinal|
 | **CareEthicsProjection** (Gilligan etc.) | shipped (v0.8.0)            | heuristic v0                  |
+| **SRL maxim extractor** (spaCy)          | shipped (v0.9.0)            | alpha; opt-in via `[srl]`     |
+| **Z3 universalizability solver**         | shipped (v0.9.0)            | alpha; opt-in via `[smt]`     |
+| **SQLite habit store** (WAL)             | shipped (v0.9.0)            | alpha                         |
+| **Temporally-weighted virtue assessment**| shipped (v0.9.0)            | alpha                         |
 | **Cross-projection disagreement**        | shipped (v0.8.0)            | alpha (polarity-normalised)   |
 | **EM-DAG graph-native helpers**          | shipped (v0.8.0)            | alpha (verdicts byte-identical to flat baseline) |
 | DEME V2 (10-dim MoralVector)             | shipped                     | stable-ish (backward-compat)  |

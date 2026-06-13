@@ -5,7 +5,9 @@
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 [![Pydantic v2](https://img.shields.io/badge/pydantic-v2-green.svg)](https://docs.pydantic.dev/)
 [![Schema](https://img.shields.io/badge/IR%20schema-erisml__compiler__ir__v0.3-orange.svg)](SCOPE.md)
-[![Tests](https://img.shields.io/badge/tests-330%2B%20passing-brightgreen.svg)](#status)
+[![Tests](https://img.shields.io/badge/tests-440%2B%20passing-brightgreen.svg)](#status)
+[![SMT](https://img.shields.io/badge/universalizability-Z3%20SMT-purple)](docs/architecture.md)
+[![SRL](https://img.shields.io/badge/maxim%20extraction-spaCy%20SRL-darkblue)](docs/architecture.md)
 [![Projections](https://img.shields.io/badge/projections-4%20(conseq%20%2B%20deontic%20%2B%20virtue%20%2B%20care)-blueviolet)](docs/plans/release-planning-06-framework-pluralist-architecture.md)
 [![Substrate](https://img.shields.io/badge/substrate-MoralGraph%20(DAG--native)-blue)](docs/plans/release-planning-06-framework-pluralist-architecture.md)
 [![Ruff](https://img.shields.io/badge/lint-ruff-blueviolet)](https://github.com/astral-sh/ruff)
@@ -284,9 +286,10 @@ the silicon and Monitor paths migrate.
 
 ## Status
 
-**v0.8.0 — alpha. Framework-pluralist DAG-native architecture
-(Phases 1–4 + DEME V3 alignment + the two-layer/MoralGraph refactor +
-4 projections + EM-DAG graph-native port). ~330 tests passing**
+**v0.9.0 — alpha. Production-grade Kantian + virtue analysers on top
+of the v0.8.0 framework-pluralist DAG-native architecture: spaCy SRL
+maxim extraction, Z3-based universalizability solver, SQLite habit
+store, temporally-weighted virtue assessment. ~440 tests passing**
 across IR (V2 + V3), EM-DAG (now graph-native), FSMs, canonicalizer,
 critic, correction, calibration, export (RLEF v0.2), silicon emit,
 activation lens, delta lens, equivariance, ρ-estimation, failure-mode
@@ -390,7 +393,7 @@ pins a specific release.
   title     = {ErisML Compiler: A Structure-Preserving Compiler from
                Natural Language to a Moral Intermediate Representation},
   year      = {2026},
-  version   = {0.8.0},
+  version   = {0.9.0},
   doi       = {10.5281/zenodo.20659432},
   url       = {https://github.com/ahb-sjsu/erisml-compiler}
 }
