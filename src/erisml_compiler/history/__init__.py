@@ -33,10 +33,22 @@ from erisml_compiler.history.habit_store import (
 from erisml_compiler.history.longitudinal_virtue import (
     LongitudinalVirtueProjection,
 )
+from erisml_compiler.history.sqlite_store import (
+    SqliteHabitStore,
+    migrate_from_jsonl,
+)
+from erisml_compiler.history.temporal_weighting import (
+    TemporallyWeightedAssessment,
+    temporally_weighted_assessment,
+)
 
 __all__ = [
     "ActRecord",
     "HabitStore",
     "LongitudinalVirtueProjection",
+    "SqliteHabitStore",
+    "TemporallyWeightedAssessment",
     "VirtueAssessment",
+    "migrate_from_jsonl",
+    "temporally_weighted_assessment",
 ]
