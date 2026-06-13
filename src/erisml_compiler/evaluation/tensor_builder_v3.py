@@ -37,6 +37,7 @@ def build_moral_tensor_v3(
     dag: EMDAG,
     *,
     rank: int = 2,
+    ethos_weights: dict[str, float] | None = None,
 ) -> MoralTensorV3:
     """Build a rank-1 or rank-2 V3 tensor from EM outputs + IR stakeholders.
 
@@ -66,7 +67,7 @@ def build_moral_tensor_v3(
 
     # Step 1: build the V2 vector via the existing projector (no change
     # to legacy code; we'll deprecate this in Phase 4).
-    v2_vector = build_moral_vector_from_em_outputs(em_outputs, dag)
+    v2_vector = build_moral_vector_from_em_outputs(em_outputs, dag, ethos_weights=ethos_weights)
 
     # Step 2: migrate V2 -> V3 rank-1.
     rank1 = migrate_v2_vector_to_v3(v2_vector)

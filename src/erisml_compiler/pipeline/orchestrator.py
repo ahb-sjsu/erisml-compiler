@@ -18,6 +18,7 @@ Pass map:
 
 from __future__ import annotations
 
+import hashlib
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -31,6 +32,7 @@ from erisml_compiler.audit.hash_chain import finalize_audit
 from erisml_compiler.audit.provenance import record_pass
 from erisml_compiler.canonicalizer.base import Canonicalizer, auto_canonicalizer
 from erisml_compiler.em_dag import EMDAG, load_profile
+from erisml_compiler.em_dag.dag import load_ethos_profile
 from erisml_compiler.erisml_backend.deme_bridge import DEMEBridge
 from erisml_compiler.evaluation.conflict_detector import detect_conflicts
 from erisml_compiler.evaluation.moral_vector import build_moral_vector_from_em_outputs
@@ -56,7 +58,7 @@ class StrictV3Error(RuntimeError):
     """
 
 
-def _produce_v3_tensor(ir, em_outputs, dag, options):
+def _produce_v3_tensor(ir, em_outputs, dag, options, *, ethos_weights=None):
     """V3 tensor dispatch:
     - rank 1-2 → Phase 3-4 bridge (per-party V3 facts → DEME V3 modules)
     - rank 3-6 → Phase 5 higher-rank builder (stacks rank-2 slices over
@@ -97,7 +99,9 @@ def _produce_v3_tensor(ir, em_outputs, dag, options):
                 f"strict_v3=False to allow the Phase 2 fallback. Underlying: {e}"
             ) from e
         _v3_log.info("erisml-lib not installed; using Phase 2 fanout path")
-        return build_moral_tensor_v3(ir, em_outputs, dag, rank=min(rank, 2))
+        return build_moral_tensor_v3(
+            ir, em_outputs, dag, rank=min(rank, 2), ethos_weights=ethos_weights
+        )
     except Exception as e:  # noqa: BLE001
         if options.strict_v3:
             raise StrictV3Error(
@@ -109,7 +113,9 @@ def _produce_v3_tensor(ir, em_outputs, dag, options):
             type(e).__name__,
             e,
         )
-        return build_moral_tensor_v3(ir, em_outputs, dag, rank=min(rank, 2))
+        return build_moral_tensor_v3(
+            ir, em_outputs, dag, rank=min(rank, 2), ethos_weights=ethos_weights
+        )
 
 
 @dataclass
@@ -118,6 +124,12 @@ class CompileOptions:
     extractor: str = "rule"  # "mock" | "rule" | "probe" | "llm"
     critic: str | None = None  # same set or None
     em_profile: str | Path | None = None  # path to YAML; default if None
+    ethos_profile: str | Path | None = None
+    """Path to a fitted ethos YAML (e.g.
+    `src/erisml_compiler/em_dag/profiles/dear_abby_socialchem_v0.1.yaml`).
+    When set, per-module weights are applied at MoralVector projection
+    time. Audit record carries the profile name + YAML sha256. Defaults
+    to None — no ethos, all modules at equal weight."""
     canonicalizer: Canonicalizer | None = None  # default: auto-select
     llm_adapter: object | None = None  # for tier="llm" or critic="llm"
     probe_config: object | None = None  # ProbeExtractorConfig for tier="probe"
@@ -148,6 +160,21 @@ def _resolve_em_profile(em_profile: str | Path | None) -> EMDAG:
         here = Path(__file__).parent.parent / "em_dag" / "profiles" / "default.yaml"
         return load_profile(here)
     return load_profile(em_profile)
+
+
+def _resolve_ethos_profile(
+    ethos_profile: str | Path | None,
+) -> tuple[dict[str, float] | None, str | None, str | None]:
+    """Returns (weights_dict, profile_name, profile_sha256)."""
+    if ethos_profile is None:
+        return None, None, None
+    p = Path(ethos_profile)
+    data = load_ethos_profile(p)
+    name = str(data.get("name") or p.stem)
+    weights_raw = data.get("weights") or {}
+    weights = {str(k): float(v) for k, v in weights_raw.items()}
+    sha256 = hashlib.sha256(p.read_bytes()).hexdigest()
+    return (weights or None), name, sha256
 
 
 def _resolve_extractor(
@@ -211,6 +238,7 @@ def compile_document(
     passes: list[PassRecord] = []
     tier_value = options.tier.value
     dag = _resolve_em_profile(options.em_profile)
+    ethos_weights, ethos_name, ethos_sha256 = _resolve_ethos_profile(options.ethos_profile)
 
     # Pass 0: Ingestion (and pass-through extraction for Tier 1).
     if options.tier == CompilerTier.GEOMETRIC:
@@ -277,17 +305,24 @@ def compile_document(
 
     # Pass 8: Tensorisation (build MoralVector timeline by walking the EM-DAG).
     with record_pass(passes, 8, "tensorisation", tier_value):
-        timeline = build_timeline(ir, dag)
+        timeline = build_timeline(ir, dag, ethos_weights=ethos_weights)
         ir.timeline = timeline
         # Final-state EM outputs (re-evaluated on the full IR).
         em_outputs = dag.evaluate(ir)
         ir.em_outputs = em_outputs
-        final_vector = build_moral_vector_from_em_outputs(em_outputs, dag)
+        final_vector = build_moral_vector_from_em_outputs(
+            em_outputs, dag, ethos_weights=ethos_weights
+        )
         ir.moral_vectors = [final_vector]
         # DEME V3 alignment (Phase 2): produce the rank-N tensor
         # alongside the V2 moral_vectors. Phase 4 will make V3 the only
-        # producer; for now both ship.
-        ir.moral_tensor_v3 = _produce_v3_tensor(ir, em_outputs, dag, options)
+        # producer; for now both ship. Ethos weights apply only to the
+        # Phase 2 fallback path; the erisml-lib V3 bridge builds the
+        # tensor from per-party EMs directly and does not yet route
+        # through the ethos projector.
+        ir.moral_tensor_v3 = _produce_v3_tensor(
+            ir, em_outputs, dag, options, ethos_weights=ethos_weights
+        )
 
     # Pass 9-10: ErisML IR is the in-memory `ir` itself; DEME evaluation.
     with record_pass(passes, 10, "deme_evaluation", tier_value):
@@ -307,6 +342,8 @@ def compile_document(
             extractor=extractor_name,
             em_profile=dag.name,
             passes=passes.copy(),
+            ethos_profile=ethos_name,
+            ethos_profile_sha256=ethos_sha256,
         )
         ir.audit = audit
 

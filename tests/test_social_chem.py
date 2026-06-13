@@ -214,10 +214,10 @@ def test_projection_signal_sign_matches_judgment() -> None:
     )
     sit = Situation(situation_short_id="x", situation="x", area="dearabby", rots=(rot,))
     agg = project_situation(sit)
-    # care-harm -> HarmEM (negative judgment), CareEM (slightly less weight)
-    assert agg.per_module_value["HarmEM"] < 0
-    assert agg.per_module_value["CareEM"] < 0
-    assert agg.per_module_value["HarmEM"] == pytest.approx(-1.0, abs=0.01)
+    # care-harm -> harm (negative judgment), care (slightly less weight)
+    assert agg.per_module_value["harm"] < 0
+    assert agg.per_module_value["care"] < 0
+    assert agg.per_module_value["harm"] == pytest.approx(-1.0, abs=0.01)
 
 
 def test_projection_neutral_row_yields_zero_value() -> None:
@@ -233,7 +233,7 @@ def test_projection_neutral_row_yields_zero_value() -> None:
     )
     sit = Situation(situation_short_id="x", situation="x", area="dearabby", rots=(rot,))
     agg = project_situation(sit)
-    assert agg.per_module_value["HarmEM"] == pytest.approx(0.0, abs=0.01)
+    assert agg.per_module_value["harm"] == pytest.approx(0.0, abs=0.01)
 
 
 def test_projection_unmapped_module_absent() -> None:
@@ -249,8 +249,8 @@ def test_projection_unmapped_module_absent() -> None:
     )
     sit = Situation(situation_short_id="x", situation="x", area="dearabby", rots=(rot,))
     agg = project_situation(sit)
-    # EpistemicEM has no MFT mapping, so it should not appear in the aggregate
-    assert "EpistemicEM" not in agg.per_module_value
+    # epistemic has no MFT mapping, so it should not appear in the aggregate
+    assert "epistemic" not in agg.per_module_value
 
 
 def test_projection_agreement_weighted_mean() -> None:
@@ -267,7 +267,7 @@ def test_projection_agreement_weighted_mean() -> None:
     sit = Situation(situation_short_id="x", situation="x", area="dearabby", rots=(rot_hi, rot_lo))
     agg = project_situation(sit)
     # Mean weighted by agree: (-1.0 * 1.0 + 1.0 * 0.2) / 1.2 = -0.667
-    assert agg.per_module_value["HarmEM"] < -0.5
+    assert agg.per_module_value["harm"] < -0.5
 
 
 def test_projection_falls_back_to_rot_text_when_judgment_missing() -> None:
@@ -283,7 +283,7 @@ def test_projection_falls_back_to_rot_text_when_judgment_missing() -> None:
     )
     sit = Situation(situation_short_id="x", situation="x", area="dearabby", rots=(rot,))
     agg = project_situation(sit)
-    assert agg.per_module_value["FidelityEM"] < 0
+    assert agg.per_module_value["fidelity"] < 0
 
 
 # ------------------------------------------------------------------ fitting
@@ -295,12 +295,12 @@ def test_aggregate_situations_includes_all_modules(tiny_tsv: Path) -> None:
     weights_raw, priors, coverage, n = aggregate_situations(aggs)
     assert set(weights_raw.keys()) == set(EM_DAG_MODULES_DEFAULT)
     # Modules with MFT signal in the tiny corpus
-    assert coverage["HarmEM"] > 0
-    assert coverage["FidelityEM"] > 0
-    assert coverage["LegitimacyEM"] > 0
+    assert coverage["harm"] > 0
+    assert coverage["fidelity"] > 0
+    assert coverage["legitimacy"] > 0
     # Modules without MFT signal
-    assert coverage["EpistemicEM"] == 0.0
-    assert coverage["AutonomyEM"] == 0.0
+    assert coverage["epistemic"] == 0.0
+    assert coverage["autonomy"] == 0.0
 
 
 def test_normalise_weights_sum_equals_n_modules() -> None:
@@ -334,7 +334,7 @@ def test_fit_profile_end_to_end(tiny_tsv: Path, tmp_path: Path) -> None:
     # but kept in `coverage` for the audit trail.
     assert set(profile.weights.keys()).issubset(set(EM_DAG_MODULES_DEFAULT))
     assert set(profile.coverage.keys()) == set(EM_DAG_MODULES_DEFAULT)
-    assert profile.coverage["EpistemicEM"] == 0.0
+    assert profile.coverage["epistemic"] == 0.0
     assert profile.corpus.canonical_sha256 == fp.canonical_sha256
     assert profile.fit_method == "mft_to_em_via_agreement_weighted_means"
     assert profile.mft_to_em_mapping == DEFAULT_MFT_TO_EM_DAG
@@ -364,4 +364,4 @@ def test_profile_to_dict_round_trip(tiny_tsv: Path) -> None:
     d = profile_to_dict(profile)
     assert d["name"] == profile.name
     assert d["corpus"]["citation"] == fp.citation
-    assert d["weights"]["HarmEM"] == round(profile.weights["HarmEM"], 6)
+    assert d["weights"]["harm"] == round(profile.weights["harm"], 6)

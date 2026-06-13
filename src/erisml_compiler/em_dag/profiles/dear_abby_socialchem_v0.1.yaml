@@ -74,48 +74,48 @@ corpus:
   - n-characters
   - characters
 fit_method: mft_to_em_via_agreement_weighted_means
-fitted_date: '2026-06-13T01:39:43+00:00'
+fitted_date: '2026-06-13T02:11:51+00:00'
 mft_to_em_mapping:
   care-harm:
-    HarmEM: 1.0
-    CareEM: 0.8
+    harm: 1.0
+    care: 0.8
   fairness-cheating:
-    FairnessEM: 1.0
+    fairness: 1.0
   loyalty-betrayal:
-    FidelityEM: 1.0
-    LegitimacyEM: 0.4
+    fidelity: 1.0
+    legitimacy: 0.4
   authority-subversion:
-    LegitimacyEM: 1.0
+    legitimacy: 1.0
   sanctity-degradation:
-    RightsEM: 0.5
+    rights: 0.5
 weights:
-  CareEM: 1.74772
-  FairnessEM: 0.59368
-  FidelityEM: 0.723662
-  HarmEM: 1.74772
-  LegitimacyEM: 0.970297
-  RightsEM: 0.216921
+  care: 1.74772
+  fairness: 0.59368
+  fidelity: 0.723662
+  harm: 1.74772
+  legitimacy: 0.970297
+  rights: 0.216921
 priors:
-  AutonomyEM: 0.0
-  CareEM: -0.045182
-  EpistemicEM: 0.0
-  ExternalityEM: 0.0
-  FairnessEM: -0.181049
-  FidelityEM: -0.058329
-  HarmEM: -0.045182
-  LegitimacyEM: -0.085762
-  RepairEM: 0.0
-  RightsEM: -0.169501
+  autonomy: 0.0
+  care: -0.045182
+  epistemic: 0.0
+  externality: 0.0
+  fairness: -0.181049
+  fidelity: -0.058329
+  harm: -0.045182
+  legitimacy: -0.085762
+  repair: 0.0
+  rights: -0.169501
 coverage:
-  AutonomyEM: 0.0
-  CareEM: 0.812765
-  EpistemicEM: 0.0
-  ExternalityEM: 0.0
-  FairnessEM: 0.421588
-  FidelityEM: 0.468352
-  HarmEM: 0.812765
-  LegitimacyEM: 0.626503
-  RepairEM: 0.0
-  RightsEM: 0.190594
+  autonomy: 0.0
+  care: 0.812765
+  epistemic: 0.0
+  externality: 0.0
+  fairness: 0.421588
+  fidelity: 0.468352
+  harm: 0.812765
+  legitimacy: 0.626503
+  repair: 0.0
+  rights: 0.190594
 metadata:
   n_situations_used: 11312

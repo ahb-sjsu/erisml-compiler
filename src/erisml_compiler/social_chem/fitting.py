@@ -30,17 +30,20 @@ from erisml_compiler.social_chem.schema import (
 
 
 EM_DAG_MODULES_DEFAULT: tuple[str, ...] = (
-    "HarmEM",
-    "RightsEM",
-    "FairnessEM",
-    "LegitimacyEM",
-    "EpistemicEM",
-    "AutonomyEM",
-    "FidelityEM",
-    "ExternalityEM",
-    "CareEM",
-    "RepairEM",
+    "harm",
+    "rights",
+    "fairness",
+    "legitimacy",
+    "epistemic",
+    "autonomy",
+    "fidelity",
+    "externality",
+    "care",
+    "repair",
 )
+"""Canonical lowercase EM module names — matches `module.name` in
+the loaded EM-DAG. Class names ('HarmEM', etc.) are NOT used as keys
+in fitted ethos profiles."""
 
 _SALIENCE_THRESHOLD = 0.05
 _EPSILON = 1e-6

@@ -34,17 +34,21 @@ MFT_FOUNDATIONS: tuple[str, ...] = (
 
 
 DEFAULT_MFT_TO_EM_DAG: dict[str, dict[str, float]] = {
-    "care-harm": {"HarmEM": 1.0, "CareEM": 0.8},
-    "fairness-cheating": {"FairnessEM": 1.0},
-    "loyalty-betrayal": {"FidelityEM": 1.0, "LegitimacyEM": 0.4},
-    "authority-subversion": {"LegitimacyEM": 1.0},
-    "sanctity-degradation": {"RightsEM": 0.5},
+    "care-harm": {"harm": 1.0, "care": 0.8},
+    "fairness-cheating": {"fairness": 1.0},
+    "loyalty-betrayal": {"fidelity": 1.0, "legitimacy": 0.4},
+    "authority-subversion": {"legitimacy": 1.0},
+    "sanctity-degradation": {"rights": 0.5},
 }
-"""MFT-foundation -> {EM-module: contribution_weight in [0, 1]}.
+"""MFT-foundation -> {EM-module-name: contribution_weight in [0, 1]}.
 
-Multiple foundations can contribute to the same module (e.g. HarmEM
+Keys are the canonical lowercase module names (`module.name`), which
+is what the moral_vector projector dispatches on. Class names
+('HarmEM') are NOT used here.
+
+Multiple foundations can contribute to the same module (e.g. `harm`
 gets care-harm). Multiple modules can receive from one foundation
-(e.g. care-harm lifts both HarmEM and CareEM, with CareEM at 0.8
+(e.g. care-harm lifts both `harm` and `care`, with `care` at 0.8
 because the link is slightly less direct).
 
 These weights are *projection weights* — they shape how an MFT label

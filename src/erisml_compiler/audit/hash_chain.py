@@ -49,6 +49,8 @@ def finalize_audit(
     em_profile: str,
     passes: list,
     model_version: str | None = None,
+    ethos_profile: str | None = None,
+    ethos_profile_sha256: str | None = None,
 ) -> AuditRecord:
     """Build the audit record. Call after the IR is otherwise complete; the
     returned record is then assigned to `ir.audit`."""
@@ -60,6 +62,8 @@ def finalize_audit(
         extractor=extractor,
         model_version=model_version,
         em_profile=em_profile,
+        ethos_profile=ethos_profile,
+        ethos_profile_sha256=ethos_profile_sha256,
         timestamp_utc=datetime.now(timezone.utc).isoformat(),
         passes=passes,
     )

@@ -362,6 +362,13 @@ class AuditRecord(BaseModel):
     extractor: str
     model_version: str | None = None
     em_profile: str | None = None
+    ethos_profile: str | None = None
+    """Name + version of the fitted ethos profile applied during projection
+    (e.g. 'dear_abby_socialchem_v0.1'), or None when no ethos was applied
+    (the EM-DAG modules contribute at equal baseline weight)."""
+    ethos_profile_sha256: str | None = None
+    """sha256 of the ethos profile YAML the run actually loaded. Lets
+    reviewers verify the audited weights match the file on disk."""
     timestamp_utc: str
     passes: list[PassRecord] = Field(default_factory=list)
 

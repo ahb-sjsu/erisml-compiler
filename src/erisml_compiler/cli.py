@@ -70,6 +70,17 @@ def cli() -> None:
     help="EM-DAG YAML profile. Default: bundled default profile.",
 )
 @click.option(
+    "--ethos-profile",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+    help=(
+        "Fitted ethos profile YAML (e.g. "
+        "src/erisml_compiler/em_dag/profiles/dear_abby_socialchem_v0.1.yaml). "
+        "Applies per-module weights at projection time. The profile's name "
+        "and YAML sha256 are recorded in ir.audit. Default: none (equal weights)."
+    ),
+)
+@click.option(
     "--canonicalizer",
     type=click.Choice(["auto", "registry", "labse"]),
     default="auto",
@@ -138,6 +149,7 @@ def cmd_compile(
     extractor: str,
     critic: str | None,
     em_profile: Path | None,
+    ethos_profile: Path | None,
     canonicalizer: str,
     tensor_rank: int,
     tensor_n_actions: int,
@@ -174,6 +186,8 @@ def cmd_compile(
     click.echo(f"[#] Input: {input_file}")
     click.echo(f"[#] Extractor: {extractor}{f'  (critic: {critic})' if critic else ''}")
     click.echo(f"[#] Canonicalizer: {canon.name}")
+    if ethos_profile:
+        click.echo(f"[#] Ethos profile: {ethos_profile}")
     click.echo(f"[#] Output: {out_path}")
 
     ir = compile_document(
@@ -183,6 +197,7 @@ def cmd_compile(
             extractor=extractor,
             critic=critic,
             em_profile=em_profile,
+            ethos_profile=ethos_profile,
             canonicalizer=canon,
             tensor_rank=tensor_rank,
             tensor_n_actions=tensor_n_actions,
