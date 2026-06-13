@@ -124,6 +124,13 @@ class CompileOptions:
     extractor: str = "rule"  # "mock" | "rule" | "probe" | "llm"
     critic: str | None = None  # same set or None
     em_profile: str | Path | None = None  # path to YAML; default if None
+    projections: tuple[str, ...] = ("consequentialist_distributive", "deontic_kantian")
+    """Which framework projections to run in Pass 8. The default runs
+    both — the consequentialist (which populates the legacy moral_*
+    fields for backward compat) and the deontic-Kantian
+    (universalizability + mere-means + consent + legitimacy gates).
+    Set to ('consequentialist_distributive',) to suppress deontic
+    analysis. See `docs/plans/release-planning-06-framework-pluralist-architecture.md`."""
     ethos_profile: str | Path | None = None
     """Path to a fitted ethos YAML (e.g.
     `src/erisml_compiler/em_dag/profiles/dear_abby_socialchem_v0.1.yaml`).
@@ -160,6 +167,29 @@ def _resolve_em_profile(em_profile: str | Path | None) -> EMDAG:
         here = Path(__file__).parent.parent / "em_dag" / "profiles" / "default.yaml"
         return load_profile(here)
     return load_profile(em_profile)
+
+
+def _projection_result_to_dict(res) -> dict[str, Any]:
+    """Convert a ProjectionResult into a JSON-serialisable dict.
+
+    The `framework_specific` block may carry non-serialisable objects
+    (MoralTensorV3, EMOutput, etc.) which already live on the top-level
+    IR; we drop them here to keep ir.projections small + JSON-clean.
+    """
+    fs = res.framework_specific
+    fs_clean: dict[str, Any] = {}
+    for k, v in fs.items():
+        if k in ("moral_tensor_v3", "moral_vector", "timeline", "em_outputs", "deme_verdict"):
+            continue
+        fs_clean[k] = v
+    return {
+        "framework": res.framework,
+        "verdict": res.verdict,
+        "confidence": res.confidence,
+        "findings": [f.model_dump() for f in res.findings],
+        "framework_specific": fs_clean,
+        "metadata": res.metadata,
+    }
 
 
 def _resolve_ethos_profile(
@@ -303,36 +333,82 @@ def compile_document(
                 "evidence": canon_result.evidence,
             }
 
-    # Pass 8: Tensorisation (build MoralVector timeline by walking the EM-DAG).
-    with record_pass(passes, 8, "tensorisation", tier_value):
-        timeline = build_timeline(ir, dag, ethos_weights=ethos_weights)
-        ir.timeline = timeline
-        # Final-state EM outputs (re-evaluated on the full IR).
-        em_outputs = dag.evaluate(ir)
-        ir.em_outputs = em_outputs
-        final_vector = build_moral_vector_from_em_outputs(
-            em_outputs, dag, ethos_weights=ethos_weights
-        )
-        ir.moral_vectors = [final_vector]
-        # DEME V3 alignment (Phase 2): produce the rank-N tensor
-        # alongside the V2 moral_vectors. Phase 4 will make V3 the only
-        # producer; for now both ship. Ethos weights apply only to the
-        # Phase 2 fallback path; the erisml-lib V3 bridge builds the
-        # tensor from per-party EMs directly and does not yet route
-        # through the ethos projector.
-        ir.moral_tensor_v3 = _produce_v3_tensor(
-            ir, em_outputs, dag, options, ethos_weights=ethos_weights
+    # Pass 8: Projection (two-layer IR). For each enabled projection,
+    # build framework-bound output from the descriptive substrate.
+    # The consequentialist projection's output back-fills the legacy
+    # ir.moral_tensor_v3 / moral_vectors / timeline / em_outputs fields
+    # for backward compat with downstream consumers.
+    with record_pass(passes, 8, "projection_pass", tier_value):
+        from erisml_compiler.projections import (
+            ConsequentialistProjection,
+            DeonticProjection,
+            substrate_from_ir,
         )
 
-    # Pass 9-10: ErisML IR is the in-memory `ir` itself; DEME evaluation.
-    with record_pass(passes, 10, "deme_evaluation", tier_value):
-        bridge = DEMEBridge(profile_name=dag.name)
-        verdict = bridge.evaluate(ir, final_vector)
-        ir.deme_verdict = verdict
+        substrate = substrate_from_ir(ir)
+        projections_run: dict[str, Any] = {}
+
+        if "consequentialist_distributive" in options.projections:
+            cp = ConsequentialistProjection(
+                dag=dag, ethos_weights=ethos_weights, tensor_rank=options.tensor_rank,
+            )
+            # Pre-compute the tensor via the orchestrator's V3 dispatcher
+            # (honours strict_v3 + bridge vs Phase 2 fallback). The
+            # projection accepts a tensor override so it doesn't always
+            # use the fallback path.
+            _em_for_tensor = dag.evaluate(ir)
+            _tensor_for_projection = _produce_v3_tensor(
+                ir, _em_for_tensor, dag, options, ethos_weights=ethos_weights,
+            )
+            cres = cp.project(substrate, ir=ir, tensor_override=_tensor_for_projection)
+            projections_run[cp.framework] = cres
+
+            # Back-fill legacy fields for backward compat.
+            fs = cres.framework_specific
+            ir.timeline = fs.get("timeline", [])
+            ir.em_outputs = fs.get("em_outputs", {})
+            ir.moral_vectors = [fs["moral_vector"]] if "moral_vector" in fs else []
+            ir.deme_verdict = fs.get("deme_verdict")
+            ir.moral_tensor_v3 = fs.get("moral_tensor_v3")
+            ir.per_party_verdicts = fs.get("per_party_verdicts") or None
+            ir.fairness_metrics = fs.get("fairness_metrics") or None
+
+        if "deontic_kantian" in options.projections:
+            dp = DeonticProjection()
+            dres = dp.project(substrate)
+            projections_run[dp.framework] = dres
+
+        # Store projection results as JSON-serialisable dicts; the rich
+        # in-memory MoralTensorV3 etc. stay accessible via ir.moral_tensor_v3.
+        ir.projections = {
+            framework: _projection_result_to_dict(res)
+            for framework, res in projections_run.items()
+        }
+
+        # Surface verdict disagreement explicitly — no silent aggregation.
+        verdicts = {fw: res.verdict for fw, res in projections_run.items()}
+        if len(set(verdicts.values())) > 1:
+            ir.cross_projection_disagreement = {
+                "verdicts": verdicts,
+                "note": (
+                    "Frameworks disagree on this case. The compiler "
+                    "surfaces both verdicts without aggregating; "
+                    "choosing between them is itself a metaethical "
+                    "decision the compiler defers to the caller."
+                ),
+            }
+
+    # Pass 9-10: DEME evaluation now happens inside
+    # ConsequentialistProjection during Pass 8; ir.deme_verdict is
+    # already populated. We keep the pass-record for audit-chain
+    # continuity but the work is a no-op here.
+    with record_pass(passes, 10, "deme_evaluation_via_projection", tier_value):
+        pass
 
     # Pass 11: Detect conflicts at the vector level (augments extractor's).
     with record_pass(passes, 11, "conflict_detection", tier_value):
-        ir.conflicts = detect_conflicts(ir, final_vector)
+        if ir.moral_vectors:
+            ir.conflicts = detect_conflicts(ir, ir.moral_vectors[0])
 
     # Pass 12: Audit.
     with record_pass(passes, 12, "audit_finalisation", tier_value):

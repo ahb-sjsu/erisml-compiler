@@ -298,24 +298,21 @@ component truth table.
   failures silently fall back to the V2 migration builder. Research
   and production runs should pass `--strict-v3` so a regression in
   the bridge can't quietly downgrade the result.
-- **The IR is not metaethically neutral.** The named-ethos profile
-  system (`--ethos-profile dear_abby_socialchem_v0.1` etc.) tunes
-  per-module weights *within* a fixed dimensional vocabulary, but the
-  IR itself bakes in commitments below that layer: a fixed dimension
-  set (harm, rights, fairness, legitimacy, epistemic, autonomy,
-  fidelity, externality, care, repair), per-stakeholder accounting as
-  the basic unit, distributional aggregates (Gini, Shapley, worst-off)
-  as the summarisation primitives. This is a
-  pluralist-consequentialist-with-deontic-side-constraints stance, not
-  a framework-neutral one. A Kantian framework that operates on
-  maxim-universalizability or treating-persons-as-mere-means as
-  *categorical* tests rather than as channel contributions is
-  expressible only partially today (autonomy_consent, legitimacy_trust,
-  and vow_fidelity already do non-magnitudinal deontic work, but the
-  universalizability test and mere-means check are missing as
-  modules). See
+- **The IR substrate still encodes choices, even after the two-layer
+  refactor.** The compiler now compiles into a descriptive
+  `MoralSubstrate` (stakeholders, commitments, maxims, consent states,
+  authorities) and then runs N framework `Projection`s (currently
+  `ConsequentialistProjection` and `DeonticProjection`) — the
+  consequentialist tensor is no longer the privileged-and-only output.
+  When projections disagree, the compiler surfaces both verdicts via
+  `ir.cross_projection_disagreement` and refuses to aggregate
+  silently. But the substrate's *extraction categories* (we extract
+  stakeholders, commitments, maxims; we don't extract, say, virtues
+  or relational-care states) are themselves choices. The
+  metaethical commitment shrank; it didn't vanish. See
   `docs/plans/release-planning-06-framework-pluralist-architecture.md`
-  for the path forward.
+  for the architectural argument and the limitations of the v0
+  Kantian gate implementation.
 
 ## Reproduce the bundled example
 

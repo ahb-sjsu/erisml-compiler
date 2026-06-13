@@ -420,3 +420,19 @@ class CompilerIR(BaseModel):
     canonical_form: str | None = None
     audit: AuditRecord | None = None
     extra: dict[str, Any] = Field(default_factory=dict)
+
+    # ---------------- two-layer IR (release-planning-06) ----------------
+    # `projections` carries framework-bound output from every enabled
+    # Projection. The above legacy fields (moral_tensor_v3, deme_verdict,
+    # per_party_verdicts, fairness_metrics) remain populated from
+    # projections["consequentialist_distributive"] for backward compat.
+    projections: dict[str, Any] = Field(default_factory=dict)
+    """framework_id -> ProjectionResult.model_dump() (stored as dict to
+    keep the IR JSON-serialisable without pulling in the projections
+    package transitively from this schema module)."""
+
+    cross_projection_disagreement: dict[str, Any] | None = None
+    """Populated when ≥2 projections were run and their verdicts
+    disagree. Surfaces the disagreement explicitly rather than
+    aggregating across frameworks (aggregation is itself a metaethical
+    choice the compiler refuses to make silently)."""

@@ -1,10 +1,99 @@
 # Release planning 06 — Framework-pluralist architecture
 
-**Status:** design only.
+**Status:** Option C (two-layer IR) landed in v0.x. The user chose to
+take the full architectural fix rather than the Option-A patch.
 **Owner:** TBD.
-**Estimated effort:** ρ-tier (small modules, ~3 days) for the v0.x patch;
-v1.0/v2.0 for the full two-layer refactor.
+**Estimated effort:** landed in one session (substrate + projections
+package + Consequentialist + Deontic with universalizability +
+mere-means + consent + legitimacy gates + cross-projection
+disagreement surface).
 **Predecessor:** r/Compiler review thread, 2026-06-12.
+
+## What landed (this commit)
+
+- `src/erisml_compiler/projections/` subpackage:
+  - `substrate.py` — `MoralSubstrate` Pydantic model + first-class
+    `Maxim`, `ConsentState`, `AuthorityLegitimacy` + heuristic
+    `substrate_from_ir(ir)` that derives these from the existing
+    rule extractor's output.
+  - `base.py` — `Projection` ABC + `ProjectionResult` + `GateFinding`
+    (categorical pass/fail with severity).
+  - `consequentialist.py` — `ConsequentialistProjection` wraps the
+    existing tensor/DEME/Gini machinery; back-fills
+    `ir.moral_tensor_v3`, `ir.deme_verdict`, `ir.per_party_verdicts`,
+    `ir.fairness_metrics` for backward compat.
+  - `deontic.py` — `DeonticProjection` runs four gates over the
+    substrate: `universalizability`, `mere_means`, `valid_consent`,
+    `legitimate_authority`. Verdicts: `permissible`, `requires_review`,
+    `forbidden`.
+- `CompilerIR` gains `projections: dict[str, Any]` and
+  `cross_projection_disagreement: dict | None` fields. When ≥2
+  projections disagree, the orchestrator surfaces both verdicts
+  without aggregating.
+- CLI: `--projection consequentialist_distributive,deontic_kantian`
+  (default: both).
+- `CompileOptions.projections` tuple controls which projections run.
+- `tests/test_projections.py` — 12 tests covering substrate
+  derivation, deontic gates, cross-projection surfacing, backward
+  compat for the legacy IR fields.
+
+## Initial findings on the bundled examples
+
+Running with both projections enabled (`rule` extractor):
+
+| Scenario | Consequentialist | Deontic |
+|---|---|---|
+| `nazi_attic` | `tragic_conflict_escalate` | `forbidden` (universalizability + valid_consent fail) |
+| `medical_confidentiality` | `permitted` | `forbidden` (mere_means + valid_consent fail) |
+| `whistleblower` | `permitted` | `forbidden` (mere_means + valid_consent fail) |
+
+The two frameworks meaningfully disagree on every bundled case. The
+compiler surfaces both verdicts via `cross_projection_disagreement`
+and refuses to choose between them — choosing is itself a
+metaethical move and is now explicitly deferred to the caller.
+
+## Known limitations (carries from the original design)
+
+The Option-C landing is the *architecture*, not a finished Kantian
+analyser. Honest limitations of the v0 implementation:
+
+1. **Maxim extraction is heuristic.** v0 derives `Maxim.action_kind`
+   from the dominant `ethical_fact.kind`. Real Kantian analysis
+   needs maxim extraction directly from prose (likely an LLM
+   step). The current approach catches obvious deception/coercion
+   maxims but misses subtler ones.
+2. **Universalizability check is rule-list-based.** Two action
+   kinds (`deceive`, `impose_externality`) trigger the gate. A
+   proper universalizability test builds the universalized-world
+   model and runs a contradiction test against it. Out of scope
+   for v0.
+3. **`mere_means` defaults to "any non-consenting third party is
+   being treated as means."** Strong reading, possibly over-firing.
+   The proper test depends on whether the agent's maxim genuinely
+   ignores the affected party's status as a self-determining end.
+4. **Bench harness doesn't yet score per-projection.**
+   MoralTensor-Bench (release-planning-03) scores against the
+   legacy single-verdict path. Should be extended to score each
+   projection separately + the cross-projection-disagreement rate.
+5. **Monitor / RLEF / silicon emit haven't been ported yet.** They
+   still read the consequentialist projection's output via the
+   back-fill fields. Future work to make them per-projection.
+6. **Virtue ethics projection not yet implemented.** Three would be
+   the natural triple; v0 ships with two.
+
+## Out of scope after this landing
+
+The original Option-A / B / C taxonomy is resolved (we took C).
+What remains is fill-in work, not architectural choices:
+
+- Richer Kantian gate implementations (true universalizability test,
+  better mere-means test, maxim extraction from text)
+- `VirtueProjection` (character-trait/habit consistency analysis)
+- Per-projection bench scoring + bench gold for non-consequentialist
+  verdicts
+- Per-projection monitor / RLEF / silicon paths
+- A *care-ethics* projection (Held / Noddings tradition) — different
+  primitives again (relational webs, particularised attentiveness)
 
 ## The challenge
 

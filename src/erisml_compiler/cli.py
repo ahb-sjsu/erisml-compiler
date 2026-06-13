@@ -81,6 +81,16 @@ def cli() -> None:
     ),
 )
 @click.option(
+    "--projection",
+    "projections_csv",
+    type=str,
+    default="consequentialist_distributive,deontic_kantian",
+    help=(
+        "Comma-separated framework projections to run. Available: "
+        "consequentialist_distributive, deontic_kantian. Default: both."
+    ),
+)
+@click.option(
     "--canonicalizer",
     type=click.Choice(["auto", "registry", "labse"]),
     default="auto",
@@ -150,6 +160,7 @@ def cmd_compile(
     critic: str | None,
     em_profile: Path | None,
     ethos_profile: Path | None,
+    projections_csv: str,
     canonicalizer: str,
     tensor_rank: int,
     tensor_n_actions: int,
@@ -198,6 +209,7 @@ def cmd_compile(
             critic=critic,
             em_profile=em_profile,
             ethos_profile=ethos_profile,
+            projections=tuple(p.strip() for p in projections_csv.split(",") if p.strip()),
             canonicalizer=canon,
             tensor_rank=tensor_rank,
             tensor_n_actions=tensor_n_actions,
