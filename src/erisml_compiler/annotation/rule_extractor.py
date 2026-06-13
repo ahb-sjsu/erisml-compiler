@@ -72,6 +72,25 @@ VULNERABILITY_KEYWORDS = re.compile(
 # ---------------------------------------------------------------------------
 
 
+def _graph_from_extractor_result(result):
+    """Build a MoralGraph from an in-progress ExtractorResult. Mirrors
+    `ir.graph.graph_from_flat` but takes the result object directly so
+    we don't need a full CompilerIR. Future LLM extractors that
+    construct the graph natively will skip this entirely."""
+    from erisml_compiler.ir.graph import graph_from_flat
+    from types import SimpleNamespace
+
+    pseudo_ir = SimpleNamespace(
+        stakeholders=result.stakeholders,
+        events=result.events,
+        commitments=result.commitments,
+        norms=result.norms,
+        ethical_facts=result.ethical_facts,
+        relations=result.relations,
+    )
+    return graph_from_flat(pseudo_ir)
+
+
 class RuleExtractor(Extractor):
     """Pattern-based extractor. Deterministic, offline, generalisable in
     proportion to its rule library."""
@@ -288,4 +307,11 @@ class RuleExtractor(Extractor):
         # No canonical_form mapping at the rule layer; left to Phase 2
         # learned canonicaliser. Tag as 'unknown' to surface this.
         result.canonical_form = None
+
+        # DAG-native emission: build the graph directly from the
+        # flat lists we just populated. Conceptually this makes the
+        # rule extractor graph-emitting at its result boundary; the
+        # orchestrator will skip its own promotion step. The flat lists
+        # remain populated for backward compat.
+        result.graph = _graph_from_extractor_result(result)
         return result

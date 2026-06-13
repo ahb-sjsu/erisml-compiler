@@ -313,6 +313,7 @@ def compile_document(
             ethical_facts=result.ethical_facts,
             conflicts=result.conflicts,
             canonical_form=result.canonical_form,
+            graph=getattr(result, "graph", None),
             extra={"extractor_metadata": result.extractor_metadata},
         )
 
@@ -334,15 +335,17 @@ def compile_document(
                 "evidence": canon_result.evidence,
             }
 
-    # Pass 7.5: Graph promotion. Lift the flat extractor output
-    # (stakeholders + events + commitments + ethical_facts + norms)
-    # into a typed MoralGraph. The graph becomes the *primary*
-    # descriptive representation; the flat fields stay populated for
-    # backward compat. See release-planning-06 (DAG-native refactor).
-    with record_pass(passes, 75, "graph_promotion", tier_value):
+    # Pass 7.5: Graph identity. If the extractor emitted a graph
+    # directly (graph-native extractor), use it. Otherwise lift the
+    # flat extractor output into a typed MoralGraph. The graph is the
+    # *primary* descriptive representation; the flat fields stay
+    # populated for backward compat. See release-planning-06.
+    with record_pass(passes, 75, "graph_identity", tier_value):
         from erisml_compiler.ir.graph import graph_from_flat, graph_hash as _graph_hash
 
-        ir.graph = graph_from_flat(ir)
+        if ir.graph is None:
+            ir.graph = graph_from_flat(ir)
+        # else: extractor was graph-native; trust its emission.
         _ir_graph_hash = _graph_hash(ir.graph)
 
     # Pass 8: Projection (two-layer IR). For each enabled projection,

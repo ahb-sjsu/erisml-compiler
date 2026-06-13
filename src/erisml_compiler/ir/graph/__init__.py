@@ -31,6 +31,7 @@ from erisml_compiler.ir.graph.canonical import (
     graph_hash,
 )
 from erisml_compiler.ir.graph.container import MoralGraph
+from erisml_compiler.ir.graph.lower import apply_flat_to_ir, flat_from_graph
 from erisml_compiler.ir.graph.promote import graph_from_flat
 from erisml_compiler.ir.graph.schema import (
     EdgeKind,
@@ -45,7 +46,9 @@ __all__ = [
     "MoralGraph",
     "MoralNode",
     "NodeKind",
+    "apply_flat_to_ir",
     "canonical_graph_json",
+    "flat_from_graph",
     "graph_from_flat",
     "graph_hash",
 ]

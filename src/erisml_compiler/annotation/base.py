@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
 from erisml_compiler.ir.schemas import (
     Commitment,
@@ -14,6 +15,9 @@ from erisml_compiler.ir.schemas import (
     Relation,
     Stakeholder,
 )
+
+if TYPE_CHECKING:
+    from erisml_compiler.ir.graph import MoralGraph
 
 
 class UnknownDocumentError(RuntimeError):
@@ -26,6 +30,14 @@ class ExtractorResult:
 
     Returned by Tiers 2 and 3 (text -> structure). Tier 1 reads the same
     structure directly from a JSON input and does not invoke an extractor.
+
+    Extractors may *optionally* emit a `graph` alongside the flat lists.
+    When present, the orchestrator skips Pass 7.5 (graph promotion) and
+    uses the extractor's graph directly. When absent, the orchestrator
+    promotes the flat lists into a graph automatically. Extractors that
+    want to be graph-native (e.g. an LLM extractor that builds typed
+    edges as part of its reasoning) populate this field; legacy
+    extractors leave it None and pay the promotion cost at Pass 7.5.
     """
 
     stakeholders: list[Stakeholder] = field(default_factory=list)
@@ -37,6 +49,7 @@ class ExtractorResult:
     conflicts: list[Conflict] = field(default_factory=list)
     canonical_form: str | None = None
     extractor_metadata: dict = field(default_factory=dict)
+    graph: "MoralGraph | None" = None
 
 
 class Extractor(ABC):
