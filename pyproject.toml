@@ -46,6 +46,11 @@ srl = [
     #   python -m spacy download en_core_web_sm
     "spacy>=3.7",
 ]
+smt = [
+    # Z3-based universalizability solver. Real SAT-checking over the
+    # institutional-fact universe rather than the v1 KB lookup.
+    "z3-solver>=4.13",
+]
 calibration = [
     "torch>=2.1",
     "sentence-transformers>=2.7",

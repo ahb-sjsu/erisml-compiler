@@ -94,6 +94,10 @@ class DeonticProjection(Projection):
 
     def _gate_universalizability(self, substrate: MoralSubstrate, graph: Any = None) -> GateFinding:
         from erisml_compiler.delta.universalizability import test_universalizability
+        from erisml_compiler.delta.universalizability_smt import (
+            is_smt_available,
+            test_universalizability_smt,
+        )
 
         if substrate.maxim is None:
             return GateFinding(
@@ -104,18 +108,33 @@ class DeonticProjection(Projection):
                 detail={"result": "undetermined"},
             )
         kind = substrate.maxim.action_kind
-        dep = test_universalizability(kind)
 
-        # Build detail block including the contradiction type, the
-        # institution(s) the act presupposes, and the Kantian
-        # justification — so the gate firing is auditable, not just a
-        # boolean.
+        # Prefer the Z3-based SMT solver when available, fall back to
+        # the v1 KB lookup. The SMT path runs a real consistency check
+        # over the institutional fact universe and returns a satisfying
+        # assignment (when SAT) for audit.
+        smt_used = False
+        smt_model_facts: dict[str, bool] = {}
+        if is_smt_available():
+            smt_result = test_universalizability_smt(kind)
+            if smt_result.used_z3:
+                dep = smt_result.base
+                smt_used = True
+                smt_model_facts = smt_result.model_facts
+            else:
+                dep = test_universalizability(kind)
+        else:
+            dep = test_universalizability(kind)
+
         detail: dict[str, Any] = {
             "action_kind": kind,
             "contradiction_type": dep.contradiction_type,
             "presupposes": list(dep.presupposes),
             "justification": dep.justification,
+            "solver_used": "z3" if smt_used else "kb_lookup",
         }
+        if smt_model_facts:
+            detail["satisfying_model"] = smt_model_facts
         if dep.contested_reading:
             detail["contested_reading"] = dep.contested_reading
 
