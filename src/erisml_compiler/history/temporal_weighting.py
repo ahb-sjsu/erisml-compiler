@@ -25,10 +25,8 @@ work with both the JSON Lines store and the SQLite store.
 from __future__ import annotations
 
 import math
-import statistics
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Iterable
 
 from erisml_compiler.history.habit_store import (
     VIRTUE_AXES,
@@ -122,7 +120,6 @@ def temporally_weighted_assessment(
             continue
 
         weights = [w for w, _ in observations]
-        values = [p for _, p in observations]
         total_w = sum(weights)
         effective_n_total += total_w
 
