@@ -93,37 +93,52 @@ class DeonticProjection(Projection):
     # ----------------------------------------------------- universalizability
 
     def _gate_universalizability(self, substrate: MoralSubstrate, graph: Any = None) -> GateFinding:
+        from erisml_compiler.delta.universalizability import test_universalizability
+
         if substrate.maxim is None:
             return GateFinding(
                 name="universalizability",
                 passed=True,
                 reason="No maxim extracted; cannot test universalizability",
                 severity="moderate",
+                detail={"result": "undetermined"},
             )
-        kind = (substrate.maxim.action_kind or "").lower()
-        if kind in _NON_UNIVERSALISABLE_KINDS:
+        kind = substrate.maxim.action_kind
+        dep = test_universalizability(kind)
+
+        # Build detail block including the contradiction type, the
+        # institution(s) the act presupposes, and the Kantian
+        # justification — so the gate firing is auditable, not just a
+        # boolean.
+        detail: dict[str, Any] = {
+            "action_kind": kind,
+            "contradiction_type": dep.contradiction_type,
+            "presupposes": list(dep.presupposes),
+            "justification": dep.justification,
+        }
+        if dep.contested_reading:
+            detail["contested_reading"] = dep.contested_reading
+
+        if not dep.passes:
             return GateFinding(
                 name="universalizability",
                 passed=False,
                 reason=(
-                    f"Maxim's action kind '{kind}' is not universalizable: if "
-                    f"every rational agent in this position {kind}d, the "
-                    f"institution that makes the act possible "
-                    + (
-                        "(truth-telling, promise-keeping) collapses"
-                        if kind == "deceive"
-                        else "(shared-cost-bearing) collapses"
-                    )
+                    f"{dep.contradiction_type.replace('_', ' ').upper()}: "
+                    f"{dep.justification}"
                 ),
                 severity="grave",
-                detail={"action_kind": kind},
+                detail=detail,
             )
         return GateFinding(
             name="universalizability",
             passed=True,
-            reason=f"Maxim's action kind '{kind}' has no detected universalizability contradiction",
+            reason=(
+                f"Maxim's action kind '{kind}' passes universalizability: "
+                f"{dep.justification}"
+            ),
             severity="grave",
-            detail={"action_kind": kind},
+            detail=detail,
         )
 
     # ----------------------------------------------------- mere means
