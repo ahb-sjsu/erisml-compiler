@@ -269,6 +269,7 @@ def compile_document(
     tier_value = options.tier.value
     dag = _resolve_em_profile(options.em_profile)
     ethos_weights, ethos_name, ethos_sha256 = _resolve_ethos_profile(options.ethos_profile)
+    _ir_graph_hash: str | None = None
 
     # Pass 0: Ingestion (and pass-through extraction for Tier 1).
     if options.tier == CompilerTier.GEOMETRIC:
@@ -333,6 +334,17 @@ def compile_document(
                 "evidence": canon_result.evidence,
             }
 
+    # Pass 7.5: Graph promotion. Lift the flat extractor output
+    # (stakeholders + events + commitments + ethical_facts + norms)
+    # into a typed MoralGraph. The graph becomes the *primary*
+    # descriptive representation; the flat fields stay populated for
+    # backward compat. See release-planning-06 (DAG-native refactor).
+    with record_pass(passes, 75, "graph_promotion", tier_value):
+        from erisml_compiler.ir.graph import graph_from_flat, graph_hash as _graph_hash
+
+        ir.graph = graph_from_flat(ir)
+        _ir_graph_hash = _graph_hash(ir.graph)
+
     # Pass 8: Projection (two-layer IR). For each enabled projection,
     # build framework-bound output from the descriptive substrate.
     # The consequentialist projection's output back-fills the legacy
@@ -375,7 +387,7 @@ def compile_document(
 
         if "deontic_kantian" in options.projections:
             dp = DeonticProjection()
-            dres = dp.project(substrate)
+            dres = dp.project(substrate, graph=ir.graph)
             projections_run[dp.framework] = dres
 
         # Store projection results as JSON-serialisable dicts; the rich
@@ -420,6 +432,7 @@ def compile_document(
             passes=passes.copy(),
             ethos_profile=ethos_name,
             ethos_profile_sha256=ethos_sha256,
+            graph_hash=_ir_graph_hash,
         )
         ir.audit = audit
 

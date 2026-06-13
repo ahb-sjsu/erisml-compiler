@@ -362,6 +362,10 @@ class AuditRecord(BaseModel):
     extractor: str
     model_version: str | None = None
     em_profile: str | None = None
+    graph_hash: str | None = None
+    """SHA-256 over the canonical-form moral graph (release-planning-06
+    DAG-native refactor). None when the graph wasn't built. Two
+    compiles of the same input produce bit-identical graph hashes."""
     ethos_profile: str | None = None
     """Name + version of the fitted ethos profile applied during projection
     (e.g. 'dear_abby_socialchem_v0.1'), or None when no ethos was applied
@@ -421,6 +425,13 @@ class CompilerIR(BaseModel):
     audit: AuditRecord | None = None
     extra: dict[str, Any] = Field(default_factory=dict)
 
+    # ---------------- DAG-native IR (release-planning-06) ----------------
+    # The descriptive substrate as a typed graph. Promoted from the flat
+    # extraction fields at Pass 7.5. Projections read this graph directly
+    # via typed queries; flat-field consumers continue to work because the
+    # orchestrator maintains both representations.
+    graph: "MoralGraph | None" = None
+
     # ---------------- two-layer IR (release-planning-06) ----------------
     # `projections` carries framework-bound output from every enabled
     # Projection. The above legacy fields (moral_tensor_v3, deme_verdict,
@@ -436,3 +447,10 @@ class CompilerIR(BaseModel):
     disagree. Surfaces the disagreement explicitly rather than
     aggregating across frameworks (aggregation is itself a metaethical
     choice the compiler refuses to make silently)."""
+
+
+# Resolve the forward reference to MoralGraph at module bottom so the
+# graph subpackage can import from this module without circular issues.
+from erisml_compiler.ir.graph.container import MoralGraph  # noqa: E402
+
+CompilerIR.model_rebuild()

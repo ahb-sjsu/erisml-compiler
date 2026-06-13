@@ -39,6 +39,7 @@ from erisml_compiler.projections.substrate import (
     ConsentState,
     Maxim,
     MoralSubstrate,
+    substrate_from_graph,
     substrate_from_ir,
 )
 
@@ -52,5 +53,6 @@ __all__ = [
     "MoralSubstrate",
     "Projection",
     "ProjectionResult",
+    "substrate_from_graph",
     "substrate_from_ir",
 ]

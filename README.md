@@ -299,13 +299,14 @@ component truth table.
   and production runs should pass `--strict-v3` so a regression in
   the bridge can't quietly downgrade the result.
 - **The IR substrate still encodes choices, even after the two-layer
-  refactor.** The compiler now compiles into a descriptive
-  `MoralSubstrate` (stakeholders, commitments, maxims, consent states,
-  authorities) and then runs N framework `Projection`s (currently
-  `ConsequentialistProjection` and `DeonticProjection`) — the
-  consequentialist tensor is no longer the privileged-and-only output.
-  When projections disagree, the compiler surfaces both verdicts via
-  `ir.cross_projection_disagreement` and refuses to aggregate
+  + DAG refactor.** The compiler now compiles into a typed
+  `MoralGraph` (nodes ∈ {stakeholder, act, maxim, commitment, fact,
+  norm}; edges ∈ {performs, imposes_on, consents_to, treats_as,
+  under_maxim, coerces, ...}) with a canonical SHA-256 hash in the
+  audit chain. Projections read the graph via typed queries
+  (currently `ConsequentialistProjection` and `DeonticProjection`).
+  When projections disagree, the compiler surfaces both verdicts
+  via `ir.cross_projection_disagreement` and refuses to aggregate
   silently. But the substrate's *extraction categories* (we extract
   stakeholders, commitments, maxims; we don't extract, say, virtues
   or relational-care states) are themselves choices. The

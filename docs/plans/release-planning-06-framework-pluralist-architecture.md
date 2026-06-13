@@ -9,7 +9,53 @@ mere-means + consent + legitimacy gates + cross-projection
 disagreement surface).
 **Predecessor:** r/Compiler review thread, 2026-06-12.
 
-## What landed (this commit)
+## Update — DAG-native substrate landed (commit follow-up)
+
+The two-layer (substrate + projections) refactor was the first step.
+The deeper move — making the substrate a typed graph instead of a
+flat record — landed as a follow-up. The compiler now compiles
+facts-about-the-world into a `MoralGraph` (typed DAG: nodes ∈
+{stakeholder, act, maxim, commitment, fact, norm}, edges ∈
+{performs, imposes_on, consents_to, holds_commitment,
+commitment_binds, treats_as, under_maxim, coerces, surfaces_fact,
+fact_subject, would_violate_if_universalised}). The graph has a
+canonical SHA-256 hash (`audit.graph_hash`) — same input → bit-
+identical hash regardless of insertion order.
+
+Projections continue to read a `MoralSubstrate`, but the substrate
+is now a *view over the graph*: `Maxim`, `ConsentState`, and
+`AuthorityLegitimacy` are derived from graph queries
+(`imposes_on` without paired `consents_to`, `treats_as[role=mere_means]`,
+authority-labeled stakeholder nodes with legitimacy fact context)
+rather than from flat-list heuristics. `DeonticProjection` accepts
+the graph directly and pattern-matches `treats_as` edges when
+present.
+
+Side effect: the gates fire more *precisely*. Earlier, every
+stakeholder labelled `nonconsenting_third_party` triggered a
+mere_means failure even when the act wasn't actually imposing harm
+on them. Now the gate requires an `imposes_on` edge as evidence.
+`medical_confidentiality` and `whistleblower` correctly come out
+`permissible` under the deontic projection (the act protects /
+discloses, not imposes), while `nazi_attic` correctly stays
+`forbidden`. The earlier "all 3 forbidden" result was the previous
+implementation over-firing on a label proxy.
+
+`tests/test_moral_graph.py` — 12 tests covering graph schema, query
+helpers, canonical hash determinism, promotion from flat IR, and
+hash reproducibility across compiles.
+
+What still lives in the design queue (not yet landed):
+
+- Extractors emit graph nodes/edges directly (today, rule extractor
+  emits flat, orchestrator promotes at Pass 7.5)
+- `flat_from_graph()` back-derivation so mutating the graph updates
+  the flat fields automatically
+- `ConsequentialistProjection` reading the graph (today still goes
+  through the EM-DAG flat-field interface)
+- Bench/monitor/RLEF/silicon emitters using graph queries
+
+## What landed in the two-layer commit (recap)
 
 - `src/erisml_compiler/projections/` subpackage:
   - `substrate.py` — `MoralSubstrate` Pydantic model + first-class

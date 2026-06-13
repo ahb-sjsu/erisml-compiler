@@ -123,12 +123,17 @@ class MoralSubstrate(BaseModel):
 
 
 def substrate_from_ir(ir) -> MoralSubstrate:
-    """Project a CompilerIR into the substrate view it implicitly contains.
+    """Project a CompilerIR into the substrate view.
 
-    v0 derives `maxim`, `consent_states`, `authority_legitimacies` from
-    rule-based heuristics over ethical_facts. Future versions extract
-    these directly.
+    DAG-native path (preferred): if `ir.graph` is populated, derive
+    the substrate from the graph (graph is primary).
+
+    Legacy path: if no graph, fall back to deriving from the flat
+    fields directly. Used in tests + during incremental migration.
     """
+    if getattr(ir, "graph", None) is not None:
+        return substrate_from_graph(ir.graph, ir=ir)
+
     maxim = _derive_maxim(ir)
     consent_states = _derive_consent_states(ir)
     auth_leg = _derive_authority_legitimacies(ir)
@@ -143,6 +148,149 @@ def substrate_from_ir(ir) -> MoralSubstrate:
         norms=list(ir.norms),
         ethical_facts=list(ir.ethical_facts),
         canonical_form=ir.canonical_form,
+        maxim=maxim,
+        consent_states=consent_states,
+        authority_legitimacies=auth_leg,
+    )
+
+
+def substrate_from_graph(graph, *, ir=None) -> MoralSubstrate:
+    """Substrate-as-graph-view: derive Maxim, ConsentState, and
+    AuthorityLegitimacy from graph queries instead of flat-field
+    heuristics.
+
+    The flat fields (stakeholders/events/commitments/...) come from
+    `ir` when supplied, since the rule extractor still emits those;
+    when `ir` is None we attempt to recover them from the graph's
+    payloads.
+    """
+    from erisml_compiler.ir.graph import EdgeKind, NodeKind
+
+    # Derive the maxim from the graph: pick the (unique-ish) maxim node.
+    maxim_nodes = graph.nodes_of_kind(NodeKind.MAXIM)
+    maxim: Maxim | None = None
+    if maxim_nodes:
+        m = maxim_nodes[0]
+        # Find the act this maxim's under, then any treats_as=mere_means
+        # edges from that act.
+        treats: dict[str, str] = {}
+        for edge in graph.in_edges(m.id, kind=EdgeKind.UNDER_MAXIM):
+            for ta in graph.out_edges(edge.src, kind=EdgeKind.TREATS_AS):
+                role = (ta.payload or {}).get("role")
+                if role:
+                    sid = ta.dst.removeprefix("stakeholder:")
+                    treats[sid] = role
+        ak = m.payload.get("action_kind")
+        purpose = m.payload.get("purpose")
+        agent_id = None
+        for n in graph.nodes_of_kind(NodeKind.STAKEHOLDER):
+            if "agent" in n.labels:
+                agent_id = n.payload.get("id") or n.id.removeprefix("stakeholder:")
+                break
+        title = ""
+        if ir is not None and ir.document and ir.document.title:
+            title = ir.document.title
+        desc = f"{ak}" + (f" to {purpose}" if purpose else "")
+        if title:
+            desc = f"{desc} (case: {title[:80]})"
+        maxim = Maxim(
+            description=desc,
+            agent_id=agent_id,
+            action_kind=ak,
+            purpose=purpose,
+            treats_persons_as=treats,
+        )
+
+    # Derive consent states: for every stakeholder that is the target
+    # of an `imposes_on` edge and lacks a corresponding `consents_to`
+    # edge, emit a no-consent state. Coercion edges flag duress.
+    consent_states: list[ConsentState] = []
+    seen: set[str] = set()
+    for edge in graph.edges_of_kind(EdgeKind.IMPOSES_ON):
+        sid = edge.dst.removeprefix("stakeholder:")
+        if sid in seen:
+            continue
+        seen.add(sid)
+        has_consent = graph.has_edge(edge.dst, edge.src, kind=EdgeKind.CONSENTS_TO)
+        if not has_consent:
+            # Check if this stakeholder is coerced.
+            coerced = any(
+                e.dst == edge.dst
+                for e in graph.edges_of_kind(EdgeKind.COERCES)
+            )
+            consent_states.append(
+                ConsentState(stakeholder_id=sid, given=False, under_duress=coerced)
+            )
+    # Also include the act's primary actor if they're being coerced.
+    for edge in graph.edges_of_kind(EdgeKind.COERCES):
+        sid = edge.dst.removeprefix("stakeholder:")
+        if sid in seen:
+            continue
+        seen.add(sid)
+        consent_states.append(
+            ConsentState(stakeholder_id=sid, given=False, under_duress=True)
+        )
+
+    # Derive authority legitimacies: a stakeholder with role=authority
+    # or role=coercer is legitimate unless tagged otherwise via a
+    # legitimacy fact node. The extractor's current legitimacy fact
+    # is a generic "Authority issuing threats has defeasible legitimacy",
+    # so any authority/coercer in the same graph is suspect.
+    auth_leg: list[AuthorityLegitimacy] = []
+    has_legit_fact = any(
+        "legitimacy" in (n.labels or []) for n in graph.nodes_of_kind(NodeKind.FACT)
+    )
+    for n in graph.nodes_of_kind(NodeKind.STAKEHOLDER):
+        labels = n.labels or []
+        if "authority" not in labels and "coercer" not in labels:
+            continue
+        sid = n.payload.get("id") or n.id.removeprefix("stakeholder:")
+        auth_leg.append(
+            AuthorityLegitimacy(
+                authority_id=sid,
+                legitimate=not has_legit_fact,
+                reason=(
+                    "graph fact(legitimacy) flagged this authority"
+                    if has_legit_fact
+                    else "no legitimacy concern surfaced"
+                ),
+            )
+        )
+
+    # Flat-field views come from `ir` (still the extractor's output);
+    # future versions derive these from graph payloads exclusively.
+    if ir is not None:
+        flat_stakeholders = list(ir.stakeholders)
+        flat_events = list(ir.events)
+        flat_commitments = list(ir.commitments)
+        flat_norms = list(ir.norms)
+        flat_facts = list(ir.ethical_facts)
+        flat_relations = list(ir.relations)
+        document = ir.document
+        segments = list(ir.segments)
+        canonical_form = ir.canonical_form
+    else:
+        flat_stakeholders = []
+        flat_events = []
+        flat_commitments = []
+        flat_norms = []
+        flat_facts = []
+        flat_relations = []
+        from erisml_compiler.ir.schemas import Document
+        document = Document(doc_id="graph", title="", raw_text="")
+        segments = []
+        canonical_form = None
+
+    return MoralSubstrate(
+        document=document,
+        segments=segments,
+        stakeholders=flat_stakeholders,
+        relations=flat_relations,
+        events=flat_events,
+        commitments=flat_commitments,
+        norms=flat_norms,
+        ethical_facts=flat_facts,
+        canonical_form=canonical_form,
         maxim=maxim,
         consent_states=consent_states,
         authority_legitimacies=auth_leg,
