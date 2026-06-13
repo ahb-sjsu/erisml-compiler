@@ -1,0 +1,12 @@
+# Per-metric weights for the MoralTensor-Bench aggregate score.
+# Weights are normalised against their sum; subtract the
+# premature-contraction-rate penalty (sub-1.0) at the end.
+
+stakeholder_recall: 0.15
+stakeholder_role_f1: 0.15
+commitment_f1: 0.15
+canonical_form_match: 0.10
+ethical_fact_kind_recall: 0.15
+per_party_verdict_accuracy: 0.15
+overall_verdict_match: 0.10
+premature_contraction_rate_penalty: 0.05

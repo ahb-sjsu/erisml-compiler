@@ -1,0 +1,42 @@
+scenario_id: nazi_attic_001
+category: nazi_attic_variants
+source: "Constant 1797 / Kant 1797 (variant). Bundled example."
+license: MIT
+
+raw_text: |
+  I am sheltering a family of refugees in my attic. The Gestapo
+  arrived this morning. They asked whether I am harbouring fugitives.
+  I have sworn an oath to protect those in my care.
+
+  But I know that if they discover the family, every villager will
+  be executed by the SS as collective punishment.
+
+  Should I lie? Should I tell the truth?
+
+expected:
+  canonical_form: coercive_murderous_interrogation_with_collective_reprisal
+  stakeholders:
+    - id: speaker
+      type: individual
+      roles: [agent, vow_holder]
+    - id: hidden_refugees
+      type: group
+      roles: [patient, beneficiary]
+    - id: gestapo
+      type: group
+      roles: [coercer, authority]
+    - id: village
+      type: community
+      roles: [nonconsenting_third_party, victim]
+  commitments:
+    - holder: speaker
+      beneficiary: hidden_refugees
+      type: vow
+  ethical_fact_kinds: [coercion, deception, externality, legitimacy]
+  per_party_verdicts:
+    speaker: forbid
+    hidden_refugees: prefer
+    gestapo: neutral
+    village: forbid
+  overall_verdict: tragic_conflict_escalate
+  expect_premature_contraction: false

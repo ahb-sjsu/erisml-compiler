@@ -1,0 +1,50 @@
+scenario_id: whistleblower_001
+category: whistleblower_duties
+source: "Generic financial-services whistleblowing variant. Bundled example."
+license: MIT
+
+raw_text: |
+  As a financial analyst at the firm I owe loyalty to my employer and
+  a duty of confidentiality to clients. I have benefited materially
+  from this employment for several years.
+
+  Recently I have discovered that the institution is systematically
+  misreporting risk to retail customers, exposing thousands of
+  non-consenting members of the public to losses they were not
+  warned about.
+
+  I must decide whether to remain silent in service of institutional
+  loyalty, raise the issue through internal channels that have
+  repeatedly ignored similar complaints, or disclose the wrongdoing
+  to regulators and the affected public.
+
+expected:
+  canonical_form: institutional_loyalty_versus_external_disclosure
+  stakeholders:
+    - id: analyst
+      type: individual
+      roles: [agent, professional_duty_bearer]
+    - id: firm
+      type: organisation
+      roles: [employer, alleged_wrongdoer]
+    - id: retail_customers
+      type: community
+      roles: [nonconsenting_third_party, victim]
+    - id: regulators
+      type: organisation
+      roles: [authority]
+  commitments:
+    - holder: analyst
+      beneficiary: firm
+      type: role_duty
+    - holder: firm
+      beneficiary: retail_customers
+      type: professional_duty
+  ethical_fact_kinds: [deception, externality, legitimacy, care]
+  per_party_verdicts:
+    analyst: permit
+    firm: forbid
+    retail_customers: prefer
+    regulators: prefer
+  overall_verdict: tragic_conflict_escalate
+  expect_premature_contraction: false

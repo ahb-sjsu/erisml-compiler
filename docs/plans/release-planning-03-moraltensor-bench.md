@@ -1,9 +1,32 @@
 # Release planning 03 — MoralTensor-Bench v0.1
 
-**Status:** design only; no scenarios written in this document.
+**Status:** harness shipped (B-1 + B-2). 3 seed scenarios recast from the
+bundled examples. Remaining categories (~77 scenarios across 9 categories)
+are future curation work.
 **Owner:** TBD.
-**Estimated effort:** 2–3 weeks once category coverage is decided.
+**Estimated effort:** ~15 days total; ~3 days landed in this commit.
 **Predecessor:** [release-planning-01](./release-planning-01.txt) item 8.
+
+## Landed in v0.1.0 (this commit)
+
+- `src/erisml_compiler/bench/` subpackage:
+  schema (Pydantic ScenarioGold, ExpectedScenario, ScenarioScore,
+  BenchAggregate), runner (load + compile + score loop, deterministic
+  corpus_hash, Markdown renderer), scoring (7 per-metric scorers +
+  weighted aggregate).
+- `bench/v0.1/manifest.yaml` + `weights.yaml`.
+- 3 seed scenarios in `bench/v0.1/scenarios/`:
+  `nazi_attic_001`, `medical_confidentiality_001`, `whistleblower_001`.
+- CLI: `eris-compile bench run` + `eris-compile bench report`.
+- `tests/test_bench.py` — 18 tests.
+
+Current baseline score on the seed corpus with `--extractor rule`:
+**0.136**. Honest finding: the rule extractor emits generic stakeholder
+IDs (`self`, `collective_*_seg_*`) so the bench's semantic IDs
+(`speaker`, `gestapo`) don't fuzzy-match. The gap is the point — that's
+what an extractor-quality bench is supposed to surface. Improvements to
+the LLM extractor and probe-based stakeholder IDs should move the score
+upward and be reportable against this baseline.
 
 ## What this is
 

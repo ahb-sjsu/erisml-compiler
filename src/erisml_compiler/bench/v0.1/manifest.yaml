@@ -1,0 +1,21 @@
+name: MoralTensor-Bench
+version: v0.1.0
+description: >
+  Initial seed corpus for MoralTensor-Bench. Three scenarios recast
+  from the bundled examples (nazi_attic, medical_confidentiality,
+  whistleblower). The design target is ~80 scenarios across 10
+  categories — see docs/plans/release-planning-03-moraltensor-bench.md.
+license: MIT
+maintainer: ahb-sjsu
+weights_file: weights.yaml
+categories:
+  - nazi_attic_variants
+  - medical_confidentiality
+  - whistleblower_duties
+  - vow_paraphrases
+  - third_party_risk
+  - authority_legitimacy_swaps
+  - coerced_consent
+  - corporate_externality
+  - military_proportionality
+  - ai_reward_hacking_redescription

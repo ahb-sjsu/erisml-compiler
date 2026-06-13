@@ -799,5 +799,93 @@ def cmd_version() -> None:
     click.echo(f"erisml-compiler {__version__}  (schema {__schema_version__})")
 
 
+# ----------------------------------------------------------------- bench
+
+
+@cli.group("bench")
+def cmd_bench() -> None:
+    """MoralTensor-Bench commands."""
+
+
+@cmd_bench.command("run")
+@click.option(
+    "--bench-dir",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    default=Path(__file__).parent / "bench" / "v0.1",
+    help="Directory containing manifest.yaml + scenarios/. Default: bundled v0.1.",
+)
+@click.option(
+    "--extractor",
+    type=click.Choice(["mock", "rule", "llm", "probe"]),
+    default="rule",
+)
+@click.option(
+    "--out-json",
+    type=click.Path(dir_okay=False, path_type=Path),
+    default=None,
+    help="Where to write the JSON report. Default: out/bench_report.json.",
+)
+@click.option(
+    "--out-md",
+    type=click.Path(dir_okay=False, path_type=Path),
+    default=None,
+    help="Where to write the Markdown report. Default: out/bench_report.md.",
+)
+def cmd_bench_run(
+    bench_dir: Path,
+    extractor: str,
+    out_json: Path | None,
+    out_md: Path | None,
+) -> None:
+    """Run every scenario in BENCH_DIR through the compiler and score."""
+    import json as _json
+
+    from erisml_compiler.bench.runner import render_report_markdown, run_bench
+
+    report = run_bench(bench_dir, extractor=extractor)
+
+    if out_json is None:
+        out_json = Path("out") / "bench_report.json"
+    if out_md is None:
+        out_md = Path("out") / "bench_report.md"
+    out_json.parent.mkdir(parents=True, exist_ok=True)
+    out_md.parent.mkdir(parents=True, exist_ok=True)
+    out_json.write_text(_json.dumps(report.to_dict(), indent=2), encoding="utf-8")
+    out_md.write_text(render_report_markdown(report), encoding="utf-8")
+
+    click.echo(f"[+] {report.aggregate.n_scenarios} scenarios, "
+               f"{report.aggregate.n_failed_compile} failed.")
+    click.echo(
+        f"[+] MoralTensor-Bench {report.bench_version} score: "
+        f"{report.aggregate.moral_tensor_bench_score:.3f}"
+    )
+    click.echo(f"[+] Wrote: {out_json}")
+    click.echo(f"[+] Wrote: {out_md}")
+
+
+@cmd_bench.command("report")
+@click.argument("report_path", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+def cmd_bench_report(report_path: Path) -> None:
+    """Pretty-print a previously-generated bench JSON report."""
+    import json as _json
+
+    from erisml_compiler.bench.runner import BenchReport, render_report_markdown
+    from erisml_compiler.bench.schema import BenchAggregate, ScenarioScore
+
+    data = _json.loads(report_path.read_text(encoding="utf-8"))
+    report = BenchReport(
+        bench_version=data["bench_version"],
+        compiler_version=data["compiler_version"],
+        corpus_hash=data["corpus_hash"],
+        weights_used=data["weights_used"],
+        aggregate=BenchAggregate.model_validate(data["aggregate"]),
+        per_scenario=[ScenarioScore.model_validate(s) for s in data["per_scenario"]],
+        failed=[tuple(p) for p in data["failed"]],
+        extractor=data.get("extractor", "?"),
+        tier=data.get("tier", "?"),
+    )
+    click.echo(render_report_markdown(report))
+
+
 if __name__ == "__main__":
     cli()
