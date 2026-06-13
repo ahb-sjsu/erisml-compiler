@@ -18,6 +18,7 @@ would weight recent observations more heavily, account for situation
 severity, and distinguish habituation from one-off action. v1 is a
 running mean — defensible as a baseline, transparent as a method.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -27,7 +28,6 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable
-
 
 # Virtue axes (canonical 6) — also used by VirtueProjection's
 # action-kind → axis mapping.
@@ -48,21 +48,21 @@ _ACTION_KIND_TO_AXIS: dict[str, tuple[str, str, int]] = {
     # action_kind → (virtue_pole, vice_pole, polarity_evidence)
     # polarity_evidence: +1 if the act expresses the virtue,
     # -1 if it expresses the vice, 0 if ambiguous-without-context.
-    "deceive":                   ("honesty",  "deception",   -1),
-    "break_commitment":          ("fidelity", "perfidy",     -1),
-    "make_or_keep_commitment":   ("fidelity", "perfidy",     +1),
-    "protect":                   ("care",     "callousness", +1),
-    "help":                      ("care",     "callousness", +1),
-    "refuse":                    ("care",     "callousness", -1),
-    "inflict_harm":              ("care",     "callousness", -1),
-    "coerce":                    ("courage",  "cowardice",   -1),  # coercion is a cowardly use of force
-    "coerce_or_be_coerced":      ("courage",  "cowardice",    0),
-    "impose_externality":        ("justice",  "injustice",   -1),
-    "cheat":                     ("justice",  "injustice",   -1),
-    "disclose":                  ("courage",  "cowardice",   +1),  # whistleblower reading
-    "use_as_means":              ("justice",  "injustice",   -1),
-    "act_under_norm":            ("prudence", "imprudence",  +1),
-    "act_under_authority":      ("prudence", "imprudence",   0),
+    "deceive": ("honesty", "deception", -1),
+    "break_commitment": ("fidelity", "perfidy", -1),
+    "make_or_keep_commitment": ("fidelity", "perfidy", +1),
+    "protect": ("care", "callousness", +1),
+    "help": ("care", "callousness", +1),
+    "refuse": ("care", "callousness", -1),
+    "inflict_harm": ("care", "callousness", -1),
+    "coerce": ("courage", "cowardice", -1),  # coercion is a cowardly use of force
+    "coerce_or_be_coerced": ("courage", "cowardice", 0),
+    "impose_externality": ("justice", "injustice", -1),
+    "cheat": ("justice", "injustice", -1),
+    "disclose": ("courage", "cowardice", +1),  # whistleblower reading
+    "use_as_means": ("justice", "injustice", -1),
+    "act_under_norm": ("prudence", "imprudence", +1),
+    "act_under_authority": ("prudence", "imprudence", 0),
 }
 
 
@@ -141,9 +141,7 @@ class HabitStore:
         return out
 
     def known_agents(self) -> list[str]:
-        return sorted(
-            p.stem for p in self.root.glob("*.jsonl") if p.is_file()
-        )
+        return sorted(p.stem for p in self.root.glob("*.jsonl") if p.is_file())
 
     # --------------------------------------- aggregation
 
@@ -231,9 +229,7 @@ def record_from_compile(agent_id: str, ir, case_id: str | None = None) -> ActRec
     if action_kind not in _ACTION_KIND_TO_AXIS:
         return None
     virtue, _vice, polarity = _ACTION_KIND_TO_AXIS[action_kind]
-    case_id = case_id or (
-        ir.audit.source_text_hash[:16] if ir.audit else ir.document.doc_id
-    )
+    case_id = case_id or (ir.audit.source_text_hash[:16] if ir.audit else ir.document.doc_id)
     return ActRecord(
         agent_id=agent_id,
         case_id=case_id,

@@ -37,13 +37,13 @@ What this is NOT:
     where the prose doesn't surface the purpose, we record
     `purpose=None` rather than guess.
 """
+
 from __future__ import annotations
 
 import re
 from dataclasses import dataclass
 
 from erisml_compiler.projections.substrate import Maxim
-
 
 # ---------------------------------------------------- verb pattern library
 #
@@ -53,67 +53,129 @@ from erisml_compiler.projections.substrate import Maxim
 
 _VERB_PATTERNS: list[tuple[re.Pattern, str]] = [
     # Deception family
-    (re.compile(r"\b(lied?|lying|deceiv(?:e|ed|ing)|misled?|conceal(?:ed|ing)?|"
-                r"withhold(?:ing)?|withheld|hide|hid|hidden|cover(?:ed)? up)\b",
-                re.IGNORECASE), "deceive"),
+    (
+        re.compile(
+            r"\b(lied?|lying|deceiv(?:e|ed|ing)|misled?|conceal(?:ed|ing)?|"
+            r"withhold(?:ing)?|withheld|hide|hid|hidden|cover(?:ed)? up)\b",
+            re.IGNORECASE,
+        ),
+        "deceive",
+    ),
     # Promise / commitment family
-    (re.compile(r"\b(vow(?:ed|s)?|promise[ds]?|swore|swear|pledge[ds]?|"
-                r"undertake[ns]?|undertook|contracted to)\b",
-                re.IGNORECASE), "make_or_keep_commitment"),
+    (
+        re.compile(
+            r"\b(vow(?:ed|s)?|promise[ds]?|swore|swear|pledge[ds]?|"
+            r"undertake[ns]?|undertook|contracted to)\b",
+            re.IGNORECASE,
+        ),
+        "make_or_keep_commitment",
+    ),
     # Breaking promises
-    (re.compile(r"\b(broke|breaking|break)\s+(?:my|the|a|her|his)?\s*(?:promise|vow|oath|word)\b",
-                re.IGNORECASE), "break_commitment"),
+    (
+        re.compile(
+            r"\b(broke|breaking|break)\s+(?:my|the|a|her|his)?\s*(?:promise|vow|oath|word)\b",
+            re.IGNORECASE,
+        ),
+        "break_commitment",
+    ),
     # Protection / care family
-    (re.compile(r"\b(protect(?:ed|ing|s)?|shelter(?:ed|ing|s)?|shield(?:ed|ing|s)?|"
-                r"defend(?:ed|ing|s)?|safeguard(?:ed|ing|s)?|"
-                r"care for|caring for|look(?:ed|ing)? after)\b",
-                re.IGNORECASE), "protect"),
+    (
+        re.compile(
+            r"\b(protect(?:ed|ing|s)?|shelter(?:ed|ing|s)?|shield(?:ed|ing|s)?|"
+            r"defend(?:ed|ing|s)?|safeguard(?:ed|ing|s)?|"
+            r"care for|caring for|look(?:ed|ing)? after)\b",
+            re.IGNORECASE,
+        ),
+        "protect",
+    ),
     # Harm family
-    (re.compile(r"\b(harm(?:ed|ing|s)?|hurt(?:ing|s)?|injur(?:ed|ing|es)?|"
-                r"kill(?:ed|ing|s)?|murder(?:ed|ing|s)?|attack(?:ed|ing|s)?)\b",
-                re.IGNORECASE), "inflict_harm"),
+    (
+        re.compile(
+            r"\b(harm(?:ed|ing|s)?|hurt(?:ing|s)?|injur(?:ed|ing|es)?|"
+            r"kill(?:ed|ing|s)?|murder(?:ed|ing|s)?|attack(?:ed|ing|s)?)\b",
+            re.IGNORECASE,
+        ),
+        "inflict_harm",
+    ),
     # Coercion family
-    (re.compile(r"\b(coerc(?:ed|ing|es)?|threat(?:en)?(?:ed|ing|s)?|compel(?:led|s|ling)?|"
-                r"force[ds]?|forc(?:ing|es))\b",
-                re.IGNORECASE), "coerce"),
+    (
+        re.compile(
+            r"\b(coerc(?:ed|ing|es)?|threat(?:en)?(?:ed|ing|s)?|compel(?:led|s|ling)?|"
+            r"force[ds]?|forc(?:ing|es))\b",
+            re.IGNORECASE,
+        ),
+        "coerce",
+    ),
     # Externality / risk imposition
-    (re.compile(r"\b(impos(?:e|ed|ing)|exposed?|exposing|risk(?:ed|ing|s)?)\s+"
-                r"(?:.*\s)?(?:on|upon|to)\s+(?:non[- ]consenting|the public|"
-                r"third part(?:y|ies)|bystanders?)\b",
-                re.IGNORECASE), "impose_externality"),
+    (
+        re.compile(
+            r"\b(impos(?:e|ed|ing)|exposed?|exposing|risk(?:ed|ing|s)?)\s+"
+            r"(?:.*\s)?(?:on|upon|to)\s+(?:non[- ]consenting|the public|"
+            r"third part(?:y|ies)|bystanders?)\b",
+            re.IGNORECASE,
+        ),
+        "impose_externality",
+    ),
     # Disclosure / whistleblowing
-    (re.compile(r"\b(disclos(?:e|ed|ing)|expos(?:e|ed|ing)|reveal(?:ed|ing|s)?|"
-                r"report(?:ed|ing|s)?\s+(?:to)?|blow(?:ing)? the whistle)\b",
-                re.IGNORECASE), "disclose"),
+    (
+        re.compile(
+            r"\b(disclos(?:e|ed|ing)|expos(?:e|ed|ing)|reveal(?:ed|ing|s)?|"
+            r"report(?:ed|ing|s)?\s+(?:to)?|blow(?:ing)? the whistle)\b",
+            re.IGNORECASE,
+        ),
+        "disclose",
+    ),
     # Cheating
-    (re.compile(r"\b(cheat(?:ed|ing|s)?|defraud(?:ed|ing|s)?|swindl(?:e|ed|ing)|"
-                r"steal(?:ing|s)?|stole|stolen)\b",
-                re.IGNORECASE), "cheat"),
+    (
+        re.compile(
+            r"\b(cheat(?:ed|ing|s)?|defraud(?:ed|ing|s)?|swindl(?:e|ed|ing)|"
+            r"steal(?:ing|s)?|stole|stolen)\b",
+            re.IGNORECASE,
+        ),
+        "cheat",
+    ),
     # Refusal / abstention
-    (re.compile(r"\b(refus(?:e|ed|ing)|decline[ds]?|declining|abstain(?:ed|ing|s)?)\b",
-                re.IGNORECASE), "refuse"),
+    (
+        re.compile(
+            r"\b(refus(?:e|ed|ing)|decline[ds]?|declining|abstain(?:ed|ing|s)?)\b", re.IGNORECASE
+        ),
+        "refuse",
+    ),
     # Help / aid
-    (re.compile(r"\b(help(?:ed|ing|s)?|aid(?:ed|ing|s)?|assist(?:ed|ing|s)?|"
-                r"support(?:ed|ing|s)?)\b",
-                re.IGNORECASE), "help"),
+    (
+        re.compile(
+            r"\b(help(?:ed|ing|s)?|aid(?:ed|ing|s)?|assist(?:ed|ing|s)?|"
+            r"support(?:ed|ing|s)?)\b",
+            re.IGNORECASE,
+        ),
+        "help",
+    ),
     # Instrumental use (caught after more specific patterns above)
-    (re.compile(r"\b(use|using|used|exploit(?:ed|ing|s)?|"
-                r"instrumentalis(?:e|ed|ing))\b",
-                re.IGNORECASE), "use_as_means"),
+    (
+        re.compile(
+            r"\b(use|using|used|exploit(?:ed|ing|s)?|" r"instrumentalis(?:e|ed|ing))\b",
+            re.IGNORECASE,
+        ),
+        "use_as_means",
+    ),
 ]
 
 
 # ---------------------------------------------------- purpose clause patterns
 
 _PURPOSE_PATTERNS: list[re.Pattern] = [
-    re.compile(r"\b(?:in order |so as |so that |so |in order|so it would |so it could |to )"
-               r"(?:to |that )?([a-zA-Z][^,.;!?\n]{3,80})",
-               re.IGNORECASE),
+    re.compile(
+        r"\b(?:in order |so as |so that |so |in order|so it would |so it could |to )"
+        r"(?:to |that )?([a-zA-Z][^,.;!?\n]{3,80})",
+        re.IGNORECASE,
+    ),
     re.compile(r"\bfor the sake of\s+([a-zA-Z][^,.;!?\n]{3,60})", re.IGNORECASE),
-    re.compile(r"\bto (protect|save|spare|shield|prevent|stop|avoid|hide|conceal|warn|honor|"
-               r"honour|keep|maintain|preserve|achieve|secure|advance|fulfil|fulfill|defend|"
-               r"comply with|escape|expose|disclose|reveal)\s+([a-zA-Z][^,.;!?\n]{0,60})",
-               re.IGNORECASE),
+    re.compile(
+        r"\bto (protect|save|spare|shield|prevent|stop|avoid|hide|conceal|warn|honor|"
+        r"honour|keep|maintain|preserve|achieve|secure|advance|fulfil|fulfill|defend|"
+        r"comply with|escape|expose|disclose|reveal)\s+([a-zA-Z][^,.;!?\n]{0,60})",
+        re.IGNORECASE,
+    ),
 ]
 
 
@@ -130,10 +192,12 @@ _PROFESSION = re.compile(
 # ---------------------------------------------------- mere-means proxy patterns
 
 _MERE_MEANS_PATTERNS: list[re.Pattern] = [
-    re.compile(r"\b(?:use|using|used|exploit(?:ed|ing|s)?|instrumentalis(?:e|ed|ing))\s+"
-               r"(?:the |her |his |their |these )?([a-zA-Z][\w\s]{0,40})\s+"
-               r"(?:as|for|to)\s+(?:a |an |the )?(means|tool|leverage|gain|profit)\b",
-               re.IGNORECASE),
+    re.compile(
+        r"\b(?:use|using|used|exploit(?:ed|ing|s)?|instrumentalis(?:e|ed|ing))\s+"
+        r"(?:the |her |his |their |these )?([a-zA-Z][\w\s]{0,40})\s+"
+        r"(?:as|for|to)\s+(?:a |an |the )?(means|tool|leverage|gain|profit)\b",
+        re.IGNORECASE,
+    ),
 ]
 
 
@@ -153,8 +217,14 @@ def extract_maxim(
     *,
     stakeholders: list | None = None,
     fallback_action_kind: str | None = None,
+    prefer_srl: bool = True,
 ) -> tuple[Maxim | None, MaximExtractionEvidence]:
     """Extract a maxim from prose. Returns (maxim, evidence_for_audit).
+
+    Dispatches: when `prefer_srl=True` (default) and spaCy is
+    available, the SRL-based extractor in `maxim_extractor_srl.py`
+    runs first. On miss (no candidate verbs) or when SRL is
+    unavailable, falls back to the regex v1 below.
 
     `stakeholders` is the extractor's stakeholder list (Pydantic
     Stakeholder objects); used to resolve named agents.
@@ -164,6 +234,29 @@ def extract_maxim(
     """
     if not text:
         return None, MaximExtractionEvidence(None, None, None, None, [])
+
+    # Try SRL first when available.
+    if prefer_srl:
+        from erisml_compiler.annotation.maxim_extractor_srl import (
+            extract_maxim_srl,
+            is_srl_available,
+        )
+
+        if is_srl_available():
+            srl_maxim, srl_ev = extract_maxim_srl(text, stakeholders=stakeholders)
+            if srl_maxim is not None:
+                evidence = MaximExtractionEvidence(
+                    matched_verb=srl_ev.chosen_verb_lemma if srl_ev else None,
+                    matched_verb_action_kind=srl_ev.chosen_action_kind if srl_ev else None,
+                    matched_purpose_phrase=srl_ev.purpose_phrase if srl_ev else None,
+                    agent_evidence=(
+                        f"srl:subj={srl_ev.subject_text!r}->stakeholder={srl_ev.subject_resolved_to!r}"
+                        if srl_ev
+                        else None
+                    ),
+                    mere_means_hits=[],
+                )
+                return srl_maxim, evidence
 
     # 1. Find the dominant action verb.
     matched_verb: str | None = None

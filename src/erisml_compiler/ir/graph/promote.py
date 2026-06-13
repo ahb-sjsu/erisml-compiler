@@ -238,6 +238,21 @@ def graph_from_flat(ir) -> MoralGraph:
         fallback_action_kind=heuristic_kind,
     )
     if maxim_obj is not None:
+        # Semantic overlay: when SRL picks a *neutral* commitment verb
+        # but the substrate flags deception, the commitment is a false
+        # commitment. The Kantian reading is that a false-vow IS a form
+        # of deceit (Constant/Kant). Override the action_kind so the
+        # downstream universalizability gate sees the deceit reading.
+        if maxim_obj.action_kind == "make_or_keep_commitment" and any(
+            _fact_kind_str(f) in _DECEIT_KINDS for f in ir.ethical_facts
+        ):
+            maxim_obj = maxim_obj.model_copy(
+                update={
+                    "action_kind": "deceive",
+                    "description": f"{maxim_obj.description} (false commitment → deceit overlay)",
+                }
+            )
+
         # Layer in kind-derived treats_persons_as (instrumental facts
         # on specific stakeholders) that the prose extractor may have
         # missed.
@@ -265,8 +280,7 @@ def graph_from_flat(ir) -> MoralGraph:
                         "agent_evidence": evidence.agent_evidence,
                         "mere_means_hits": list(evidence.mere_means_hits),
                         "fallback_used": (
-                            evidence.matched_verb is None
-                            and heuristic_kind is not None
+                            evidence.matched_verb is None and heuristic_kind is not None
                         ),
                     },
                 },

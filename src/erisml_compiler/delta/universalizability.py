@@ -60,11 +60,11 @@ passing.
     universalisable-by-others. We pick a defensible reading and
     record the contestability in `detail.contested_reading`.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Literal
-
 
 ContradictionType = Literal[
     "contradiction_in_conception",

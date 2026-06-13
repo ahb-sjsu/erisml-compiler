@@ -24,6 +24,7 @@ chain captures the store's content hash at compile time so two
 runs against the same history produce identical results, but the
 history itself is mutable across runs.
 """
+
 from erisml_compiler.history.habit_store import (
     ActRecord,
     HabitStore,

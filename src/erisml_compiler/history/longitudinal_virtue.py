@@ -24,6 +24,7 @@ the same case will see different `history_hash`es because of the
 appended record. For deterministic-replay scenarios (CI, audit
 review), pass `read_only=True` and the projection won't write.
 """
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -120,9 +121,7 @@ class LongitudinalVirtueProjection(Projection):
 
     # ------------------------------------------------------ findings
 
-    def _gate_longitudinal_pattern(
-        self, agent_id: str, assessment
-    ) -> GateFinding:
+    def _gate_longitudinal_pattern(self, agent_id: str, assessment) -> GateFinding:
         """Surface whichever axis carries the strongest established pattern."""
         if assessment.n_observations == 0:
             return GateFinding(
@@ -195,8 +194,7 @@ class LongitudinalVirtueProjection(Projection):
             name="evidence_sufficient",
             passed=True,
             reason=(
-                f"{assessment.n_observations} observations available for "
-                f"character assessment"
+                f"{assessment.n_observations} observations available for " f"character assessment"
             ),
             severity="minor",
         )
@@ -217,12 +215,8 @@ class LongitudinalVirtueProjection(Projection):
             # Insufficient history; fall back to the single-case reading.
             return (single_verdict, None)
 
-        has_vice_pattern = any(
-            d == "vice" for d in assessment.per_axis_dominant.values()
-        )
-        has_virtue_pattern = any(
-            d == "virtue" for d in assessment.per_axis_dominant.values()
-        )
+        has_vice_pattern = any(d == "vice" for d in assessment.per_axis_dominant.values())
+        has_virtue_pattern = any(d == "virtue" for d in assessment.per_axis_dominant.values())
 
         # Entrenched vice pattern → vicious character.
         if has_vice_pattern:

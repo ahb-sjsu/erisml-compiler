@@ -40,6 +40,12 @@ ml = [
     "sentence-transformers>=2.7",
     "numpy>=1.24",
 ]
+srl = [
+    # spaCy-based semantic role labeling for the maxim extractor.
+    # Needs the en_core_web_sm model installed separately:
+    #   python -m spacy download en_core_web_sm
+    "spacy>=3.7",
+]
 calibration = [
     "torch>=2.1",
     "sentence-transformers>=2.7",

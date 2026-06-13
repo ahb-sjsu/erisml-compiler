@@ -124,8 +124,7 @@ class DeonticProjection(Projection):
                 name="universalizability",
                 passed=False,
                 reason=(
-                    f"{dep.contradiction_type.replace('_', ' ').upper()}: "
-                    f"{dep.justification}"
+                    f"{dep.contradiction_type.replace('_', ' ').upper()}: " f"{dep.justification}"
                 ),
                 severity="grave",
                 detail=detail,
@@ -134,8 +133,7 @@ class DeonticProjection(Projection):
             name="universalizability",
             passed=True,
             reason=(
-                f"Maxim's action kind '{kind}' passes universalizability: "
-                f"{dep.justification}"
+                f"Maxim's action kind '{kind}' passes universalizability: " f"{dep.justification}"
             ),
             severity="grave",
             detail=detail,

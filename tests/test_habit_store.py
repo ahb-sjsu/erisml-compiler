@@ -24,7 +24,6 @@ from erisml_compiler.pipeline.orchestrator import CompileOptions, compile_docume
 from erisml_compiler.projections import substrate_from_ir
 from erisml_compiler.tiers import CompilerTier
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 
@@ -114,8 +113,7 @@ def test_assess_classifies_entrenched_vice() -> None:
 
 def test_assess_classifies_established_virtue() -> None:
     records = [
-        ActRecord("a", f"c{i}", f"2026-01-0{i+1}T00:00:00", "protect", "care", +1)
-        for i in range(4)
+        ActRecord("a", f"c{i}", f"2026-01-0{i+1}T00:00:00", "protect", "care", +1) for i in range(4)
     ]
     a = assess_virtue_history("a", records)
     assert a.per_axis_dominant["care"] == "virtue"
@@ -124,9 +122,9 @@ def test_assess_classifies_established_virtue() -> None:
 def test_assess_handles_ambiguity() -> None:
     records = [
         ActRecord("a", "c1", "t1", "protect", "care", +1),
-        ActRecord("a", "c2", "t2", "refuse",  "care", -1),
-        ActRecord("a", "c3", "t3", "help",    "care", +1),
-        ActRecord("a", "c4", "t4", "refuse",  "care", -1),
+        ActRecord("a", "c2", "t2", "refuse", "care", -1),
+        ActRecord("a", "c3", "t3", "help", "care", +1),
+        ActRecord("a", "c4", "t4", "refuse", "care", -1),
     ]
     a = assess_virtue_history("a", records)
     # Mean ~ 0; dominant should be "ambiguous"
