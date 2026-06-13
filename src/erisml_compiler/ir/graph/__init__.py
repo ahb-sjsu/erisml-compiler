@@ -26,6 +26,7 @@ the audit record. Same node+edge content → same hash regardless of
 insertion order, so two compiles of the same input produce
 bit-identical audit chains.
 """
+
 from erisml_compiler.ir.graph.canonical import (
     canonical_graph_json,
     graph_hash,

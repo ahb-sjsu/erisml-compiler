@@ -9,6 +9,7 @@ v0.1 ships with 3 seed scenarios (recast bundled examples). Future
 curation expands toward the 80-scenario target documented in the
 design note.
 """
+
 from erisml_compiler.bench.runner import BenchReport, BenchRun, run_bench
 from erisml_compiler.bench.schema import (
     ExpectedCommitment,

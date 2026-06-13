@@ -866,8 +866,10 @@ def cmd_bench_run(
     out_json.write_text(_json.dumps(report.to_dict(), indent=2), encoding="utf-8")
     out_md.write_text(render_report_markdown(report), encoding="utf-8")
 
-    click.echo(f"[+] {report.aggregate.n_scenarios} scenarios, "
-               f"{report.aggregate.n_failed_compile} failed.")
+    click.echo(
+        f"[+] {report.aggregate.n_scenarios} scenarios, "
+        f"{report.aggregate.n_failed_compile} failed."
+    )
     click.echo(
         f"[+] MoralTensor-Bench {report.bench_version} score: "
         f"{report.aggregate.moral_tensor_bench_score:.3f}"

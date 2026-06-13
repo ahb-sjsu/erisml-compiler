@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "erisml-compiler"
-version = "0.7.0"
-description = "Structure-preserving compiler from natural language to ErisML"
+version = "0.8.0"
+description = "Framework-pluralist DAG-native compiler from natural language to a moral intermediate representation"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }

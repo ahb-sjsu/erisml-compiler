@@ -28,7 +28,6 @@ from erisml_compiler.social_chem.schema import (
     SituationAggregate,
 )
 
-
 EM_DAG_MODULES_DEFAULT: tuple[str, ...] = (
     "harm",
     "rights",
@@ -62,7 +61,12 @@ def aggregate_situations(
     aggs = [a for a in aggregates if a.per_module_value]
     n = len(aggs)
     if n == 0:
-        return {m: _EPSILON for m in modules}, {m: 0.0 for m in modules}, {m: 0.0 for m in modules}, 0
+        return (
+            {m: _EPSILON for m in modules},
+            {m: 0.0 for m in modules},
+            {m: 0.0 for m in modules},
+            0,
+        )
 
     weights_raw: dict[str, float] = {}
     priors: dict[str, float] = {}
@@ -134,9 +138,7 @@ def fit_profile(
     metadata: dict[str, Any] | None = None,
 ) -> ProfileFitResult:
     """Run the fit and return a ProfileFitResult."""
-    weights_raw, priors, coverage, n_used = aggregate_situations(
-        aggregates, modules=modules
-    )
+    weights_raw, priors, coverage, n_used = aggregate_situations(aggregates, modules=modules)
     weights = normalise_weights(weights_raw)
 
     return ProfileFitResult(

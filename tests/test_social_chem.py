@@ -30,7 +30,6 @@ from erisml_compiler.social_chem import (
 )
 from erisml_compiler.social_chem.fitting import EM_DAG_MODULES_DEFAULT
 
-
 # ------------------------------------------------------------------ helpers
 
 
@@ -255,14 +254,24 @@ def test_projection_unmapped_module_absent() -> None:
 
 def test_projection_agreement_weighted_mean() -> None:
     rot_hi = SituationRoT(
-        area="dearabby", situation_short_id="x", situation="x",
-        rot="bad", rot_categorization="morality-ethics",
-        rot_moral_foundations=("care-harm",), rot_agree=5, action_moral_judgment=-2,
+        area="dearabby",
+        situation_short_id="x",
+        situation="x",
+        rot="bad",
+        rot_categorization="morality-ethics",
+        rot_moral_foundations=("care-harm",),
+        rot_agree=5,
+        action_moral_judgment=-2,
     )
     rot_lo = SituationRoT(
-        area="dearabby", situation_short_id="x", situation="x",
-        rot="good", rot_categorization="morality-ethics",
-        rot_moral_foundations=("care-harm",), rot_agree=1, action_moral_judgment=2,
+        area="dearabby",
+        situation_short_id="x",
+        situation="x",
+        rot="good",
+        rot_categorization="morality-ethics",
+        rot_moral_foundations=("care-harm",),
+        rot_agree=1,
+        action_moral_judgment=2,
     )
     sit = Situation(situation_short_id="x", situation="x", area="dearabby", rots=(rot_hi, rot_lo))
     agg = project_situation(sit)
@@ -357,9 +366,12 @@ def test_profile_to_dict_round_trip(tiny_tsv: Path) -> None:
     aggs = [project_situation(s) for s in sits]
     fp = fingerprint_corpus(sits, source="t")
     profile = fit_profile(
-        aggs, corpus=fp,
-        name="x", description="d",
-        ethos_description="e", bias_notes=["b"],
+        aggs,
+        corpus=fp,
+        name="x",
+        description="d",
+        ethos_description="e",
+        bias_notes=["b"],
     )
     d = profile_to_dict(profile)
     assert d["name"] == profile.name

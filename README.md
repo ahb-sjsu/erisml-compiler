@@ -4,38 +4,71 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 [![Pydantic v2](https://img.shields.io/badge/pydantic-v2-green.svg)](https://docs.pydantic.dev/)
-[![Schema](https://img.shields.io/badge/IR%20schema-erisml__compiler__ir__v0.1-orange.svg)](SCOPE.md)
-[![Tests](https://img.shields.io/badge/tests-224%20passing-brightgreen.svg)](#status)
+[![Schema](https://img.shields.io/badge/IR%20schema-erisml__compiler__ir__v0.3-orange.svg)](SCOPE.md)
+[![Tests](https://img.shields.io/badge/tests-330%2B%20passing-brightgreen.svg)](#status)
+[![Projections](https://img.shields.io/badge/projections-4%20(conseq%20%2B%20deontic%20%2B%20virtue%20%2B%20care)-blueviolet)](docs/plans/release-planning-06-framework-pluralist-architecture.md)
+[![Substrate](https://img.shields.io/badge/substrate-MoralGraph%20(DAG--native)-blue)](docs/plans/release-planning-06-framework-pluralist-architecture.md)
 [![Ruff](https://img.shields.io/badge/lint-ruff-blueviolet)](https://github.com/astral-sh/ruff)
 [![Black](https://img.shields.io/badge/code%20style-black-000000)](https://github.com/psf/black)
 [![Status: Alpha](https://img.shields.io/badge/status-alpha-red.svg)](SCOPE.md)
 [![PyPI](https://img.shields.io/pypi/v/erisml-compiler.svg)](https://pypi.org/project/erisml-compiler/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20659432.svg)](https://doi.org/10.5281/zenodo.20659432)
 
-A structure-preserving compiler from natural-language moral material into a
-canonical **ErisML Intermediate Representation** (IR) that can be evaluated by
-DEME, exported for RLEF training, audited as a structured trace, and
-introspected by the I-EIP Monitor's three lenses.
+A framework-pluralist DAG-native compiler from natural-language moral
+material into a typed **MoralGraph** + a set of pluggable framework
+**Projections**.
 
-The compiler operationalises the thesis that **moral reasoning requires
-structure-preserving representation before decision contraction**. A scalar
-"good / bad / safe / unsafe" label discards the dimensions that justify or
-defeat a candidate action: who the stakeholders are, what commitments bind
-them, which authorities are legitimate, who bears imposed risk. The compiler
-preserves this tensorial structure as a first-class object, then closes the
-loop by inspecting whether the text output and the model's internal state
-actually agree about it.
+Inputs compile into a typed `MoralGraph` (nodes ∈ {stakeholder, act,
+maxim, commitment, fact, norm}; edges ∈ {performs, imposes_on,
+consents_to, treats_as, under_maxim, coerces, surfaces_fact,
+fact_subject, would_violate_if_universalised}) carrying a canonical
+SHA-256 hash. Four framework projections then read that graph via
+typed queries:
 
-See `ErisML-Compiler.md` for the full design spec (31 sections) and `SCOPE.md`
-for what each phase actually delivers versus what is deferred. Current `main`
-covers the original Phases 1–4 (IR + DEME + calibration + silicon emitters +
-I-EIP Monitor) plus the **DEME V3 alignment** rolling in over an additional
-six-phase migration (`docs/migration/deme_v3_alignment.md`). Phases 1–4 of
-that alignment have landed: 9-dimension moral state, rank-1 through rank-6
-tensors with `(k, n, τ, a, c, s)` axes, per-party verdicts, fairness
-metrics (Gini + worst-off), and a bridge invoking DEME V3 modules
-(`GenevaEMV3`, `TriageEMV3`) directly. The production web app and silicon
-hardware verification remain deferred.
+- **ConsequentialistProjection** — the per-stakeholder harm/care
+  tensor + Gini / worst-off / Shapley + DEME verdict.
+- **DeonticProjection** — Kantian categorical *gates*
+  (universalizability, mere_means, valid_consent, legitimate_authority)
+  emitting categorical pass/fail findings, not channel contributions.
+- **VirtueProjection** — Aristotelian character / habit-consistency
+  reading.
+- **CareEthicsProjection** — Gilligan / Noddings / Tronto relational
+  primitives (attentiveness, asymmetric responsibility, dependency
+  response).
+
+When projections disagree by normalised verdict polarity, the
+compiler **does not aggregate** — it surfaces all verdicts via
+`ir.cross_projection_disagreement` and defers the choice to the
+caller. That choice is itself a metaethical move; the compiler
+refuses to make it silently.
+
+The compiler operationalises the thesis that **moral reasoning
+requires structure-preserving representation before decision
+contraction**, and the design rejects the deeper claim that one
+representation could be framework-neutral. The honest move is to
+make the framework commitments first-class, comparable, and
+explicit. See
+`docs/plans/release-planning-06-framework-pluralist-architecture.md`
+for the architectural argument and the r/Compiler review thread it
+responds to.
+
+Other v0.x stack:
+
+- **Eigenvalue spectral scalar** + higher-rank mode-n unfolding for
+  the V3 tensor (release-planning-04).
+- **Named ethos profiles** (`--ethos-profile`) fit from Social Chem
+  101 (Forbes et al., EMNLP 2020): `dear_abby_socialchem_v0.1`,
+  `aita_socialchem_v0.1` (release-planning-05).
+- **MoralTensor-Bench** harness + 3 seed scenarios + CLI
+  `eris-compile bench run` (release-planning-03).
+- **ρ-estimation core** (Procrustes + LSTSQ) for the BIP
+  equivariance check (release-planning-02).
+- **I-EIP Monitor** (three lenses + 5 named failure modes) plus
+  calibration provenance + `--strict-v3` enforcement.
+
+See `ErisML-Compiler.md` for the full design spec (31 sections) and
+`SCOPE.md` for what each phase actually delivers versus what is
+deferred.
 
 ## Quick start
 
@@ -47,9 +80,21 @@ pip install 'erisml-compiler[llm,calibration,monitor]'  # full stack
 # Or, install from source (editable; choose extras as needed)
 pip install -e ".[test,calibration,monitor,notebook]"
 
-# Compile one of the bundled examples — emits both V2 moral_vectors and a
-# DEME V3 MoralTensorV3 with the requested rank (default 2 = per-stakeholder).
+# Compile one of the bundled examples. Default: runs all 4 framework
+# projections (consequentialist + deontic + virtue + care_ethics), emits
+# both V2 moral_vectors and a DEME V3 MoralTensorV3, and surfaces
+# cross-projection disagreement when framework verdict polarities differ.
 eris-compile compile examples/nazi_attic.txt --rank 2 --out out/nazi_attic.ir.json
+
+# Use a fitted ethos profile from Social Chem 101
+eris-compile compile examples/nazi_attic.txt \
+    --ethos-profile src/erisml_compiler/em_dag/profiles/dear_abby_socialchem_v0.1.yaml
+
+# Select a subset of projections (deontic only)
+eris-compile compile examples/nazi_attic.txt --projection deontic_kantian
+
+# Run MoralTensor-Bench against the bundled seed corpus
+eris-compile bench run --extractor rule --out-md out/bench_report.md
 
 # Validate the IR
 eris-compile validate out/nazi_attic.ir.json
@@ -69,8 +114,8 @@ eris-compile delta out/nazi_attic.ir.json out/nazi_attic.trace.json \
 # Emit synthesizable Vitis HLS C++ for the silicon target
 eris-compile silicon-emit --out-dir out/silicon
 
-# Run the full test suite (194 tests including V3 alignment;
-# ~30s for the V2 core + extras when LaBSE is cached)
+# Run the full test suite (~330 tests across V3 alignment, projections,
+# MoralGraph, ρ-estimation, social_chem, bench, virtue/care, etc.)
 pytest
 
 # Run the linters / formatters that CI uses
@@ -225,7 +270,11 @@ ir.per_party_verdicts    # dict[stakeholder_id, str]
 ir.fairness_metrics      # dict with gini_harm + worst_off_harm_value
 ir.strategic_analysis    # dict with shapley_values + welfare_metrics
 ir.decision_proof        # dict with hash-chained provenance
-ir.schema_version        # "erisml_compiler_ir_v0.2"
+ir.schema_version        # "erisml_compiler_ir_v0.3"
+ir.graph                 # MoralGraph (DAG-native substrate; v0.8.0)
+ir.projections           # dict[framework_id, ProjectionResult] (v0.8.0)
+ir.cross_projection_disagreement  # framework polarity disagreement (v0.8.0)
+ir.audit.graph_hash      # canonical SHA-256 over the moral graph
 ```
 
 The V2 surface remains alive — `moral_vectors`, `moral_tensors`, the V2
@@ -235,13 +284,17 @@ the silicon and Monitor paths migrate.
 
 ## Status
 
-**v0.7.0 — alpha. Phases 1–4 on `main`, plus DEME V3 alignment Phases
-1–6 (complete).** **224 tests passing** across IR (V2 + V3), EM-DAG,
-FSMs, canonicalizer, critic, correction, calibration, export, silicon
-emit, activation lens, delta lens, equivariance, failure-mode
-detectors, V3 schema, V3 pipeline, V3 bridge, V3 direct-facts builder,
-V3 higher-rank, V3 strategic + decision-proof. CI green on Ubuntu ×
-Python 3.10/3.11/3.12; ruff lint + black format checks both clean.
+**v0.8.0 — alpha. Framework-pluralist DAG-native architecture
+(Phases 1–4 + DEME V3 alignment + the two-layer/MoralGraph refactor +
+4 projections + EM-DAG graph-native port). ~330 tests passing**
+across IR (V2 + V3), EM-DAG (now graph-native), FSMs, canonicalizer,
+critic, correction, calibration, export (RLEF v0.2), silicon emit,
+activation lens, delta lens, equivariance, ρ-estimation, failure-mode
+detectors, V3 schema/pipeline/bridge/higher-rank/strategic/decision-
+proof, MoralGraph (canonical hash + flat round-trip), projections
+(consequentialist + deontic + virtue + care), social_chem ethos
+fitter, MoralTensor-Bench harness. CI green on Ubuntu × Python
+3.10/3.11/3.12; ruff lint + black format checks both clean.
 
 End-to-end verified on the bundled `nazi_attic` example:
 
@@ -337,7 +390,7 @@ pins a specific release.
   title     = {ErisML Compiler: A Structure-Preserving Compiler from
                Natural Language to a Moral Intermediate Representation},
   year      = {2026},
-  version   = {0.4.0},
+  version   = {0.8.0},
   doi       = {10.5281/zenodo.20659432},
   url       = {https://github.com/ahb-sjsu/erisml-compiler}
 }

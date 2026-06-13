@@ -21,7 +21,6 @@ from erisml_compiler.ir.graph import (
 from erisml_compiler.pipeline.orchestrator import CompileOptions, compile_document
 from erisml_compiler.tiers import CompilerTier
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 
@@ -52,8 +51,9 @@ def test_query_helpers() -> None:
         ],
         edges=[
             MoralEdge(src="s:alice", dst="a:1", kind=EdgeKind.PERFORMS),
-            MoralEdge(src="a:1", dst="s:bob", kind=EdgeKind.IMPOSES_ON,
-                      payload={"severity": "grave"}),
+            MoralEdge(
+                src="a:1", dst="s:bob", kind=EdgeKind.IMPOSES_ON, payload={"severity": "grave"}
+            ),
         ],
     )
     assert len(g.nodes_of_kind(NodeKind.STAKEHOLDER)) == 2
@@ -72,19 +72,27 @@ def test_graph_hash_deterministic_under_insertion_order() -> None:
     g1 = MoralGraph()
     g1.add_node(MoralNode(id="s:a", kind=NodeKind.STAKEHOLDER, labels=["agent"]))
     g1.add_node(MoralNode(id="s:b", kind=NodeKind.STAKEHOLDER))
-    g1.add_edge(MoralEdge(src="s:a", dst="s:b", kind=EdgeKind.COERCES, payload={"severity": "grave"}))
+    g1.add_edge(
+        MoralEdge(src="s:a", dst="s:b", kind=EdgeKind.COERCES, payload={"severity": "grave"})
+    )
 
     g2 = MoralGraph()
     g2.add_node(MoralNode(id="s:b", kind=NodeKind.STAKEHOLDER))
     g2.add_node(MoralNode(id="s:a", kind=NodeKind.STAKEHOLDER, labels=["agent"]))
-    g2.add_edge(MoralEdge(src="s:a", dst="s:b", kind=EdgeKind.COERCES, payload={"severity": "grave"}))
+    g2.add_edge(
+        MoralEdge(src="s:a", dst="s:b", kind=EdgeKind.COERCES, payload={"severity": "grave"})
+    )
 
     assert graph_hash(g1) == graph_hash(g2)
 
 
 def test_graph_hash_differs_under_payload_change() -> None:
-    g1 = MoralGraph(edges=[MoralEdge(src="a", dst="b", kind=EdgeKind.IMPOSES_ON, payload={"severity": "minor"})])
-    g2 = MoralGraph(edges=[MoralEdge(src="a", dst="b", kind=EdgeKind.IMPOSES_ON, payload={"severity": "grave"})])
+    g1 = MoralGraph(
+        edges=[MoralEdge(src="a", dst="b", kind=EdgeKind.IMPOSES_ON, payload={"severity": "minor"})]
+    )
+    g2 = MoralGraph(
+        edges=[MoralEdge(src="a", dst="b", kind=EdgeKind.IMPOSES_ON, payload={"severity": "grave"})]
+    )
     assert graph_hash(g1) != graph_hash(g2)
 
 
@@ -107,8 +115,10 @@ def _compile(name: str):
     return compile_document(
         REPO_ROOT / "examples" / f"{name}.txt",
         CompileOptions(
-            tier=CompilerTier.RULES, extractor="rule",
-            canonicalizer=RegistryCanonicalizer(), tensor_rank=2,
+            tier=CompilerTier.RULES,
+            extractor="rule",
+            canonicalizer=RegistryCanonicalizer(),
+            tensor_rank=2,
         ),
     )
 

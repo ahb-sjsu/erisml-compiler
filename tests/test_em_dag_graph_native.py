@@ -30,7 +30,6 @@ from erisml_compiler.em_dag.modules._helpers import (
 from erisml_compiler.pipeline.orchestrator import CompileOptions, compile_document
 from erisml_compiler.tiers import CompilerTier
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent
 GOLDEN_FILE = REPO_ROOT / "tests" / "golden_em_dag_flat.json"
 EXAMPLES_DIR = REPO_ROOT / "examples"
@@ -39,8 +38,12 @@ EXAMPLES_DIR = REPO_ROOT / "examples"
 def _compile(name: str):
     return compile_document(
         EXAMPLES_DIR / f"{name}.txt",
-        CompileOptions(tier=CompilerTier.RULES, extractor="rule",
-                       canonicalizer=RegistryCanonicalizer(), tensor_rank=2),
+        CompileOptions(
+            tier=CompilerTier.RULES,
+            extractor="rule",
+            canonicalizer=RegistryCanonicalizer(),
+            tensor_rank=2,
+        ),
     )
 
 
@@ -135,7 +138,11 @@ def test_helpers_work_without_graph_attached() -> None:
     """An IR with no graph should still produce correct EM outputs
     via the flat-field fallback."""
     from erisml_compiler.ir.schemas import (
-        Commitment, CompilerIR, Document, EthicalFact, Stakeholder,
+        Commitment,
+        CompilerIR,
+        Document,
+        EthicalFact,
+        Stakeholder,
     )
 
     doc = Document(doc_id="t", title="t", raw_text="t")
@@ -143,18 +150,24 @@ def test_helpers_work_without_graph_attached() -> None:
         document=doc,
         stakeholders=[
             Stakeholder(id="self", label="x", type="individual", roles=["agent"]),
-            Stakeholder(id="v", label="village", type="community",
-                        roles=["nonconsenting_third_party"],
-                        vulnerability="high",
-                        consent_status="not_obtained"),
+            Stakeholder(
+                id="v",
+                label="village",
+                type="community",
+                roles=["nonconsenting_third_party"],
+                vulnerability="high",
+                consent_status="not_obtained",
+            ),
         ],
         commitments=[
-            Commitment(id="c1", type="vow", holder="self", content="x",
-                       status="active_but_defeasible"),
+            Commitment(
+                id="c1", type="vow", holder="self", content="x", status="active_but_defeasible"
+            ),
         ],
         ethical_facts=[
-            EthicalFact(id="f1", kind="externality", subjects=["v"],
-                        description="x", severity="grave"),
+            EthicalFact(
+                id="f1", kind="externality", subjects=["v"], description="x", severity="grave"
+            ),
         ],
         graph=None,
     )

@@ -1,4 +1,5 @@
 """Per-metric scoring + weighted aggregate for MoralTensor-Bench."""
+
 from __future__ import annotations
 
 import math
@@ -16,23 +17,21 @@ from erisml_compiler.bench.schema import (
 )
 from erisml_compiler.ir.schemas import CompilerIR
 
-
-DEFAULT_WEIGHTS_FILE = (
-    Path(__file__).resolve().parent / "v0.1" / "weights.yaml"
-)
+DEFAULT_WEIGHTS_FILE = Path(__file__).resolve().parent / "v0.1" / "weights.yaml"
 
 
 def _fuzzy_id_eq(a: str, b: str) -> bool:
     """Cheap label-fuzzy match: case-insensitive, ignore underscores
     and hyphens. Sufficient for the seed corpus; reconsider when the
     extractor starts emitting richer entity IDs."""
-    norm = lambda s: s.lower().replace("_", "").replace("-", "").replace(" ", "")
+
+    def norm(s: str) -> str:
+        return s.lower().replace("_", "").replace("-", "").replace(" ", "")
+
     return norm(a) == norm(b)
 
 
-def score_stakeholder_recall(
-    expected: list[ExpectedStakeholder], ir: CompilerIR
-) -> float:
+def score_stakeholder_recall(expected: list[ExpectedStakeholder], ir: CompilerIR) -> float:
     if not expected:
         return 1.0
     ir_ids = {s.id for s in ir.stakeholders}
@@ -40,9 +39,7 @@ def score_stakeholder_recall(
     return matched / len(expected)
 
 
-def score_stakeholder_role_f1(
-    expected: list[ExpectedStakeholder], ir: CompilerIR
-) -> float:
+def score_stakeholder_role_f1(expected: list[ExpectedStakeholder], ir: CompilerIR) -> float:
     expected_pairs: set[tuple[str, str]] = set()
     for e in expected:
         for role in e.roles:
@@ -58,7 +55,8 @@ def score_stakeholder_role_f1(
     if not expected_pairs or not ir_pairs:
         return 0.0
     tp = sum(
-        1 for ep in expected_pairs
+        1
+        for ep in expected_pairs
         if any(_fuzzy_id_eq(ep[0], ip[0]) and ep[1] == ip[1] for ip in ir_pairs)
     )
     precision = tp / len(ir_pairs) if ir_pairs else 0.0
@@ -68,9 +66,7 @@ def score_stakeholder_role_f1(
     return 2 * precision * recall / (precision + recall)
 
 
-def score_commitment_f1(
-    expected: list[ExpectedCommitment], ir: CompilerIR
-) -> float:
+def score_commitment_f1(expected: list[ExpectedCommitment], ir: CompilerIR) -> float:
     def _key(c: Any) -> tuple[str, str, str]:
         holder = getattr(c, "holder", "") or ""
         ben = getattr(c, "beneficiary", "") or ""
@@ -96,34 +92,30 @@ def score_commitment_f1(
     return 2 * p * r / (p + r)
 
 
-def score_canonical_form(
-    expected: str | None, ir: CompilerIR
-) -> float:
+def score_canonical_form(expected: str | None, ir: CompilerIR) -> float:
     if expected is None:
         return math.nan
     actual = ir.canonical_form or ""
     return 1.0 if actual.lower() == expected.lower() else 0.0
 
 
-def score_ethical_fact_kind_recall(
-    expected_kinds: list[str], ir: CompilerIR
-) -> float:
+def score_ethical_fact_kind_recall(expected_kinds: list[str], ir: CompilerIR) -> float:
     if not expected_kinds:
         return 1.0
     # EthicalFact uses .kind (an EthicalFactKind enum) in the IR schema.
     ir_kinds = {
-        (getattr(f, "kind", None) or getattr(f, "type", "") or "").lower()
-        if not hasattr(getattr(f, "kind", None), "value")
-        else f.kind.value.lower()
+        (
+            (getattr(f, "kind", None) or getattr(f, "type", "") or "").lower()
+            if not hasattr(getattr(f, "kind", None), "value")
+            else f.kind.value.lower()
+        )
         for f in ir.ethical_facts
     }
     matched = sum(1 for k in expected_kinds if k.lower() in ir_kinds)
     return matched / len(expected_kinds)
 
 
-def score_per_party_verdicts(
-    expected: dict[str, str], ir: CompilerIR
-) -> float:
+def score_per_party_verdicts(expected: dict[str, str], ir: CompilerIR) -> float:
     if not expected:
         return 1.0
     # IR shape for per-party verdicts varies across V2/V3 paths.
@@ -158,9 +150,7 @@ def score_overall_verdict(expected: str | None, ir: CompilerIR) -> float:
     return 1.0 if ir.deme_verdict.verdict.lower() == expected.lower() else 0.0
 
 
-def score_premature_contraction(
-    expect_premature: bool, ir: CompilerIR
-) -> float:
+def score_premature_contraction(expect_premature: bool, ir: CompilerIR) -> float:
     """1.0 = premature contraction occurred (BAD). 0.0 = no premature
     contraction. The aggregate `premature_contraction_rate` is the
     mean of this column."""
@@ -252,9 +242,12 @@ def aggregate_score(
     n = len(scores)
     if n == 0:
         return BenchAggregate(
-            n_scenarios=0, n_failed_compile=0,
-            mean_stakeholder_recall=0.0, mean_stakeholder_role_f1=0.0,
-            mean_commitment_f1=0.0, mean_canonical_form_match=0.0,
+            n_scenarios=0,
+            n_failed_compile=0,
+            mean_stakeholder_recall=0.0,
+            mean_stakeholder_role_f1=0.0,
+            mean_commitment_f1=0.0,
+            mean_canonical_form_match=0.0,
             mean_ethical_fact_kind_recall=0.0,
             mean_per_party_verdict_accuracy=0.0,
             mean_overall_verdict_match=0.0,

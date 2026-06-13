@@ -1,4 +1,5 @@
 """Iterate scenarios under a bench corpus, compile each, score."""
+
 from __future__ import annotations
 
 import hashlib
@@ -82,9 +83,7 @@ def corpus_hash(scenarios: list[ScenarioGold]) -> str:
 
 def _compile_scenario(scenario: ScenarioGold, *, extractor: str) -> Any:
     """Compile one scenario; returns the IR or raises."""
-    with tempfile.NamedTemporaryFile(
-        "w", encoding="utf-8", suffix=".txt", delete=False
-    ) as f:
+    with tempfile.NamedTemporaryFile("w", encoding="utf-8", suffix=".txt", delete=False) as f:
         f.write(scenario.raw_text)
         tmp = Path(f.name)
     try:
@@ -157,7 +156,7 @@ def render_report_markdown(report: BenchReport) -> str:
     lines.append(f"- n scenarios: {report.aggregate.n_scenarios}\n")
     lines.append(f"- n failed compile: {report.aggregate.n_failed_compile}\n\n")
 
-    lines.append(f"## Aggregate\n\n")
+    lines.append("## Aggregate\n\n")
     a = report.aggregate
     lines.append("| Metric | Value |\n|---|---:|\n")
     lines.append(f"| mean stakeholder recall | {a.mean_stakeholder_recall:.3f} |\n")
@@ -174,8 +173,16 @@ def render_report_markdown(report: BenchReport) -> str:
     lines.append("| id | category | stake recall | role F1 | comm F1 | canon | verdict |\n")
     lines.append("|---|---|---:|---:|---:|---:|---:|\n")
     for s in report.per_scenario:
-        cf = "-" if (s.canonical_form_match != s.canonical_form_match) else f"{s.canonical_form_match:.0f}"
-        ov = "-" if (s.overall_verdict_match != s.overall_verdict_match) else f"{s.overall_verdict_match:.0f}"
+        cf = (
+            "-"
+            if (s.canonical_form_match != s.canonical_form_match)
+            else f"{s.canonical_form_match:.0f}"
+        )
+        ov = (
+            "-"
+            if (s.overall_verdict_match != s.overall_verdict_match)
+            else f"{s.overall_verdict_match:.0f}"
+        )
         lines.append(
             f"| `{s.scenario_id}` | {s.category} | {s.stakeholder_recall:.2f} "
             f"| {s.stakeholder_role_f1:.2f} | {s.commitment_f1:.2f} "

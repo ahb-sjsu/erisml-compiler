@@ -174,10 +174,7 @@ def active_commitments(ir: CompilerIR) -> list[Commitment]:
         comms = _commitments_from_graph(ir.graph)
     else:
         comms = list(ir.commitments)
-    return [
-        c for c in comms
-        if c.status in ("active", "active_but_defeasible", "fulfilled")
-    ]
+    return [c for c in comms if c.status in ("active", "active_but_defeasible", "fulfilled")]
 
 
 def violated_commitments(ir: CompilerIR) -> list[Commitment]:
@@ -207,10 +204,7 @@ def stakeholders_with_role(ir: CompilerIR, role: str) -> list[Stakeholder]:
 
 def vulnerable_stakeholders(ir: CompilerIR) -> list[Stakeholder]:
     """Stakeholders with vulnerability in {'high', 'extreme'}."""
-    return [
-        s for s in stakeholders(ir)
-        if s.vulnerability in ("high", "extreme")
-    ]
+    return [s for s in stakeholders(ir) if s.vulnerability in ("high", "extreme")]
 
 
 def nonconsenting_third_party_ids(ir: CompilerIR) -> set[str]:
@@ -226,7 +220,7 @@ def nonconsenting_third_party_ids(ir: CompilerIR) -> set[str]:
         from erisml_compiler.ir.graph import EdgeKind, NodeKind
 
         for n in ir.graph.nodes_of_kind(NodeKind.STAKEHOLDER):
-            labels = [l.lower() for l in (n.labels or [])]
+            labels = [lbl.lower() for lbl in (n.labels or [])]
             if "nonconsenting_third_party" in labels:
                 sids.add(
                     (n.payload.get("id") if n.payload else None)
@@ -243,9 +237,6 @@ def nonconsenting_third_party_ids(ir: CompilerIR) -> set[str]:
     for s in ir.stakeholders:
         if "nonconsenting_third_party" in (s.roles or []):
             sids.add(s.id)
-        elif (
-            s.consent_status in ("not_obtained", "coerced")
-            and "bystander" in (s.roles or [])
-        ):
+        elif s.consent_status in ("not_obtained", "coerced") and "bystander" in (s.roles or []):
             sids.add(s.id)
     return sids

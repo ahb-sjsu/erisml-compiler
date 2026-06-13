@@ -10,15 +10,18 @@ from erisml_compiler.export.rlef import to_rlef_record
 from erisml_compiler.pipeline.orchestrator import CompileOptions, compile_document
 from erisml_compiler.tiers import CompilerTier
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 
 def _compile(name: str):
     return compile_document(
         REPO_ROOT / "examples" / f"{name}.txt",
-        CompileOptions(tier=CompilerTier.RULES, extractor="rule",
-                       canonicalizer=RegistryCanonicalizer(), tensor_rank=2),
+        CompileOptions(
+            tier=CompilerTier.RULES,
+            extractor="rule",
+            canonicalizer=RegistryCanonicalizer(),
+            tensor_rank=2,
+        ),
     )
 
 
@@ -37,8 +40,12 @@ def test_consequentialist_records_graph_aware_metadata() -> None:
 
 
 def test_consequentialist_graph_summary_distinguishes_scenarios() -> None:
-    nazi = _compile("nazi_attic").projections["consequentialist_distributive"]["metadata"]["graph_summary"]
-    med = _compile("medical_confidentiality").projections["consequentialist_distributive"]["metadata"]["graph_summary"]
+    nazi = _compile("nazi_attic").projections["consequentialist_distributive"]["metadata"][
+        "graph_summary"
+    ]
+    med = _compile("medical_confidentiality").projections["consequentialist_distributive"][
+        "metadata"
+    ]["graph_summary"]
     # The two scenarios have meaningfully different graph topologies.
     assert nazi != med
 

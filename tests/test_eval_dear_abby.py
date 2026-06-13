@@ -18,7 +18,12 @@ from scripts.eval_dear_abby_groundtruth import (  # type: ignore[import-not-foun
 
 
 def test_evaluate_returns_three_runs_per_pair() -> None:
-    pairs = [{"question": "I had to choose between telling the truth and keeping my friend's secret.", "answer": "—"}]
+    pairs = [
+        {
+            "question": "I had to choose between telling the truth and keeping my friend's secret.",
+            "answer": "—",
+        }
+    ]
     results = evaluate(pairs)
     assert set(results.keys()) == {
         "baseline",

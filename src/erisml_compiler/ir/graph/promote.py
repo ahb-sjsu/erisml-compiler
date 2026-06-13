@@ -28,13 +28,12 @@ Stakeholder labels (`agent`, `coercer`, `authority`, `vulnerable`,
 `nonconsenting_third_party`) carry over to MoralNode.labels for query
 convenience.
 """
+
 from __future__ import annotations
 
-from typing import Any
 
 from erisml_compiler.ir.graph.container import MoralGraph
 from erisml_compiler.ir.graph.schema import EdgeKind, MoralEdge, MoralNode, NodeKind
-
 
 # Same kind sets used by projections/substrate.py to interpret
 # extractor output. Keep in sync.
@@ -85,7 +84,9 @@ def graph_from_flat(ir) -> MoralGraph:
             )
         )
         # If an actor / agent is named on the event, draw `performs`.
-        actor = getattr(ev, "actor", None) or getattr(ev, "agent", None) or getattr(ev, "subject", None)
+        actor = (
+            getattr(ev, "actor", None) or getattr(ev, "agent", None) or getattr(ev, "subject", None)
+        )
         if actor:
             g.add_edge(
                 MoralEdge(
@@ -141,9 +142,7 @@ def graph_from_flat(ir) -> MoralGraph:
     # rule extractor doesn't link facts to specific events, so we use
     # the first event (most likely the situation's primary act) as a
     # fallback. Future extractors should link facts to events directly.
-    primary_act_id = (
-        _node_id("act", ir.events[0].id) if ir.events else None
-    )
+    primary_act_id = _node_id("act", ir.events[0].id) if ir.events else None
 
     for f in ir.ethical_facts:
         fid = _node_id("fact", f.id)
@@ -245,8 +244,6 @@ def graph_from_flat(ir) -> MoralGraph:
                 payload={"action_kind": action_kind, "purpose": purpose},
             )
         )
-        g.add_edge(
-            MoralEdge(src=primary_act_id, dst=maxim_id, kind=EdgeKind.UNDER_MAXIM)
-        )
+        g.add_edge(MoralEdge(src=primary_act_id, dst=maxim_id, kind=EdgeKind.UNDER_MAXIM))
 
     return g

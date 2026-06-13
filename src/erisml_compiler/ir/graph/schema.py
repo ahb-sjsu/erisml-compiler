@@ -1,4 +1,5 @@
 """Typed node and edge schema for the MoralGraph."""
+
 from __future__ import annotations
 
 import enum

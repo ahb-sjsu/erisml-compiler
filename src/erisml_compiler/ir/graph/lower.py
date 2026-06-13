@@ -28,6 +28,7 @@ What's NOT round-tripped (graph-only state):
     promote, so a lower→promote→lower yields the same graph.
   - The Maxim node (synthesised by promote; not in any flat field).
 """
+
 from __future__ import annotations
 
 from typing import Any

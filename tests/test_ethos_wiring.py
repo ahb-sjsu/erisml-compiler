@@ -12,7 +12,6 @@ from erisml_compiler.evaluation.moral_vector import build_moral_vector_from_em_o
 from erisml_compiler.ir.schemas import DimensionScore, EMOutput
 from erisml_compiler.pipeline.orchestrator import _resolve_ethos_profile
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PROFILES_DIR = REPO_ROOT / "src" / "erisml_compiler" / "em_dag" / "profiles"
 
@@ -68,8 +67,18 @@ def test_dear_abby_profile_uses_canonical_module_names() -> None:
     with open(path, encoding="utf-8") as f:
         data = yaml.safe_load(f)
     weights = data["weights"]
-    canonical = {"harm", "rights", "fairness", "legitimacy", "epistemic",
-                 "autonomy", "fidelity", "externality", "care", "repair"}
+    canonical = {
+        "harm",
+        "rights",
+        "fairness",
+        "legitimacy",
+        "epistemic",
+        "autonomy",
+        "fidelity",
+        "externality",
+        "care",
+        "repair",
+    }
     for k in weights:
         assert k in canonical, f"Profile weight key {k!r} is not a canonical EM module name"
 
@@ -90,7 +99,9 @@ def test_ethos_weights_scale_moral_vector_values() -> None:
 
     # 'autonomy_consent' has no mapping in the profile (autonomy is not
     # in weights dict, defaults to 1.0) -> unchanged.
-    assert weighted.autonomy_consent.value == pytest.approx(unweighted.autonomy_consent.value, abs=1e-9)
+    assert weighted.autonomy_consent.value == pytest.approx(
+        unweighted.autonomy_consent.value, abs=1e-9
+    )
     # 'vow_fidelity' (fidelity module) has weight 0.7237 in the shipped profile.
     assert abs(weighted.vow_fidelity.value) < abs(unweighted.vow_fidelity.value)
     expected = unweighted.vow_fidelity.value * weights["fidelity"]

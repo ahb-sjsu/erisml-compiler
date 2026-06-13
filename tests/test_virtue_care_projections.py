@@ -18,7 +18,6 @@ from erisml_compiler.projections import (
 from erisml_compiler.projections.base import polarity_for_verdict
 from erisml_compiler.tiers import CompilerTier
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 
@@ -74,8 +73,12 @@ def test_virtue_deceit_flags_character_concern() -> None:
 def test_virtue_runs_on_compiled_nazi_attic_and_disagrees() -> None:
     ir = compile_document(
         REPO_ROOT / "examples" / "nazi_attic.txt",
-        CompileOptions(tier=CompilerTier.RULES, extractor="rule",
-                       canonicalizer=RegistryCanonicalizer(), tensor_rank=2),
+        CompileOptions(
+            tier=CompilerTier.RULES,
+            extractor="rule",
+            canonicalizer=RegistryCanonicalizer(),
+            tensor_rank=2,
+        ),
     )
     assert "virtue_aristotelian" in ir.projections
     v = ir.projections["virtue_aristotelian"]
@@ -113,8 +116,12 @@ def test_care_runs_on_compiled_examples() -> None:
     for fname in ("nazi_attic", "medical_confidentiality", "whistleblower"):
         ir = compile_document(
             REPO_ROOT / "examples" / f"{fname}.txt",
-            CompileOptions(tier=CompilerTier.RULES, extractor="rule",
-                           canonicalizer=RegistryCanonicalizer(), tensor_rank=2),
+            CompileOptions(
+                tier=CompilerTier.RULES,
+                extractor="rule",
+                canonicalizer=RegistryCanonicalizer(),
+                tensor_rank=2,
+            ),
         )
         assert "care_ethics_relational" in ir.projections
 
@@ -125,8 +132,12 @@ def test_care_runs_on_compiled_examples() -> None:
 def test_cross_projection_disagreement_uses_polarity_not_verdict_string() -> None:
     ir = compile_document(
         REPO_ROOT / "examples" / "medical_confidentiality.txt",
-        CompileOptions(tier=CompilerTier.RULES, extractor="rule",
-                       canonicalizer=RegistryCanonicalizer(), tensor_rank=2),
+        CompileOptions(
+            tier=CompilerTier.RULES,
+            extractor="rule",
+            canonicalizer=RegistryCanonicalizer(),
+            tensor_rank=2,
+        ),
     )
     # On medical: consequentialist + deontic + virtue all polarity=permit,
     # care ethics polarity=escalate. Disagreement should be FLAGGED (escalate

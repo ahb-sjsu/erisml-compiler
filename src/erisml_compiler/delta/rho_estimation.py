@@ -28,6 +28,7 @@ This module is pure numpy — no torch, no scipy dependency required.
 Activation captures happen elsewhere (in `monitor/`); ρ estimation
 operates on already-captured pooled activations.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -36,7 +37,6 @@ from dataclasses import dataclass, field
 from typing import Literal
 
 import numpy as np
-
 
 Method = Literal["procrustes", "lstsq"]
 
@@ -90,8 +90,8 @@ def fit_rho_procrustes(H: np.ndarray, H_g: np.ndarray) -> tuple[np.ndarray, floa
     M = H_g.T @ H  # (D, D)
     U, _, Vt = np.linalg.svd(M, full_matrices=False)
     R = U @ Vt
-    I = np.eye(R.shape[0])
-    ortho_score = float(np.linalg.norm(R.T @ R - I, ord="fro"))
+    eye = np.eye(R.shape[0])
+    ortho_score = float(np.linalg.norm(R.T @ R - eye, ord="fro"))
     return R, ortho_score
 
 
@@ -107,8 +107,8 @@ def fit_rho_lstsq(H: np.ndarray, H_g: np.ndarray) -> tuple[np.ndarray, float]:
     # Equivalently H R^T ≈ H_g, so R^T = pinv(H) @ H_g.
     R_T = np.linalg.pinv(H) @ H_g  # (D, D)
     R = R_T.T
-    I = np.eye(R.shape[0])
-    ortho_score = float(np.linalg.norm(R.T @ R - I, ord="fro"))
+    eye = np.eye(R.shape[0])
+    ortho_score = float(np.linalg.norm(R.T @ R - eye, ord="fro"))
     return R, ortho_score
 
 
@@ -173,7 +173,9 @@ def fit_rho(
         residual_p95=float(np.quantile(res, 0.95)) if res.size else 0.0,
         R_orthogonal_score=ortho,
         method=method,
-        corpus_hash=_hash_corpus(pair_ids if pair_ids is not None else [str(i) for i in range(H.shape[0])]),
+        corpus_hash=_hash_corpus(
+            pair_ids if pair_ids is not None else [str(i) for i in range(H.shape[0])]
+        ),
         metadata=metadata or {},
     )
 

@@ -25,13 +25,13 @@ substrate's `maxim`, `consent_states`, and `authority_legitimacies`
 Production Kantian analysis would need a far richer maxim model
 (natural-deduction over maxim contradictions, etc.) — out of scope.
 """
+
 from __future__ import annotations
 
 from typing import Any
 
 from erisml_compiler.projections.base import GateFinding, Projection, ProjectionResult
 from erisml_compiler.projections.substrate import MoralSubstrate
-
 
 # Action-kinds whose maxim universalised typically contradicts itself.
 # This is a coarse rule list; a richer Kantian analyser would build
@@ -92,9 +92,7 @@ class DeonticProjection(Projection):
 
     # ----------------------------------------------------- universalizability
 
-    def _gate_universalizability(
-        self, substrate: MoralSubstrate, graph: Any = None
-    ) -> GateFinding:
+    def _gate_universalizability(self, substrate: MoralSubstrate, graph: Any = None) -> GateFinding:
         if substrate.maxim is None:
             return GateFinding(
                 name="universalizability",
@@ -130,15 +128,14 @@ class DeonticProjection(Projection):
 
     # ----------------------------------------------------- mere means
 
-    def _gate_mere_means(
-        self, substrate: MoralSubstrate, graph: Any = None
-    ) -> GateFinding:
+    def _gate_mere_means(self, substrate: MoralSubstrate, graph: Any = None) -> GateFinding:
         # Graph-native path: pattern-match `treats_as` edges directly.
         if graph is not None:
             from erisml_compiler.ir.graph import EdgeKind
 
             mere_means_edges = [
-                e for e in graph.edges_of_kind(EdgeKind.TREATS_AS)
+                e
+                for e in graph.edges_of_kind(EdgeKind.TREATS_AS)
                 if (e.payload or {}).get("role") == "mere_means"
             ]
             if mere_means_edges:
@@ -148,8 +145,7 @@ class DeonticProjection(Projection):
                     passed=False,
                     reason=(
                         f"Graph has {len(mere_means_edges)} treats_as[role=mere_means] "
-                        f"edge(s): {', '.join(subs[:3])}"
-                        + (" ..." if len(subs) > 3 else "")
+                        f"edge(s): {', '.join(subs[:3])}" + (" ..." if len(subs) > 3 else "")
                     ),
                     severity="grave",
                     subjects=subs,
@@ -179,8 +175,7 @@ class DeonticProjection(Projection):
                 severity="grave",
             )
         mere_means_subs = [
-            sid for sid, role in substrate.maxim.treats_persons_as.items()
-            if role == "mere_means"
+            sid for sid, role in substrate.maxim.treats_persons_as.items() if role == "mere_means"
         ]
         if mere_means_subs:
             return GateFinding(
@@ -202,14 +197,18 @@ class DeonticProjection(Projection):
 
     # ----------------------------------------------------- valid consent
 
-    def _gate_valid_consent(
-        self, substrate: MoralSubstrate, graph: Any = None
-    ) -> GateFinding:
-        invalid = [c for c in substrate.consent_states if not c.given or c.under_duress or not c.informed]
+    def _gate_valid_consent(self, substrate: MoralSubstrate, graph: Any = None) -> GateFinding:
+        invalid = [
+            c for c in substrate.consent_states if not c.given or c.under_duress or not c.informed
+        ]
         if invalid:
             duress = [c.stakeholder_id for c in invalid if c.under_duress]
             uninformed = [c.stakeholder_id for c in invalid if not c.informed]
-            absent = [c.stakeholder_id for c in invalid if not c.given and not c.under_duress and c.informed]
+            absent = [
+                c.stakeholder_id
+                for c in invalid
+                if not c.given and not c.under_duress and c.informed
+            ]
             parts = []
             if absent:
                 parts.append(f"consent absent for {', '.join(absent[:3])}")

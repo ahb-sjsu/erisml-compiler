@@ -27,6 +27,7 @@ The projection emits findings on:
 Like VirtueProjection, this is v0 heuristic. Real care-ethics would
 build the full relational topology over time.
 """
+
 from __future__ import annotations
 
 from typing import Any
@@ -71,7 +72,8 @@ class CareEthicsProjection(Projection):
             framework_specific={
                 "n_relations": len(substrate.relations),
                 "n_dependents": sum(
-                    1 for s in substrate.stakeholders
+                    1
+                    for s in substrate.stakeholders
                     if any(r in ("patient", "dependent") for r in getattr(s, "roles", []) or [])
                 ),
             },
@@ -86,11 +88,8 @@ class CareEthicsProjection(Projection):
         """Care ethics asks whether the agent SAW the relational
         context. Proxy: did the extractor surface relations + were
         any of them between the agent and a dependent?"""
-        agent_id = (
-            substrate.maxim.agent_id if substrate.maxim else None
-        ) or next(
-            (s.id for s in substrate.stakeholders
-             if "agent" in (getattr(s, "roles", None) or [])),
+        agent_id = (substrate.maxim.agent_id if substrate.maxim else None) or next(
+            (s.id for s in substrate.stakeholders if "agent" in (getattr(s, "roles", None) or [])),
             None,
         )
         if not substrate.relations:
@@ -171,7 +170,7 @@ class CareEthicsProjection(Projection):
                 if target is None:
                     continue
                 labels = target.labels or []
-                if any(l in ("dependent", "patient", "vulnerable") for l in labels):
+                if any(lbl in ("dependent", "patient", "vulnerable") for lbl in labels):
                     dependents_at_risk.append(target.id.removeprefix("stakeholder:"))
 
         if dependents_at_risk:
@@ -191,8 +190,12 @@ class CareEthicsProjection(Projection):
         # Substrate fallback
         care_kinds = {"care", "non_maleficence"}
         has_care_act = any(
-            (getattr(f, "kind", None).value if hasattr(getattr(f, "kind", None), "value")
-             else str(getattr(f, "kind", ""))).lower() in care_kinds
+            (
+                getattr(f, "kind", None).value
+                if hasattr(getattr(f, "kind", None), "value")
+                else str(getattr(f, "kind", ""))
+            ).lower()
+            in care_kinds
             for f in substrate.ethical_facts
         )
         if has_care_act:

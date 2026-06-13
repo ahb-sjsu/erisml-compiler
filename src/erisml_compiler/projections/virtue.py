@@ -26,6 +26,7 @@ This projection is *not* trying to be a complete virtue ethics. It's
 trying to be honest about what the framework would surface from the
 substrate we currently extract.
 """
+
 from __future__ import annotations
 
 from typing import Any
@@ -33,15 +34,14 @@ from typing import Any
 from erisml_compiler.projections.base import GateFinding, Projection, ProjectionResult
 from erisml_compiler.projections.substrate import MoralSubstrate
 
-
 # Action-kind -> (virtue-expressed-when-done-well, vice-expressed-when-done-poorly)
 _ACTION_VIRTUE_AXES: dict[str, tuple[str, str]] = {
-    "deceive":                ("honesty",   "deception"),
-    "coerce_or_be_coerced":   ("courage",   "cowardice"),
-    "impose_externality":     ("justice",   "injustice"),
-    "make_or_keep_commitment":("fidelity",  "perfidy"),
-    "protect":                ("care",      "callousness"),
-    "act_under_norm":         ("prudence",  "imprudence"),
+    "deceive": ("honesty", "deception"),
+    "coerce_or_be_coerced": ("courage", "cowardice"),
+    "impose_externality": ("justice", "injustice"),
+    "make_or_keep_commitment": ("fidelity", "perfidy"),
+    "protect": ("care", "callousness"),
+    "act_under_norm": ("prudence", "imprudence"),
 }
 
 
@@ -80,9 +80,9 @@ class VirtueProjection(Projection):
             findings=findings,
             framework_specific={
                 "n_virtue_concerns": len(failed),
-                "central_virtues_surfaced": sorted({
-                    f.detail.get("virtue") for f in findings if f.detail.get("virtue")
-                } - {None}),
+                "central_virtues_surfaced": sorted(
+                    {f.detail.get("virtue") for f in findings if f.detail.get("virtue")} - {None}
+                ),
             },
             metadata={"projection_version": "v0_heuristic"},
         )
@@ -150,8 +150,7 @@ class VirtueProjection(Projection):
             name="commitment_context",
             passed=True,
             reason=(
-                f"{n} standing commitment(s); virtue assessment should "
-                f"weigh fidelity to them"
+                f"{n} standing commitment(s); virtue assessment should " f"weigh fidelity to them"
             ),
             severity="minor",
             detail={"n_commitments": n, "virtue": "fidelity"},
@@ -166,7 +165,7 @@ class VirtueProjection(Projection):
         agent's status doesn't match, the situation calls for
         practical wisdom rather than rule-application."""
         if graph is not None:
-            from erisml_compiler.ir.graph import EdgeKind, NodeKind
+            from erisml_compiler.ir.graph import EdgeKind
 
             imposes = graph.edges_of_kind(EdgeKind.IMPOSES_ON)
             vulnerable_targets = []
@@ -196,7 +195,8 @@ class VirtueProjection(Projection):
 
         # Substrate fallback: look at consent_states + stakeholder roles.
         vuln_sids = [
-            s.id for s in substrate.stakeholders
+            s.id
+            for s in substrate.stakeholders
             if "vulnerable" in (getattr(s, "vulnerability", "") or "")
             or any(r in ("patient", "dependent") for r in (getattr(s, "roles", []) or []))
         ]

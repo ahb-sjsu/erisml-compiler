@@ -20,6 +20,7 @@ heuristics over the existing `CompilerIR` fields. Future versions
 should extract maxims, consent states, and authority legitimacy as
 explicit extractor outputs.
 """
+
 from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -214,10 +215,7 @@ def substrate_from_graph(graph, *, ir=None) -> MoralSubstrate:
         has_consent = graph.has_edge(edge.dst, edge.src, kind=EdgeKind.CONSENTS_TO)
         if not has_consent:
             # Check if this stakeholder is coerced.
-            coerced = any(
-                e.dst == edge.dst
-                for e in graph.edges_of_kind(EdgeKind.COERCES)
-            )
+            coerced = any(e.dst == edge.dst for e in graph.edges_of_kind(EdgeKind.COERCES))
             consent_states.append(
                 ConsentState(stakeholder_id=sid, given=False, under_duress=coerced)
             )
@@ -227,9 +225,7 @@ def substrate_from_graph(graph, *, ir=None) -> MoralSubstrate:
         if sid in seen:
             continue
         seen.add(sid)
-        consent_states.append(
-            ConsentState(stakeholder_id=sid, given=False, under_duress=True)
-        )
+        consent_states.append(ConsentState(stakeholder_id=sid, given=False, under_duress=True))
 
     # Derive authority legitimacies: a stakeholder with role=authority
     # or role=coercer is legitimate unless tagged otherwise via a
@@ -277,6 +273,7 @@ def substrate_from_graph(graph, *, ir=None) -> MoralSubstrate:
         flat_facts = []
         flat_relations = []
         from erisml_compiler.ir.schemas import Document
+
         document = Document(doc_id="graph", title="", raw_text="")
         segments = []
         canonical_form = None
@@ -389,9 +386,7 @@ def _derive_consent_states(ir) -> list[ConsentState]:
         if "nonconsenting_third_party" in roles or s.id in nonconsenting_subjects:
             out.append(ConsentState(stakeholder_id=s.id, given=False))
         elif s.id in coerced_subjects:
-            out.append(
-                ConsentState(stakeholder_id=s.id, given=False, under_duress=True)
-            )
+            out.append(ConsentState(stakeholder_id=s.id, given=False, under_duress=True))
     return out
 
 

@@ -1,8 +1,9 @@
 """`MoralGraph` container with typed query API."""
+
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import Any, Iterable
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -56,35 +57,19 @@ class MoralGraph(BaseModel):
     def edges_of_kind(self, kind: EdgeKind) -> list[MoralEdge]:
         return [e for e in self.edges if e.kind == kind]
 
-    def out_edges(
-        self, node_id: str, *, kind: EdgeKind | None = None
-    ) -> list[MoralEdge]:
-        return [
-            e for e in self.edges
-            if e.src == node_id and (kind is None or e.kind == kind)
-        ]
+    def out_edges(self, node_id: str, *, kind: EdgeKind | None = None) -> list[MoralEdge]:
+        return [e for e in self.edges if e.src == node_id and (kind is None or e.kind == kind)]
 
-    def in_edges(
-        self, node_id: str, *, kind: EdgeKind | None = None
-    ) -> list[MoralEdge]:
-        return [
-            e for e in self.edges
-            if e.dst == node_id and (kind is None or e.kind == kind)
-        ]
+    def in_edges(self, node_id: str, *, kind: EdgeKind | None = None) -> list[MoralEdge]:
+        return [e for e in self.edges if e.dst == node_id and (kind is None or e.kind == kind)]
 
-    def neighbors_out(
-        self, node_id: str, *, kind: EdgeKind | None = None
-    ) -> list[str]:
+    def neighbors_out(self, node_id: str, *, kind: EdgeKind | None = None) -> list[str]:
         return [e.dst for e in self.out_edges(node_id, kind=kind)]
 
-    def neighbors_in(
-        self, node_id: str, *, kind: EdgeKind | None = None
-    ) -> list[str]:
+    def neighbors_in(self, node_id: str, *, kind: EdgeKind | None = None) -> list[str]:
         return [e.src for e in self.in_edges(node_id, kind=kind)]
 
-    def has_edge(
-        self, src: str, dst: str, *, kind: EdgeKind | None = None
-    ) -> bool:
+    def has_edge(self, src: str, dst: str, *, kind: EdgeKind | None = None) -> bool:
         for e in self.edges:
             if e.src == src and e.dst == dst:
                 if kind is None or e.kind == kind:

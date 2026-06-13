@@ -22,7 +22,6 @@ from erisml_compiler.social_chem.schema import (
     SituationRoT,
 )
 
-
 EXPECTED_COLUMNS: tuple[str, ...] = (
     "area",
     "m",
@@ -90,8 +89,7 @@ def iter_rows(
         cols = tuple(reader.fieldnames or ())
         if cols != EXPECTED_COLUMNS:
             raise ValueError(
-                f"Unexpected TSV columns at {path}: got {cols}, "
-                f"expected {EXPECTED_COLUMNS}"
+                f"Unexpected TSV columns at {path}: got {cols}, " f"expected {EXPECTED_COLUMNS}"
             )
 
         for row in reader:

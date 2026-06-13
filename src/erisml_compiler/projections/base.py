@@ -16,6 +16,7 @@ Verdicts are framework-relative: the consequentialist projection's
 `permissible_under_categorical_imperative`. When projections
 disagree, the orchestrator does NOT aggregate — it surfaces both.
 """
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -24,7 +25,6 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from erisml_compiler.projections.substrate import MoralSubstrate
-
 
 GateSeverity = Literal["minor", "moderate", "grave", "catastrophic"]
 

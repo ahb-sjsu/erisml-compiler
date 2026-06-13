@@ -42,6 +42,7 @@ What this is NOT:
     externality, repair) have no direct MFT channel; they default to
     floor weight and are documented as such in the profile YAML.
 """
+
 from erisml_compiler.social_chem.fitting import (
     aggregate_situations,
     fit_profile,

@@ -10,6 +10,7 @@ For backward compatibility, the orchestrator continues to populate
 `ir.fairness_metrics` from this projection's output. New code should
 read from `ir.projections["consequentialist_distributive"]` instead.
 """
+
 from __future__ import annotations
 
 from typing import Any
@@ -109,7 +110,10 @@ class ConsequentialistProjection(Projection):
             tensor = tensor_override
         else:
             tensor = build_moral_tensor_v3(
-                ir, em_outputs, self.dag, rank=self.tensor_rank,
+                ir,
+                em_outputs,
+                self.dag,
+                rank=self.tensor_rank,
                 ethos_weights=self.ethos_weights,
             )
         verdict_obj = DEMEBridge(profile_name=self.dag.name).evaluate(ir, final_vector)

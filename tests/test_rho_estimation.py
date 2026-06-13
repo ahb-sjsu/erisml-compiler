@@ -22,7 +22,6 @@ from erisml_compiler.delta.transforms import (
     default_registry,
 )
 
-
 # ----------------------------------------------------------- registry
 
 
@@ -179,7 +178,8 @@ def test_fit_rho_packages_estimate() -> None:
     H_g = H @ R_true.T
 
     est = fit_rho(
-        H, H_g,
+        H,
+        H_g,
         transform_name="paraphrase_v0",
         layer_index=12,
         family="paraphrase",

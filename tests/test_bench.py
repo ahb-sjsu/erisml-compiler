@@ -35,7 +35,6 @@ from erisml_compiler.bench.scoring import (
     weighted_score,
 )
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent
 BENCH_DIR = REPO_ROOT / "src" / "erisml_compiler" / "bench" / "v0.1"
 
@@ -114,15 +113,16 @@ class _StubVerdict:
 
 
 def test_stakeholder_recall_full_match() -> None:
-    ex = [ExpectedStakeholder(id="alice", roles=["agent"]),
-          ExpectedStakeholder(id="bob", roles=["patient"])]
+    ex = [
+        ExpectedStakeholder(id="alice", roles=["agent"]),
+        ExpectedStakeholder(id="bob", roles=["patient"]),
+    ]
     ir = _StubIR(stakeholders=[_StubSH("alice"), _StubSH("bob")])
     assert score_stakeholder_recall(ex, ir) == 1.0
 
 
 def test_stakeholder_recall_partial() -> None:
-    ex = [ExpectedStakeholder(id="alice"),
-          ExpectedStakeholder(id="bob")]
+    ex = [ExpectedStakeholder(id="alice"), ExpectedStakeholder(id="bob")]
     ir = _StubIR(stakeholders=[_StubSH("alice")])
     assert score_stakeholder_recall(ex, ir) == 0.5
 
@@ -171,7 +171,7 @@ def test_premature_contraction_only_penalised_when_expected() -> None:
     ir_review = _StubIR(deme_verdict=_StubVerdict("requires_human_review"))
     assert score_premature_contraction(False, ir_clean) == 0.0
     assert score_premature_contraction(True, ir_review) == 0.0  # good — escalated as expected
-    assert score_premature_contraction(True, ir_clean) == 1.0   # bad — collapsed prematurely
+    assert score_premature_contraction(True, ir_clean) == 1.0  # bad — collapsed prematurely
 
 
 # ---------------------------------------------------- aggregate + weights
@@ -201,10 +201,15 @@ def test_weighted_score_combines_metrics() -> None:
 
 def test_aggregate_score_emits_bench_aggregate() -> None:
     s = ScenarioScore(
-        scenario_id="t1", category="c", stakeholder_recall=0.5,
-        stakeholder_role_f1=0.5, commitment_f1=0.5,
-        canonical_form_match=0.0, ethical_fact_kind_recall=0.5,
-        per_party_verdict_accuracy=0.5, overall_verdict_match=0.0,
+        scenario_id="t1",
+        category="c",
+        stakeholder_recall=0.5,
+        stakeholder_role_f1=0.5,
+        commitment_f1=0.5,
+        canonical_form_match=0.0,
+        ethical_fact_kind_recall=0.5,
+        per_party_verdict_accuracy=0.5,
+        overall_verdict_match=0.0,
         premature_contraction=0.0,
     )
     agg = aggregate_score([s], load_weights())

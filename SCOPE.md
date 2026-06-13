@@ -4,27 +4,79 @@ This file states **what is built**, **what is stubbed**, and **what is deferred*
 so a maintainer can compare the running code against the 30-section design spec
 (`ErisML-Compiler.md`) without confusion.
 
-## Component truth table (as of v0.7.0)
+## Component truth table (as of v0.8.0)
 
-| Component                        | Current status              | Production readiness         |
-|----------------------------------|-----------------------------|------------------------------|
-| Text compiler (12-pass pipeline) | shipped                     | alpha                        |
-| DEME V2 (10-dim MoralVector)     | shipped                     | stable-ish (backward-compat) |
-| DEME V3 bridge (Phases 1–4)      | shipped                     | alpha                        |
-| Rank 1–6 tensors (Phase 5)       | shipped                     | alpha                        |
-| Action / coalition `a` axis      | stub (length only)          | research                     |
-| Coalition `c` axis               | real (4 enumeration modes)  | alpha                        |
-| Strategic layer (Phase 6)        | shipped (Shapley + welfare) | alpha                        |
-| DecisionProof (Phase 6)          | shipped (hash-chained)      | alpha                        |
-| I-EIP Monitor (Phase 4)          | shipped                     | sampled-audit only           |
-| Probe extractor (Tier 2.5)       | shipped                     | needs calibrated checkpoints |
-| Calibration provenance on traces | not shipped                 | future (v0.8.0)              |
-| Full ρ-estimation equivariance   | not shipped (identity only) | future (v0.8.0)              |
-| MoralTensor-Bench                | not shipped                 | future (v0.8.0)              |
-| `--strict-v3` enforcement        | shipped (v0.7.0)            | alpha                        |
-| Runtime gating                   | not shipped                 | deferred                     |
-| Web app / FastAPI surface        | not shipped                 | deferred                     |
-| Silicon emit (Vitis HLS C++)     | shipped                     | no FPGA bring-up yet         |
+| Component                                | Current status              | Production readiness          |
+|------------------------------------------|-----------------------------|-------------------------------|
+| Text compiler (12-pass pipeline)         | shipped                     | alpha                         |
+| **MoralGraph (DAG-native substrate)**    | shipped (v0.8.0)            | alpha                         |
+| **Two-layer IR (substrate + projections)** | shipped (v0.8.0)          | alpha                         |
+| **ConsequentialistProjection**           | shipped (v0.8.0)            | alpha                         |
+| **DeonticProjection** (Kantian gates)    | shipped (v0.8.0)            | heuristic v0                  |
+| **VirtueProjection** (Aristotelian)      | shipped (v0.8.0)            | heuristic v0                  |
+| **CareEthicsProjection** (Gilligan etc.) | shipped (v0.8.0)            | heuristic v0                  |
+| **Cross-projection disagreement**        | shipped (v0.8.0)            | alpha (polarity-normalised)   |
+| **EM-DAG graph-native helpers**          | shipped (v0.8.0)            | alpha (verdicts byte-identical to flat baseline) |
+| DEME V2 (10-dim MoralVector)             | shipped                     | stable-ish (backward-compat)  |
+| DEME V3 bridge (Phases 1–4)              | shipped                     | alpha                         |
+| Rank 1–6 tensors (Phase 5)               | shipped                     | alpha                         |
+| Action / coalition `a` axis              | stub (length only)          | research                      |
+| Coalition `c` axis                       | real (4 enumeration modes)  | alpha                         |
+| Strategic layer (Phase 6)                | shipped (Shapley + welfare) | alpha                         |
+| DecisionProof (Phase 6)                  | shipped (hash-chained)      | alpha                         |
+| I-EIP Monitor (Phase 4)                  | shipped                     | sampled-audit only            |
+| Probe extractor (Tier 2.5)               | shipped                     | needs calibrated checkpoints  |
+| Calibration provenance on traces         | shipped (v0.7.0)            | alpha                         |
+| **ρ-estimation core (Procrustes/LSTSQ)** | shipped (v0.8.0)            | alpha (CLI fit-rho deferred)  |
+| **MoralTensor-Bench harness**            | shipped (v0.8.0)            | seed corpus (3 scenarios)     |
+| **Named ethos profiles (SocialChem 101)**| shipped (v0.8.0)            | alpha (2 fitted profiles)     |
+| **Eigenvalue spectral scalar**           | shipped (v0.7.x)            | alpha                         |
+| `--strict-v3` enforcement                | shipped (v0.7.0)            | alpha                         |
+| `--ethos-profile` flag                   | shipped (v0.8.0)            | alpha                         |
+| `--projection` flag (4 frameworks)       | shipped (v0.8.0)            | alpha                         |
+| RLEF export (graph + projections)        | shipped v0.2 schema (v0.8.0)| alpha                         |
+| Runtime gating                           | not shipped                 | deferred                      |
+| Web app / FastAPI surface                | not shipped                 | deferred                      |
+| Silicon emit (Vitis HLS C++)             | shipped                     | no FPGA bring-up yet          |
+
+## v0.8.0 — Framework-pluralist + DAG-native
+
+This is the largest architectural release since the DEME V3 alignment.
+Driven by a r/Compiler review thread (2026-06-12) that correctly
+identified the IR as encoding metaethical commitments below the
+profile layer. Response across 6 commits:
+
+- `55b606f` Two-layer IR: `MoralSubstrate` (descriptive) +
+  `Projection` (framework-bound output).
+- `6e89f01` DAG-native substrate: typed `MoralGraph` with canonical
+  SHA-256 hash on every audit record.
+- `51f0794` `flat_from_graph` back-derivation + extractor graph
+  emission interface.
+- `354f384` `VirtueProjection` + `CareEthicsProjection` +
+  cross-projection polarity normalisation.
+- `38b2294` `ConsequentialistProjection` graph-aware metadata +
+  RLEF schema bumped to `rlef_v0.2` (every record now carries the
+  full graph + per-framework projection block).
+- `2e487bb` EM-DAG ported to graph-native helpers. Verdicts
+  byte-identical against the flat baseline (10 modules × 3
+  scenarios × value+confidence+direction = 90 numbers all match).
+
+### What this means architecturally
+
+The compiler now compiles into a typed `MoralGraph` (nodes:
+stakeholder, act, maxim, commitment, fact, norm; edges: performs,
+imposes_on, consents_to, treats_as, under_maxim, coerces,
+surfaces_fact, fact_subject, would_violate_if_universalised). Each
+framework projection reads that graph via typed queries — Kantian
+universalizability / mere-means gates are *categorical findings*,
+not channel contributions. When projections disagree by normalised
+polarity, the compiler surfaces all verdicts and refuses to
+aggregate; choosing across frameworks is left to the caller as an
+explicit metaethical move.
+
+See `docs/plans/release-planning-06-framework-pluralist-architecture.md`
+and `release-planning-07-graph-consumer-migration.md` for the full
+architectural argument + migration matrix.
 
 ## Phase 4 additions (in-flight on `main`)
 

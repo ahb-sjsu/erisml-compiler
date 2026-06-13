@@ -21,6 +21,7 @@ from __future__ import annotations
 import hashlib
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 import yaml
 
@@ -33,10 +34,7 @@ from erisml_compiler.audit.provenance import record_pass
 from erisml_compiler.canonicalizer.base import Canonicalizer, auto_canonicalizer
 from erisml_compiler.em_dag import EMDAG, load_profile
 from erisml_compiler.em_dag.dag import load_ethos_profile
-from erisml_compiler.erisml_backend.deme_bridge import DEMEBridge
 from erisml_compiler.evaluation.conflict_detector import detect_conflicts
-from erisml_compiler.evaluation.moral_vector import build_moral_vector_from_em_outputs
-from erisml_compiler.evaluation.tensor_builder import build_timeline
 from erisml_compiler.evaluation.tensor_builder_v3 import build_moral_tensor_v3
 from erisml_compiler.ingestion.structured_loader import load_structured_input
 from erisml_compiler.ingestion.text_loader import load_text_document
@@ -371,7 +369,9 @@ def compile_document(
 
         if "consequentialist_distributive" in options.projections:
             cp = ConsequentialistProjection(
-                dag=dag, ethos_weights=ethos_weights, tensor_rank=options.tensor_rank,
+                dag=dag,
+                ethos_weights=ethos_weights,
+                tensor_rank=options.tensor_rank,
             )
             # Pre-compute the tensor via the orchestrator's V3 dispatcher
             # (honours strict_v3 + bridge vs Phase 2 fallback). The
@@ -379,10 +379,17 @@ def compile_document(
             # use the fallback path.
             _em_for_tensor = dag.evaluate(ir)
             _tensor_for_projection = _produce_v3_tensor(
-                ir, _em_for_tensor, dag, options, ethos_weights=ethos_weights,
+                ir,
+                _em_for_tensor,
+                dag,
+                options,
+                ethos_weights=ethos_weights,
             )
             cres = cp.project(
-                substrate, ir=ir, tensor_override=_tensor_for_projection, graph=ir.graph,
+                substrate,
+                ir=ir,
+                tensor_override=_tensor_for_projection,
+                graph=ir.graph,
             )
             projections_run[cp.framework] = cres
 
@@ -418,8 +425,7 @@ def compile_document(
         # Store projection results as JSON-serialisable dicts; the rich
         # in-memory MoralTensorV3 etc. stay accessible via ir.moral_tensor_v3.
         ir.projections = {
-            framework: _projection_result_to_dict(res)
-            for framework, res in projections_run.items()
+            framework: _projection_result_to_dict(res) for framework, res in projections_run.items()
         }
 
         # Surface verdict disagreement explicitly — no silent aggregation.

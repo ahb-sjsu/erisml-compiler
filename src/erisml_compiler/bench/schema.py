@@ -6,6 +6,7 @@ those land as the bench corpus grows. The v0.1 schema covers the
 must-haves: expected stakeholders, commitments, ethical-fact kinds,
 per-party verdicts, and a canonical form.
 """
+
 from __future__ import annotations
 
 from typing import Any

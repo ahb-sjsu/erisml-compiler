@@ -23,7 +23,6 @@ from erisml_compiler.social_chem.schema import (
     SituationRoT,
 )
 
-
 MFT_FOUNDATIONS: tuple[str, ...] = (
     "care-harm",
     "fairness-cheating",

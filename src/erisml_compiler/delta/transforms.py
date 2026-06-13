@@ -15,6 +15,7 @@ transforms. Paraphrase and role-swap transforms require external
 infrastructure (LLM adapters, IR-equivalence gates) and are documented
 as future work in release-planning-02.
 """
+
 from __future__ import annotations
 
 import enum

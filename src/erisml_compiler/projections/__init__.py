@@ -25,6 +25,7 @@ Backward compat: the existing top-level CompilerIR fields (`moral_vectors`,
 remain populated from `projections["consequentialist"]` so older code
 continues to work. New code should read from `ir.projections`.
 """
+
 from erisml_compiler.projections.base import (
     GateFinding,
     Projection,

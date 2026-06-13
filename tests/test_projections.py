@@ -22,7 +22,6 @@ from erisml_compiler.projections import (
 )
 from erisml_compiler.tiers import CompilerTier
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent
 EXAMPLES_DIR = REPO_ROOT / "examples"
 
@@ -56,8 +55,10 @@ def _compile_example(name: str):
     return compile_document(
         EXAMPLES_DIR / f"{name}.txt",
         CompileOptions(
-            tier=CompilerTier.RULES, extractor="rule",
-            canonicalizer=RegistryCanonicalizer(), tensor_rank=2,
+            tier=CompilerTier.RULES,
+            extractor="rule",
+            canonicalizer=RegistryCanonicalizer(),
+            tensor_rank=2,
         ),
     )
 
@@ -160,8 +161,10 @@ def test_disabling_deontic_projection_yields_no_disagreement_field() -> None:
     ir = compile_document(
         EXAMPLES_DIR / "nazi_attic.txt",
         CompileOptions(
-            tier=CompilerTier.RULES, extractor="rule",
-            canonicalizer=RegistryCanonicalizer(), tensor_rank=2,
+            tier=CompilerTier.RULES,
+            extractor="rule",
+            canonicalizer=RegistryCanonicalizer(),
+            tensor_rank=2,
             projections=("consequentialist_distributive",),
         ),
     )
