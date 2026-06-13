@@ -214,36 +214,77 @@ def graph_from_flat(ir) -> MoralGraph:
                         )
                     )
 
-    # ----------- maxim (derived) -> node + under_maxim + treats_as edges -----------
-    # Mirror the same heuristic that lived in substrate.py's
-    # `_derive_maxim`. The graph carries it as a proper node now.
-    if primary_act_id is not None and ir.ethical_facts:
-        kinds = [_fact_kind_str(f) for f in ir.ethical_facts]
-        if any(k in _DECEIT_KINDS for k in kinds):
-            action_kind = "deceive"
-        elif any(k in _COERCION_KINDS for k in kinds):
-            action_kind = "coerce_or_be_coerced"
-        elif any(k in _EXTERNALITY_KINDS for k in kinds):
-            action_kind = "impose_externality"
-        elif ir.commitments:
-            action_kind = "make_or_keep_commitment"
-        else:
-            action_kind = "act_under_norm"
+    # ----------- maxim node: prose-first, heuristic fallback -----------
+    # Maxim creation is decoupled from event extraction. The maxim is
+    # whatever description-of-the-action the prose surfaces, even when
+    # the rule extractor didn't emit a concrete Event for it.
+    from erisml_compiler.annotation.maxim_extractor import extract_maxim
 
-        purpose = None
-        if "care" in kinds:
-            purpose = "protect_vulnerable"
-        elif "legitimacy" in kinds:
-            purpose = "act_under_authority"
+    kinds = [_fact_kind_str(f) for f in ir.ethical_facts]
+    heuristic_kind = None
+    if any(k in _DECEIT_KINDS for k in kinds):
+        heuristic_kind = "deceive"
+    elif any(k in _COERCION_KINDS for k in kinds):
+        heuristic_kind = "coerce_or_be_coerced"
+    elif any(k in _EXTERNALITY_KINDS for k in kinds):
+        heuristic_kind = "impose_externality"
+    elif ir.commitments:
+        heuristic_kind = "make_or_keep_commitment"
+
+    text = ir.document.raw_text if ir.document else ""
+    maxim_obj, evidence = extract_maxim(
+        text,
+        stakeholders=list(ir.stakeholders),
+        fallback_action_kind=heuristic_kind,
+    )
+    if maxim_obj is not None:
+        # Layer in kind-derived treats_persons_as (instrumental facts
+        # on specific stakeholders) that the prose extractor may have
+        # missed.
+        treats = dict(maxim_obj.treats_persons_as)
+        for f in ir.ethical_facts:
+            fk = _fact_kind_str(f)
+            if fk in _INSTRUMENTAL_KINDS:
+                for sid in getattr(f, "subjects", []) or []:
+                    treats[sid] = "mere_means"
 
         maxim_id = "maxim:m0"
         g.add_node(
             MoralNode(
                 id=maxim_id,
                 kind=NodeKind.MAXIM,
-                payload={"action_kind": action_kind, "purpose": purpose},
+                payload={
+                    "action_kind": maxim_obj.action_kind,
+                    "purpose": maxim_obj.purpose,
+                    "description": maxim_obj.description,
+                    "agent_id": maxim_obj.agent_id,
+                    "treats_persons_as": treats,
+                    "extraction_evidence": {
+                        "matched_verb": evidence.matched_verb,
+                        "matched_purpose_phrase": evidence.matched_purpose_phrase,
+                        "agent_evidence": evidence.agent_evidence,
+                        "mere_means_hits": list(evidence.mere_means_hits),
+                        "fallback_used": (
+                            evidence.matched_verb is None
+                            and heuristic_kind is not None
+                        ),
+                    },
+                },
             )
         )
-        g.add_edge(MoralEdge(src=primary_act_id, dst=maxim_id, kind=EdgeKind.UNDER_MAXIM))
+        # Anchor the maxim to the primary act when one exists; otherwise
+        # leave the maxim as a free-standing node (the deontic projection
+        # reads maxim.action_kind directly).
+        if primary_act_id is not None:
+            g.add_edge(MoralEdge(src=primary_act_id, dst=maxim_id, kind=EdgeKind.UNDER_MAXIM))
+            for sid, role in treats.items():
+                g.add_edge(
+                    MoralEdge(
+                        src=primary_act_id,
+                        dst=_node_id("stakeholder", sid),
+                        kind=EdgeKind.TREATS_AS,
+                        payload={"role": role},
+                    )
+                )
 
     return g

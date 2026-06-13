@@ -72,15 +72,20 @@ VULNERABILITY_KEYWORDS = re.compile(
 # ---------------------------------------------------------------------------
 
 
-def _graph_from_extractor_result(result):
+def _graph_from_extractor_result(result, document=None):
     """Build a MoralGraph from an in-progress ExtractorResult. Mirrors
     `ir.graph.graph_from_flat` but takes the result object directly so
-    we don't need a full CompilerIR. Future LLM extractors that
-    construct the graph natively will skip this entirely."""
+    we don't need a full CompilerIR.
+
+    `document` is supplied so the maxim extractor sees the raw text.
+    Future LLM extractors that construct the graph natively will skip
+    this entirely.
+    """
     from erisml_compiler.ir.graph import graph_from_flat
     from types import SimpleNamespace
 
     pseudo_ir = SimpleNamespace(
+        document=document,
         stakeholders=result.stakeholders,
         events=result.events,
         commitments=result.commitments,
@@ -313,5 +318,5 @@ class RuleExtractor(Extractor):
         # rule extractor graph-emitting at its result boundary; the
         # orchestrator will skip its own promotion step. The flat lists
         # remain populated for backward compat.
-        result.graph = _graph_from_extractor_result(result)
+        result.graph = _graph_from_extractor_result(result, document=document)
         return result

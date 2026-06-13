@@ -308,25 +308,63 @@ def _kind_str(fact) -> str:
     return (k.value if hasattr(k, "value") else str(k)).lower()
 
 
-def _derive_maxim(ir) -> Maxim | None:
-    """Coarse heuristic. v0 uses the dominant action_kind from
-    ethical_facts; future versions extract the maxim directly from text.
-    """
-    if not ir.ethical_facts and not ir.commitments:
-        return None
-    action_kind = None
-    purpose = None
+def _heuristic_action_kind(ir) -> str | None:
+    """Pre-v1 rule-list: dominant ethical_fact.kind → action_kind.
+    Used as fallback when the prose extractor finds no verb pattern."""
     kinds = [_kind_str(f) for f in ir.ethical_facts]
     if any(k in _DECEIT_KINDS for k in kinds):
-        action_kind = "deceive"
-    elif any(k in _COERCION_KINDS for k in kinds):
-        action_kind = "coerce_or_be_coerced"
-    elif any(k in _EXTERNALITY_KINDS for k in kinds):
-        action_kind = "impose_externality"
-    elif ir.commitments:
-        action_kind = "make_or_keep_commitment"
-    else:
-        action_kind = "act_under_norm"
+        return "deceive"
+    if any(k in _COERCION_KINDS for k in kinds):
+        return "coerce_or_be_coerced"
+    if any(k in _EXTERNALITY_KINDS for k in kinds):
+        return "impose_externality"
+    if ir.commitments:
+        return "make_or_keep_commitment"
+    return None
+
+
+def _derive_maxim(ir) -> Maxim | None:
+    """Derive the Maxim for an IR.
+
+    v1 (v0.8.x): pattern-based prose extraction via
+    `annotation/maxim_extractor.py`. Falls back to the previous
+    kind-based heuristic when the prose extractor finds no verb
+    pattern in the document's raw text.
+    """
+    # Prose-first extraction (v1).
+    if ir.document and ir.document.raw_text:
+        from erisml_compiler.annotation.maxim_extractor import extract_maxim
+
+        # Determine the heuristic action_kind to use as fallback.
+        heuristic_action_kind = _heuristic_action_kind(ir)
+        maxim, _ev = extract_maxim(
+            ir.document.raw_text,
+            stakeholders=list(ir.stakeholders),
+            fallback_action_kind=heuristic_action_kind,
+        )
+        if maxim is not None:
+            # Augment treats_persons_as with kind-derived signals the
+            # prose extractor may have missed (instrumental facts on
+            # specific stakeholders).
+            treats = dict(maxim.treats_persons_as)
+            for f in ir.ethical_facts:
+                k = _kind_str(f)
+                if k in _INSTRUMENTAL_KINDS:
+                    for sid in getattr(f, "subjects", []) or []:
+                        treats[sid] = "mere_means"
+                elif k in _EXTERNALITY_KINDS:
+                    for sid in getattr(f, "subjects", []) or []:
+                        treats.setdefault(sid, "means")
+            if treats != maxim.treats_persons_as:
+                maxim = maxim.model_copy(update={"treats_persons_as": treats})
+            return maxim
+
+    # Heuristic fallback (legacy path).
+    if not ir.ethical_facts and not ir.commitments:
+        return None
+    action_kind = _heuristic_action_kind(ir) or "act_under_norm"
+    purpose = None
+    kinds = [_kind_str(f) for f in ir.ethical_facts]
 
     if "care" in kinds:
         purpose = "protect_vulnerable"
