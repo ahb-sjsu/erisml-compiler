@@ -1,0 +1,167 @@
+{
+  "medical_confidentiality": {
+    "deme_verdict": "permitted",
+    "em_outputs": {
+      "autonomy": {
+        "confidence": 0.7,
+        "direction": "negative",
+        "value": -0.85
+      },
+      "care": {
+        "confidence": 0.6999999999999998,
+        "direction": "positive",
+        "value": 0.85
+      },
+      "epistemic": {
+        "confidence": 1.0,
+        "direction": "neutral",
+        "value": 0.0
+      },
+      "externality": {
+        "confidence": 1.0,
+        "direction": "neutral",
+        "value": 0.0
+      },
+      "fairness": {
+        "confidence": 1.0,
+        "direction": "neutral",
+        "value": 0.0
+      },
+      "fidelity": {
+        "confidence": 0.85,
+        "direction": "positive",
+        "value": 0.6
+      },
+      "harm": {
+        "confidence": 1.0,
+        "direction": "neutral",
+        "value": 0.0
+      },
+      "legitimacy": {
+        "confidence": 0.7,
+        "direction": "negative",
+        "value": -0.85
+      },
+      "repair": {
+        "confidence": 1.0,
+        "direction": "neutral",
+        "value": 0.0
+      },
+      "rights": {
+        "confidence": 1.0,
+        "direction": "neutral",
+        "value": 0.0
+      }
+    }
+  },
+  "nazi_attic": {
+    "deme_verdict": "tragic_conflict_escalate",
+    "em_outputs": {
+      "autonomy": {
+        "confidence": 0.7,
+        "direction": "negative",
+        "value": -0.85
+      },
+      "care": {
+        "confidence": 1.0,
+        "direction": "neutral",
+        "value": 0.0
+      },
+      "epistemic": {
+        "confidence": 0.65,
+        "direction": "negative",
+        "value": -0.5
+      },
+      "externality": {
+        "confidence": 0.75,
+        "direction": "negative",
+        "value": -1.0
+      },
+      "fairness": {
+        "confidence": 1.0,
+        "direction": "neutral",
+        "value": 0.0
+      },
+      "fidelity": {
+        "confidence": 0.85,
+        "direction": "positive",
+        "value": 0.6
+      },
+      "harm": {
+        "confidence": 1.0,
+        "direction": "neutral",
+        "value": 0.0
+      },
+      "legitimacy": {
+        "confidence": 0.7,
+        "direction": "negative",
+        "value": -0.85
+      },
+      "repair": {
+        "confidence": 0.8,
+        "direction": "negative",
+        "value": -1.0
+      },
+      "rights": {
+        "confidence": 1.0,
+        "direction": "neutral",
+        "value": 0.0
+      }
+    }
+  },
+  "whistleblower": {
+    "deme_verdict": "permitted",
+    "em_outputs": {
+      "autonomy": {
+        "confidence": 1.0,
+        "direction": "neutral",
+        "value": 0.0
+      },
+      "care": {
+        "confidence": 1.0,
+        "direction": "neutral",
+        "value": 0.0
+      },
+      "epistemic": {
+        "confidence": 1.0,
+        "direction": "neutral",
+        "value": 0.0
+      },
+      "externality": {
+        "confidence": 1.0,
+        "direction": "neutral",
+        "value": 0.0
+      },
+      "fairness": {
+        "confidence": 1.0,
+        "direction": "neutral",
+        "value": 0.0
+      },
+      "fidelity": {
+        "confidence": 0.85,
+        "direction": "positive",
+        "value": 0.6
+      },
+      "harm": {
+        "confidence": 1.0,
+        "direction": "neutral",
+        "value": 0.0
+      },
+      "legitimacy": {
+        "confidence": 1.0,
+        "direction": "neutral",
+        "value": 0.0
+      },
+      "repair": {
+        "confidence": 1.0,
+        "direction": "neutral",
+        "value": 0.0
+      },
+      "rights": {
+        "confidence": 1.0,
+        "direction": "neutral",
+        "value": 0.0
+      }
+    }
+  }
+}

@@ -8,7 +8,12 @@ and from the presence of vulnerable stakeholders with protectors.
 from __future__ import annotations
 
 from erisml_compiler.em_dag.base import EthicalModule
-from erisml_compiler.em_dag.modules._helpers import aggregate_positive, facts_of_kind
+from erisml_compiler.em_dag.modules._helpers import (
+    aggregate_positive,
+    facts_of_kind,
+    stakeholders_with_role,
+    vulnerable_stakeholders,
+)
 from erisml_compiler.ir.schemas import CompilerIR, DimensionScore, EMOutput
 
 
@@ -20,9 +25,10 @@ class CareEM(EthicalModule):
     def evaluate(self, ir: CompilerIR, upstream: dict[str, EMOutput]) -> EMOutput:
         care_facts = facts_of_kind(ir, "care")
         # If there are vulnerable parties with explicit protectors, that
-        # strengthens the care signal.
-        vulnerable = [s for s in ir.stakeholders if s.vulnerability in ("high", "extreme")]
-        protectors = [s for s in ir.stakeholders if "protector" in s.roles]
+        # strengthens the care signal. Reads go through graph-native
+        # helpers when ir.graph is populated.
+        vulnerable = vulnerable_stakeholders(ir)
+        protectors = stakeholders_with_role(ir, "protector")
         if care_facts:
             score = aggregate_positive(care_facts, explanation_prefix="Care assessment: ")
         elif vulnerable and protectors:

@@ -10,7 +10,11 @@ without explicit consent).
 from __future__ import annotations
 
 from erisml_compiler.em_dag.base import EthicalModule
-from erisml_compiler.em_dag.modules._helpers import aggregate_negative, facts_of_kind
+from erisml_compiler.em_dag.modules._helpers import (
+    aggregate_negative,
+    facts_of_kind,
+    nonconsenting_third_party_ids,
+)
 from erisml_compiler.ir.schemas import CompilerIR, EMOutput
 
 
@@ -21,13 +25,10 @@ class ExternalityEM(EthicalModule):
 
     def evaluate(self, ir: CompilerIR, upstream: dict[str, EMOutput]) -> EMOutput:
         externality_facts = facts_of_kind(ir, "externality")
-        # Identify non-consenting third parties.
-        third_parties = {
-            s.id
-            for s in ir.stakeholders
-            if "nonconsenting_third_party" in s.roles
-            or (s.consent_status in ("not_obtained", "coerced") and "bystander" in s.roles)
-        }
+        # Identify non-consenting third parties via graph-native helper
+        # (IMPOSES_ON without paired CONSENTS_TO) when ir.graph present,
+        # role/consent_status fallback otherwise.
+        third_parties = nonconsenting_third_party_ids(ir)
         # Filter externality facts to those affecting third parties.
         relevant = [f for f in externality_facts if any(sid in third_parties for sid in f.subjects)]
         if not relevant:

@@ -21,7 +21,8 @@ This note documents the migration plan for each consumer with explicit
 
 | Consumer | Current state | Migration plan | Deferred because |
 |---|---|---|---|
-| **`ConsequentialistProjection`** | reads flat fields via EM-DAG | metadata records graph-derived stats; full migration depends on EM-DAG porting | EM-DAG is its own subsystem (10 modules, each with its own read patterns); porting touches ~1500 lines and risks regressions in DEME bridge + V3 dispatcher |
+| **`ConsequentialistProjection`** | reads flat fields via EM-DAG | metadata records graph-derived stats; EM-DAG is now graph-native at the helper layer (see below) | n/a — landed |
+| **EM-DAG (10 modules)** | now graph-native via `_helpers.py` | helpers (`facts_of_kind`, `active_commitments`, `vulnerable_stakeholders`, `nonconsenting_third_party_ids`, ...) read MoralGraph nodes/edges when `ir.graph` is set; flat fallback otherwise. Verdicts byte-identical against golden baseline on all 3 bundled scenarios. | n/a — landed |
 | **`DeonticProjection`** | graph-native (pattern-matches `treats_as`, `imposes_on`) | ✅ done | n/a |
 | **`VirtueProjection`** | graph-native for power-asymmetry; substrate fallback elsewhere | ✅ done | n/a |
 | **`CareEthicsProjection`** | graph-native for dependency-response; substrate fallback elsewhere | ✅ done | n/a |
@@ -30,41 +31,59 @@ This note documents the migration plan for each consumer with explicit
 | **`export/rlef.py`** | flat + timeline + verdict | ✅ now includes `moral_graph`, `projections`, `cross_projection_disagreement` (schema bump rlef_v0.2) | n/a |
 | **`silicon/hls_emit.py`** | operates on the EM-DAG (not the IR's facts) | no graph consumption needed | silicon emits the *evaluator* (EM-DAG) as HLS code, independent of which facts feed it |
 
-## EM-DAG graph-native port (deferred)
+## EM-DAG graph-native port — landed
 
-The biggest remaining item is making the EM-DAG modules read graph
-queries instead of flat fields. Today every module looks like:
-
-```python
-class HarmEM(EthicalModule):
-    def evaluate(self, ir: CompilerIR, ...) -> EMOutput:
-        for fact in ir.ethical_facts:                   # <-- flat read
-            if fact.kind == "harm":
-                ...
-        for stakeholder in ir.stakeholders:             # <-- flat read
-            ...
-```
-
-A graph-native EM module would look like:
+The port took a different shape than originally planned. Rather than
+rewriting all 10 module evaluators to take a `MoralGraph` parameter
+(which would have required changing every module's signature and
+risked subtle behaviour changes), we made the *helpers* graph-native:
 
 ```python
-class HarmEM(EthicalModule):
-    def evaluate(self, graph: MoralGraph, ...) -> EMOutput:
-        for edge in graph.edges_of_kind(EdgeKind.IMPOSES_ON):  # <-- typed
-            severity = edge.payload.get("severity")
-            subject = graph.get_node(edge.dst)
-            ...
+# In em_dag/modules/_helpers.py
+def facts_of_kind(ir, kind):
+    if getattr(ir, "graph", None) is not None:
+        return _facts_from_graph(ir.graph, kind)
+    return [f for f in ir.ethical_facts if f.kind == kind]
+
+def active_commitments(ir):
+    if getattr(ir, "graph", None) is not None:
+        comms = _commitments_from_graph(ir.graph)
+    else:
+        comms = list(ir.commitments)
+    return [c for c in comms if c.status in ("active", "active_but_defeasible", "fulfilled")]
 ```
 
-The port is mechanical but tedious (10 modules × ~50 LOC each =
-~500 LOC). The risk is subtle behaviour changes — the rule extractor
-emits facts with `subjects` field that don't always map cleanly to
-graph edges, and edge-case behaviour may shift in ways that ripple
-through the DEME bridge and downstream verdicts.
+The 10 modules continue to call the same helpers; the helpers now
+prefer the graph when present and fall back to flat fields otherwise.
+Two modules (`CareEM`, `ExternalityEM`) that previously read
+`ir.stakeholders` directly were updated to use new graph-native
+helpers (`vulnerable_stakeholders`, `stakeholders_with_role`,
+`nonconsenting_third_party_ids`). The non-consenting-third-party
+helper specifically reads the typed-edge way:
+**`IMPOSES_ON` targets without a paired `CONSENTS_TO` edge** — the
+actual semantic relationship rather than role-label matching.
 
-Plan: do this port in a dedicated commit cycle with golden-test
-coverage on every bundled scenario showing identical verdicts
-before/after. Estimate ~2-3 days.
+**Golden-test verification:** EM outputs (10 modules × value +
+confidence + direction across 3 bundled scenarios = 90 numbers
+per scenario) are byte-identical to the pre-port flat-field baseline
+captured in `tests/golden_em_dag_flat.json`. The
+`tests/test_em_dag_graph_native.py` suite checks the golden as well
+as graph-read behaviour (helpers genuinely query the graph: blanking
+the flat lists doesn't break them) and the flat fallback (IRs without
+a graph still work).
+
+Why this shape rather than per-module rewrites:
+
+  - Lower regression risk (the data flowing into the aggregators
+    `aggregate_negative` / `aggregate_positive` is the same)
+  - Smaller diff (~150 LOC in `_helpers.py` + 2-line edits in
+    `care.py` and `externality.py`)
+  - The "graph is the source of truth" property holds: the helpers
+    can run with the flat lists explicitly cleared and still return
+    correct data, proving the graph path is load-bearing
+  - Future modules that genuinely want typed-edge access (`IMPOSES_ON`
+    with severity payloads, `TREATS_AS[role=...]` filters, etc.) can
+    bypass the helpers entirely — that path is now open
 
 ## Bench-per-projection (deferred to v0.2)
 
