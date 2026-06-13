@@ -1,0 +1,121 @@
+name: dear_abby_socialchem_v0.1
+description: Per-EM-module weights derived from the Dear Abby slice of Social Chem
+  101 (Forbes et al., EMNLP 2020).
+ethos_description: 'Per-EM-module weights fit to AI2 crowd-workers'' rule-of-thumb
+  tags on the Dear Abby slice of Social Chem 101 (Forbes et al., EMNLP 2020). Amplifies
+  the moral channels Dear Abby''s audience-and-editor jointly surface as load-bearing:
+  care/harm, fidelity/loyalty, fairness, and legitimacy/authority. EM modules with
+  no MFT mapping (epistemic, autonomy, externality, repair) receive the floor weight;
+  that''s a real coverage gap in the source corpus, not a bug in the fit. Verdict
+  signs come from AI2 workers reading the original letters, NOT from the columnist''s
+  published replies.'
+bias_notes:
+- 'Source self-selection: Dear Abby''s letter-writers (and her newspaper editor) skew
+  toward certain concerns — family/relational — and silent concerns are underrepresented.'
+- 'Time slice: 1985-2017 letters. Cultural mores from that window, particularly U.S.
+  middle-class.'
+- 'No columnist verdicts: the Kaggle questions-only data was supplanted by Social
+  Chem because the latter has explicit verdict labels — but those labels still come
+  from AI2 workers, not from Abby herself.'
+- AI2 MTurk worker demographics (US, 2020-skewed). Verdict directions reflect what
+  those workers thought the situation's moral judgment was, not necessarily what the
+  original source's audience would say.
+- Moral Foundations Theory's 5 channels do not partition the EM-DAG's 10 modules.
+  Epistemic, autonomy, externality, and repair receive no MFT signal — their fitted
+  weight is the floor, not a fitted score. The `coverage:` field per module in this
+  YAML makes that gap explicit.
+- Hand-curated MFT -> EM mapping (see `mft_to_em_mapping:` field). Tuning those weights
+  changes the fitted profile. Treat the mapping as a transparent default that callers
+  can override.
+corpus:
+  source: 'social-chem-101.v1.0.tsv :: area=dearabby'
+  license: CC-BY 4.0
+  citation: 'Forbes, Hwang, Shwartz, Sap, Choi. Social Chemistry 101: Learning to
+    Reason about Social and Moral Norms. EMNLP 2020. https://aclanthology.org/2020.emnlp-main.48/'
+  n_rows: 50300
+  n_situations: 11729
+  canonical_sha256: f4ce12092c1f32e01625c24ec0d668e1c0486a18aeece1d3cff98bd77b088f66
+  foundation_distribution:
+    care-harm: 23307
+    loyalty-betrayal: 11317
+    fairness-cheating: 8663
+    sanctity-degradation: 3675
+    authority-subversion: 5594
+  judgment_distribution:
+    '0': 18277
+    '-1': 13501
+    '1': 8927
+    '-2': 2340
+    '2': 746
+  schema_tsv_columns:
+  - area
+  - m
+  - split
+  - rot-agree
+  - rot-categorization
+  - rot-moral-foundations
+  - rot-char-targeting
+  - rot-bad
+  - rot-judgment
+  - action
+  - action-agency
+  - action-moral-judgment
+  - action-agree
+  - action-legal
+  - action-pressure
+  - action-char-involved
+  - action-hypothetical
+  - situation
+  - situation-short-id
+  - rot
+  - rot-id
+  - rot-worker-id
+  - breakdown-worker-id
+  - n-characters
+  - characters
+fit_method: mft_to_em_via_agreement_weighted_means
+fitted_date: '2026-06-13T01:39:43+00:00'
+mft_to_em_mapping:
+  care-harm:
+    HarmEM: 1.0
+    CareEM: 0.8
+  fairness-cheating:
+    FairnessEM: 1.0
+  loyalty-betrayal:
+    FidelityEM: 1.0
+    LegitimacyEM: 0.4
+  authority-subversion:
+    LegitimacyEM: 1.0
+  sanctity-degradation:
+    RightsEM: 0.5
+weights:
+  CareEM: 1.74772
+  FairnessEM: 0.59368
+  FidelityEM: 0.723662
+  HarmEM: 1.74772
+  LegitimacyEM: 0.970297
+  RightsEM: 0.216921
+priors:
+  AutonomyEM: 0.0
+  CareEM: -0.045182
+  EpistemicEM: 0.0
+  ExternalityEM: 0.0
+  FairnessEM: -0.181049
+  FidelityEM: -0.058329
+  HarmEM: -0.045182
+  LegitimacyEM: -0.085762
+  RepairEM: 0.0
+  RightsEM: -0.169501
+coverage:
+  AutonomyEM: 0.0
+  CareEM: 0.812765
+  EpistemicEM: 0.0
+  ExternalityEM: 0.0
+  FairnessEM: 0.421588
+  FidelityEM: 0.468352
+  HarmEM: 0.812765
+  LegitimacyEM: 0.626503
+  RepairEM: 0.0
+  RightsEM: 0.190594
+metadata:
+  n_situations_used: 11312

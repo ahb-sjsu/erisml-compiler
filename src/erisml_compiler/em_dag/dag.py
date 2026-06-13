@@ -5,7 +5,7 @@ from __future__ import annotations
 import importlib
 from collections import deque
 from pathlib import Path
-from typing import Iterable
+from typing import Any, Iterable
 
 import yaml
 
@@ -126,3 +126,35 @@ def load_profile(path: str | Path) -> EMDAG:
         cls = getattr(mod, class_name)
         instances.append(cls())
     return EMDAG(modules=instances, name=name)
+
+
+# ============================================================================
+# Ethos profile loading: YAML -> per-module weights + provenance
+# ============================================================================
+
+
+def load_ethos_profile(path: str | Path) -> dict[str, Any]:
+    """Load an ethos profile (e.g. dear_abby_audience_baseline) from YAML.
+
+    Distinct from `load_profile`: that builds an EMDAG (which modules
+    + their edges). This loads a fitted profile that scales already-
+    computed per-module outputs at projection time.
+
+    Returns a dict with keys: name, description, ethos_description,
+    bias_notes, corpus, fit_method, fitted_date, weights, priors,
+    title_polarity_correlation, metadata.
+
+    The full provenance (ethos_description, bias_notes, corpus
+    fingerprint) is preserved verbatim — callers should surface it in
+    any UI or report that uses the profile, so the bias is never
+    invisible.
+    """
+    p = Path(path)
+    with open(p, encoding="utf-8") as f:
+        data = yaml.safe_load(f) or {}
+    if "weights" not in data:
+        raise ValueError(
+            f"Ethos profile at {p} has no 'weights' section — is this a "
+            f"DAG profile? Use `load_profile` for that."
+        )
+    return data

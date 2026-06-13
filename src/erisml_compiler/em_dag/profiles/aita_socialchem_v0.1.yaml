@@ -1,0 +1,117 @@
+name: aita_socialchem_v0.1
+description: Per-EM-module weights derived from the r/AmItheAsshole slice of Social
+  Chem 101 (Forbes et al., EMNLP 2020).
+ethos_description: Per-EM-module weights fit to AI2 crowd-workers' rule-of-thumb tags
+  on the r/AmItheAsshole slice of Social Chem 101 (Forbes et al., EMNLP 2020). Reddit
+  AITA is verdict-supervised by the community (YTA/NTA/etc.), and AI2 workers extracted
+  moral-foundation-tagged RoTs from each post. The result amplifies the channels Reddit's
+  AITA community surfaces (strongly fairness + fidelity, less harm/care than Dear
+  Abby). EM modules with no MFT mapping take the floor weight.
+bias_notes:
+- 'Source self-selection: r/AmItheAsshole posts come from people who chose to publicly
+  relitigate a moral dilemma on Reddit. The population skews young, U.S.-American,
+  internet-literate.'
+- 'Community verdict bias: r/AITA''s voting community has its own norms (strong egalitarianism,
+  low tolerance for partner/family overreach) that AI2 workers'' RoTs partially encode.'
+- AI2 MTurk worker demographics (US, 2020-skewed). Verdict directions reflect what
+  those workers thought the situation's moral judgment was, not necessarily what the
+  original source's audience would say.
+- Moral Foundations Theory's 5 channels do not partition the EM-DAG's 10 modules.
+  Epistemic, autonomy, externality, and repair receive no MFT signal — their fitted
+  weight is the floor, not a fitted score. The `coverage:` field per module in this
+  YAML makes that gap explicit.
+- Hand-curated MFT -> EM mapping (see `mft_to_em_mapping:` field). Tuning those weights
+  changes the fitted profile. Treat the mapping as a transparent default that callers
+  can override.
+corpus:
+  source: 'social-chem-101.v1.0.tsv :: area=amitheasshole'
+  license: CC-BY 4.0
+  citation: 'Forbes, Hwang, Shwartz, Sap, Choi. Social Chemistry 101: Learning to
+    Reason about Social and Moral Norms. EMNLP 2020. https://aclanthology.org/2020.emnlp-main.48/'
+  n_rows: 96082
+  n_situations: 29510
+  canonical_sha256: 03922d260589d525db189f9b985fa16a7a035f136ca44593969099002a1a2e3e
+  foundation_distribution:
+    fairness-cheating: 22141
+    care-harm: 41319
+    loyalty-betrayal: 26891
+    authority-subversion: 10423
+    sanctity-degradation: 4973
+  judgment_distribution:
+    '0': 36666
+    '-1': 32136
+    '1': 12973
+    '-2': 4557
+    '2': 1325
+  schema_tsv_columns:
+  - area
+  - m
+  - split
+  - rot-agree
+  - rot-categorization
+  - rot-moral-foundations
+  - rot-char-targeting
+  - rot-bad
+  - rot-judgment
+  - action
+  - action-agency
+  - action-moral-judgment
+  - action-agree
+  - action-legal
+  - action-pressure
+  - action-char-involved
+  - action-hypothetical
+  - situation
+  - situation-short-id
+  - rot
+  - rot-id
+  - rot-worker-id
+  - breakdown-worker-id
+  - n-characters
+  - characters
+fit_method: mft_to_em_via_agreement_weighted_means
+fitted_date: '2026-06-13T01:39:47+00:00'
+mft_to_em_mapping:
+  care-harm:
+    HarmEM: 1.0
+    CareEM: 0.8
+  fairness-cheating:
+    FairnessEM: 1.0
+  loyalty-betrayal:
+    FidelityEM: 1.0
+    LegitimacyEM: 0.4
+  authority-subversion:
+    LegitimacyEM: 1.0
+  sanctity-degradation:
+    RightsEM: 0.5
+weights:
+  CareEM: 1.571662
+  FairnessEM: 0.738789
+  FidelityEM: 0.854555
+  HarmEM: 1.571662
+  LegitimacyEM: 1.108314
+  RightsEM: 0.155019
+priors:
+  AutonomyEM: 0.0
+  CareEM: -0.11995
+  EpistemicEM: 0.0
+  ExternalityEM: 0.0
+  FairnessEM: -0.172263
+  FidelityEM: -0.114951
+  HarmEM: -0.11995
+  LegitimacyEM: -0.139915
+  RepairEM: 0.0
+  RightsEM: -0.243147
+coverage:
+  AutonomyEM: 0.0
+  CareEM: 0.73716
+  EpistemicEM: 0.0
+  ExternalityEM: 0.0
+  FairnessEM: 0.455094
+  FidelityEM: 0.507912
+  HarmEM: 0.73716
+  LegitimacyEM: 0.642351
+  RepairEM: 0.0
+  RightsEM: 0.121287
+metadata:
+  n_situations_used: 28816
