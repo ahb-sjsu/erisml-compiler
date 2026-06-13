@@ -34,7 +34,7 @@ def test_rlef_export(tmp_path, compiled_ir):
     out = tmp_path / "rlef.json"
     export_rlef(compiled_ir, out)
     record = json.loads(out.read_text(encoding="utf-8"))
-    assert record["schema"] == "rlef_v0.1"
+    assert record["schema"] == "rlef_v0.2"
     assert record["source_text"]
     assert record["canonical_form"] == "coercive_murderous_interrogation_with_collective_reprisal"
     assert record["deme_verdict"]["verdict"] == "tragic_conflict_escalate"
