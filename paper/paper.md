@@ -1,12 +1,14 @@
 ---
-title: 'ErisML Compiler: a structure-preserving moral intermediate representation with pluggable framework analysers'
+title: 'ErisML Compiler: A structure-preserving compiler from natural language to a moral intermediate representation'
 tags:
   - Python
   - AI safety
   - alignment
   - moral reasoning
+  - natural language processing
   - intermediate representation
-  - graph IR
+  - silicon-castable
+  - FPGA
 authors:
   - name: Andrew H. Bond
     orcid: 0009-0009-1769-5099
@@ -14,158 +16,199 @@ authors:
 affiliations:
   - name: San José State University, San José, CA, USA
     index: 1
-date: 13 June 2026
+date: 12 June 2026
 bibliography: paper.bib
 ---
 
 # Summary
 
-`erisml-compiler` is a Python compiler that takes natural-language
-moral material and emits a typed directed acyclic graph — the
-**MoralGraph** — anchored by a canonical SHA-256 hash. Multiple
-framework analysers (consequentialist, Kantian, Aristotelian-virtue,
-and care-ethical) read the same substrate and emit framework-relative
-verdicts. When their normalised polarities disagree, the compiler
-**refuses to aggregate** and surfaces all verdicts via
-`ir.cross_projection_disagreement`. The Kantian analyser uses a Z3
-SMT solver to test maxim universalizability against an explicit
-institutional-fact universe; the virtue analyser optionally consults
-a SQLite-backed longitudinal habit store of an agent's prior acts.
-Everything is auditable: every IR carries hashed provenance for the
-input text, the graph, the applied ethos profile, and the projections.
+`erisml-compiler` is a Python compiler that maps natural-language moral
+material into a canonical, structure-preserving intermediate
+representation called ErisML. The compiler exists to operationalise
+a single thesis: that moral reasoning requires a structured
+representation **before** decision contraction. A scalar
+"good / bad / safe / unsafe" label discards the very dimensions that
+justify or defeat a candidate action — who the stakeholders are, what
+commitments bind them, which authorities are legitimate, who bears
+imposed risk. The compiler preserves this tensorial structure as a
+first-class object, evaluates it through a deterministic core
+(`DEME` — the Deterministic Ethical Modular Evaluator), records an
+SHA-256-anchored audit trace, and exports both training data for
+human-feedback loops (`RLEF`) and synthesisable Vitis HLS C++ for an
+FPGA silicon target.
+
+A second contribution closes the loop between the model's **text
+output** and the model's **internal state**. The I-EIP Monitor
+(Internal / Activation / Delta lenses) registers forward hooks on a
+chosen subset of transformer layers, runs a calibrated probe per
+layer, and compares the resulting per-layer moral vectors against the
+text-side IR. When the lenses disagree — by direction flips, monotone
+layerwise drift, equivariance failure under semantics-preserving
+rewrites, joint-uncertainty spikes, or audit-chain corruption — the
+Monitor flags the input for human review. It never overrules `DEME`.
 
 # Statement of need
 
-Production alignment tooling almost always collapses moral evaluation
-to a scalar: a reward score, a safety classifier output, a guardrail
-pass/fail [@christiano2017deep; @rafailov2023direct]. This is
-defensible engineering — a scalar is easy to compose with downstream
-systems. But it discards the very structure that ethics is *about*.
-A medical professional choosing whether to break confidentiality to
-warn a third party of imminent harm is balancing care, fidelity,
-externality, autonomy, and legitimacy simultaneously, and the weights
-follow from her institutional role. A scalar "0.74 unsafe" cannot
-represent that. Worse, scoring across cases pre-commits to a specific
-(typically distributive-consequentialist) framework whose choices are
-invisible to the user: the system *looks* framework-neutral while
-quietly making first-order ethical commitments at every aggregation
-step.
+Most existing alignment tooling collapses to a scalar: a reward
+score, a safety classifier output, a guardrail pass/fail. This is
+defensible as an engineering interface but it discards the structure
+that ethics is *about*. Two cases:
 
-`erisml-compiler` addresses both problems architecturally. **Structure
-preservation**: the IR is a typed graph (nodes are stakeholders, acts,
-maxims, commitments, ethical facts, norms; edges are typed moral
-relations such as `imposes_on`, `consents_to`, `treats_as`,
-`under_maxim`, `coerces`), not a scalar. The graph plays the same
-role for ethical reasoning that an SSA-form IR plays for code
-generation [@cytron1991efficiently]: a structured intermediate that
-later passes can analyse, transform, and emit from. **Framework
-pluralism**: each framework gets a first-class `Projection` of its
-own primitives — Kantian gates emit *categorical* findings
-(universalizability fails by Contradiction in Conception; this
-stakeholder is treated as a mere means), virtue findings emit
-character-axis assessments, care-ethical findings emit relational
-attentiveness markers. When projections disagree, the compiler does
-not pick a winner — that choice is itself a metaethical move, and
-it is deferred to the caller explicitly.
+- A medical professional choosing whether to break confidentiality to
+  warn a third party of imminent harm is not navigating a
+  one-dimensional good–bad axis; she is balancing care, fidelity,
+  externality, autonomy, and legitimacy simultaneously, and the
+  weights are not free parameters of preference but consequences of
+  her institutional role. A scalar score that returns "0.74 unsafe"
+  cannot represent this; an IR that decomposes the situation into a
+  10-dimensional moral state, a stakeholder graph, a commitment
+  registry, and a verdict with structured residue can.
 
-To our knowledge no other open-source artifact combines (a) a typed
-moral graph IR, (b) multiple framework analysers over a shared
-substrate with honest categorical disagreement, and (c) an SMT-based
-test of the Kantian categorical imperative. Adjacent work falls into
-three buckets: RLHF/DPO toolkits that reduce to scalar reward
-[@christiano2017deep; @rafailov2023direct]; interpretability tools
-that surface internal state but don't connect it to a structured
-evaluator [@belrose2023eliciting]; and constitutional-AI frameworks
-that constrain behaviour via natural-language rules without
-producing a verifiable intermediate object [@bai2022constitutional].
-`erisml-compiler` occupies the structural-compositional gap between
-these.
+- A model that produces innocuous text while its internal
+  representations encode something the head was trained to suppress
+  is exactly the case where a scalar safety classifier fails by
+  construction. The I-EIP Monitor is built so that the *disagreement
+  between text and activations is the safety signal*, not the
+  agreement.
+
+To our knowledge no other open-source tool currently provides this
+combination: a structured moral IR, a silicon-castable evaluation
+kernel, and a three-lens monitor over the internal state of a
+deployed model. Adjacent work falls into one of three categories:
+toolkits for *value alignment* via RLHF / DPO that ultimately reduce
+to scalar reward modelling [@christiano2017deep; @rafailov2023direct];
+probing tools for *interpretability* that surface internal state but
+do not connect it to a structured ethical evaluator [@belrose2023eliciting];
+and *constitutional AI* style frameworks that constrain model
+behaviour via natural-language rules but do not produce a verifiable
+intermediate object [@bai2022constitutional]. `erisml-compiler`
+occupies the structural compositional gap between these — the moral IR
+plays the same role for ethical reasoning that an SSA-form
+intermediate representation plays for code generation
+[@cytron1991efficiently], and the I-EIP Monitor plays the same role
+for a deployed model that an architecture-level performance counter
+plays for a deployed binary.
+
+The intended users are AI-safety researchers (especially those who
+need structured failure reports rather than scalar scores), ethics
+review boards that need auditable provenance for AI decisions, and
+hardware-software co-design teams investigating real-time ethical
+interlocks for safety-critical agents (autonomous vehicles, surgical
+robots, lethal-autonomy systems).
 
 # Software description
 
-The compiler implements a 13-pass pipeline. Passes 0–7 ingest text,
-segment it, and extract stakeholders, events, commitments, ethical
-facts, and norms through one of four tiered extractors (deterministic
-mock; regex-based rule extractor; calibrated `LaBSE`-backed probe;
-or an LLM extractor with a critic-based consensus check). Pass 7.5
-promotes the flat extractor output into a typed `MoralGraph` (or
-accepts a graph emitted directly by a graph-native extractor). Pass 8
-runs every enabled framework projection over the substrate. Pass 12
-finalises the audit record with `ir_hash`, `graph_hash`, and (when
-applied) the fitted-ethos profile's `ethos_profile_sha256`.
+The compiler implements a 12-pass pipeline (see
+`docs/architecture.md`) with a tiered extractor stack:
 
-Five capabilities are first-class:
+- **Tier 1 (Geometric):** pre-parsed JSON event stream into the
+  deterministic core. Used by the silicon target.
+- **Tier 2 (Rules):** regex/grammar-driven `RuleExtractor` over
+  natural language.
+- **Tier 2.5 (Probe):** calibrated LaBSE-backed classifier head using
+  the sqnd-probe v10.16.9 invariance methods: spectral decoupling,
+  variational information bottleneck, multi-head GRL adversarial,
+  confusion loss [@alemi2017deep; @ganin2016domain].
+- **Tier 3 (LLM):** OpenAI-compatible chat-completion adapter (NRP
+  Nautilus `gpt-oss`, `qwen3`, `glm-5`; local vLLM for self-hosted
+  models), with a critic pass that compares the LLM's canonical-form
+  choice against a deterministic second-opinion extractor and flags
+  disagreements for human review.
 
-- **Typed graph IR** (`ir/graph/`). Six node kinds and eleven edge
-  kinds; canonical SHA-256 hashing; bidirectional derivation from
-  the flat-list extractor output.
-- **Four framework projections** (`projections/`).
-  `ConsequentialistProjection` emits the per-stakeholder rank-N
-  DEME V3 tensor with Gini/Shapley aggregates.
-  `DeonticProjection` emits gate findings (universalizability,
-  mere_means, valid_consent, legitimate_authority).
-  `VirtueProjection` and `CareEthicsProjection` emit
-  character-axis and relational-attentiveness findings respectively.
-- **SMT universalizability** (`delta/universalizability_smt.py`).
-  Encodes institutional facts as Z3 Bool variables. The CIC check
-  asks whether the universalised maxim is consistent with what the
-  act presupposes; the CIW check asks whether the universalised
-  world preserves the agent's own rational ends. The solver returns
-  a satisfying assignment when SAT, recorded in the gate's audit
-  detail block.
-- **SRL maxim extraction** (`annotation/maxim_extractor_srl.py`).
-  spaCy dependency parsing identifies (subject, predicate, dobj,
-  purpose) per sentence; score-based selection across candidates
-  with context-sensitive disambiguation of polysemous verbs.
-- **Longitudinal virtue tracking** (`history/`). SQLite-backed
-  habit store in WAL mode with UPSERT semantics, plus a
-  temporally-weighted assessment with exponential decay and
-  per-case severity multipliers. Virtue verdicts can now reflect
-  patterns of acts across time, as Aristotelian habituation
-  requires, rather than judging from a single observation.
+The deterministic evaluator core is shared across all tiers and
+consists of (i) three small finite-state machines — `CommitmentFSM`,
+`LegitimacyFSM`, `ConsentFSM` — each implementable in three bits of
+state register, and (ii) an EM-DAG (Ethical Module Directed Acyclic
+Graph) of 10 modules: harm, rights, fairness, autonomy, legitimacy,
+epistemic, care, fidelity, externality, repair. The DAG is
+topologically sorted at compile time and evaluated in pipeline order.
+The `silicon/` package emits Vitis HLS C++ for this core targeting
+the Xilinx Alveo U55C in the NRP Coder environment.
 
-The compiler also ships an out-of-band **I-EIP Monitor**
-(`monitor/`, `delta/`) that hooks per-layer activations of a
-deployed model and compares per-layer projection outputs against
-the text-side IR via cosine similarity, layerwise drift, and BIP
-equivariance under semantics-preserving rewrites. When lenses
-disagree the Monitor flags `requires_human_review`; it never
-overrules the projections.
+The I-EIP Monitor (`monitor/`, `delta/`) is the activation-side
+complement. `ActivationSource` is an ABC with three concrete
+implementations: `MockActivationSource` (deterministic synthetic
+hidden states for CI), `HuggingFaceActivationSource` (forward hooks
+on `model.model.layers` for Qwen2/Qwen3/LLaMA/Mistral, `transformer.h`
+for GPT-2, `encoder.layer` for BERT/RoBERTa), and
+`RemoteAtlasActivationSource` (paramiko-driven inference on a remote
+GPU host with the harness baked in as a literal string for trust
+control). Per-layer `ActivationProbe` instances reuse the Phase-3
+`ProbeHead` shape and accept Phase-3 checkpoints directly. The
+`IEIPMonitor` orchestrator produces a `MonitorTrace` with a
+SHA-256 anchor (`trace_hash()`) that extends the existing audit chain.
 
-# Worked example
+The Delta lens (`delta/`) supplies `compare_morals(text_mv, activation_mv)`,
+the BIP equivariance check `h_ℓ(g·x) ≈ ρ_ℓ(g)·h_ℓ(x)` from
+sqnd-probe with `ρ_ℓ = identity` (invariance under
+semantics-preserving rewrites), and five named failure-mode detectors
+(`text_internal_mismatch`, `layerwise_drift`,
+`group_symmetry_break`, `probe_uncertainty_spike`,
+`audit_chain_break`). The Monitor's only authorised output when any
+of these fires is `requires_human_review`; verdicts remain `DEME`'s
+job. The threat model and trust-boundary diagram are documented in
+`docs/i_eip_monitor.md`.
 
-On the bundled `nazi_attic` scenario (a Constant–Kant variant of
-the murderer-at-the-door problem), the consequentialist projection
-returns `tragic_conflict_escalate` while the deontic projection
-returns `forbidden`. The Z3 solver classifies the maxim
-`deceive` as a Contradiction in Conception: universalising it
-destroys `truth_telling_default`, which the act of deceiving itself
-presupposes. The compiler emits both verdicts via
-`ir.cross_projection_disagreement` and records the SMT satisfying
-assignment for audit. The full result is reproducible with
-`eris-compile compile examples/nazi_attic.txt`.
+The package is distributed on PyPI as `erisml-compiler` and on GitHub
+under MIT license. The CLI exposes 12 subcommands including
+`compile`, `validate`, `rlef`, `report`, `bundle`, `calibrate`,
+`correct`, `diff`, `silicon-emit`, `monitor`, `delta`, and `version`.
 
-# Limitations
+# End-to-end demonstration
 
-The MoralGraph's extraction categories (we extract maxims,
-stakeholders, commitments, ethical facts; we do not yet extract
-relational webs or virtue-disposition records as primitives) are
-themselves choices. The metaethical commitment is smaller after the
-v0.8.0 refactor but not zero. The SMT solver's institutional-fact
-universe is hand-curated. Probe checkpoints for the activation-lens
-work remain uncalibrated against a real moral-language corpus, and
-on-FPGA silicon bring-up is gated by the NRP Coder pipeline. Each
-limitation is documented in `SCOPE.md` and the design notes under
-`docs/plans/`.
+To verify that the full Phase 4 pipeline runs against a real
+production-class model, we instantiate the I-EIP Monitor with a
+`HuggingFaceActivationSource` over `Qwen/Qwen2.5-7B-Instruct`
+(28 transformer layers, hidden dimension 3584) hosted on a
+dual-Quadro-GV100 workstation reachable from the host via Tailscale +
+paramiko. We hook every fourth layer plus the final layer
+(layer indices 0, 4, 8, 12, 16, 20, 24, 27) and run the monitor +
+delta + equivariance pipeline on the three bundled scenarios
+(`nazi_attic`, `medical_confidentiality`, `whistleblower`) with
+random (uncalibrated) per-layer probes.
+
+The structural findings reproduce across runs. Activation norms climb
+monotonically through the residual stream on every scenario (e.g.
+`nazi_attic`: 8.8 → 398 → … → 571 at layer 24, dropping to 402 at the
+final layer). Trace hashes are deterministic. The BIP equivariance
+check (`ρ_ℓ = identity`) under a lowercase rewrite fails specifically
+at the final layer on two of three scenarios but passes throughout on
+the third — consistent with the final layer being the locus of
+output-distribution commitment and therefore the most surface-form
+sensitive. With random probes the divergence and direction-break
+counts are noise — calibrated probes against a real moral-language
+corpus are deferred to a separate paper — but the structural
+behaviour (hook resolution, audit-chain anchoring, equivariance
+sensitivity localisation) is precisely what the Phase 4 design
+predicts.
+
+The experiment harness is shipped at
+`scripts/experiments/atlas_phase4_experiment.py` and the per-scenario
+JSON reports at `experiments/phase4/` in the repository. The project ships
+three bundled examples — `nazi_attic.txt`,
+`medical_confidentiality.txt`, `whistleblower.txt` — that cover the
+hardest cases in classical normative ethics (the
+trolley/inquirer/Kant exception structure) and that the compiler is
+known to produce structurally faithful IR for end-to-end. The
+repository has 142 tests passing on Ubuntu Python 3.10/3.11/3.12 in
+GitHub Actions CI and is MIT-licensed.
+
+# Ongoing and future work
+
+Calibrated probe checkpoints against a real moral-language corpus
+(rather than the synthetic dataset shipped with the calibration
+stack) are in preparation, as is a separate methodological paper on
+the I-EIP Monitor's empirical behaviour on Qwen2.5-7B-Instruct
+running on NRP Nautilus. Silicon hardware bring-up on the U55C
+target is gated by the NRP Coder bitstream pipeline; the Vitis HLS
+emit is exercised in CI on every push and is bit-exact verified
+through hardware emulation (70/70 PASS), but on-FPGA validation
+remains the next milestone.
 
 # Acknowledgements
 
-Development was supported by computational resources from the
-National Research Platform (NRP) Nautilus cluster. The
-framework-pluralist refactor that became v0.8.0 was prompted by a
-substantive r/Compiler review that correctly identified the
-pre-refactor IR as encoding metaethical commitments below the
-profile layer; the v0.9.0 production-grade analysers were the
-follow-on response.
+Development of `erisml-compiler` was supported by computational
+resources provided by the National Research Platform (NRP) Nautilus
+cluster.
 
 # References
