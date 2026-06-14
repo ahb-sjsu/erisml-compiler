@@ -1,0 +1,54 @@
+name: JOSS Paper Draft
+
+# Builds a JOSS-formatted PDF of paper/paper.md whenever the paper
+# or its bibliography changes. The PDF lands as a build artifact
+# downloadable from the workflow run page so reviewers (and the
+# JOSS editor bot) can preview before submission.
+#
+# Uses the upstream `openjournals/openjournals-draft-action` which
+# packages the JOSS LaTeX template + pandoc filters into a Docker
+# image; no local TeX install required.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'paper/**'
+      - '.github/workflows/joss-paper.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'paper/**'
+      - '.github/workflows/joss-paper.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-pdf:
+    name: Build JOSS draft PDF
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build JOSS PDF
+        uses: openjournals/openjournals-draft-action@master
+        with:
+          journal: joss
+          paper-path: paper/paper.md
+
+      - name: Upload PDF artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: paper-pdf
+          path: paper/paper.pdf
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Sanity check artifact size
+        run: |
+          set -e
+          test -s paper/paper.pdf
+          ls -lh paper/paper.pdf
