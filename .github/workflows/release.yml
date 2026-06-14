@@ -6,9 +6,12 @@ on:
       - 'v*'
 
 permissions:
-  contents: read
+  contents: write  # needed to attach assets to the GitHub Release
 
 jobs:
+  # ---------------------------------------------------------------
+  # Build sdist + wheel; publish to PyPI; attach to GitHub Release
+  # ---------------------------------------------------------------
   build-and-publish:
     name: Build sdist + wheel and publish to PyPI
     runs-on: ubuntu-latest
@@ -36,3 +39,44 @@ jobs:
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
+
+  # ---------------------------------------------------------------
+  # Build the JOSS PDF and attach it to the GitHub Release as
+  # paper-v{TAG}.pdf alongside the wheel + sdist. Reviewers and
+  # citation-collectors can grab the version-pinned typeset paper
+  # without needing the workflow-artifact UI.
+  # ---------------------------------------------------------------
+  attach-paper-pdf:
+    name: Attach JOSS PDF to GitHub Release
+    runs-on: ubuntu-latest
+    needs: build-and-publish
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build JOSS PDF
+        uses: openjournals/openjournals-draft-action@master
+        with:
+          journal: joss
+          paper-path: paper/paper.md
+
+      - name: Rename PDF with release tag
+        id: rename
+        run: |
+          set -e
+          TAG="${GITHUB_REF##*/}"
+          # Strip any leading 'v' for cleaner filename: v0.9.0 -> 0.9.0
+          VERSION="${TAG#v}"
+          OUT="paper-${VERSION}.pdf"
+          cp paper/paper.pdf "$OUT"
+          ls -lh "$OUT"
+          echo "pdf_path=$OUT" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Attach to GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          gh release upload "${{ steps.rename.outputs.tag }}" \
+            "${{ steps.rename.outputs.pdf_path }}" \
+            --clobber

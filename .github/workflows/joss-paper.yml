@@ -33,6 +33,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install check deps
+        run: pip install pyyaml
+
+      - name: JOSS pre-submission checks
+        run: python scripts/check_joss_paper.py
+
       - name: Build JOSS PDF
         uses: openjournals/openjournals-draft-action@master
         with:
