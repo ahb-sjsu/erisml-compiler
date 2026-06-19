@@ -77,6 +77,11 @@ deme-v3 = [
     # When erisml-lib is published, uncomment the line below and bump
     # the extra to install transitively:
     # "erisml-lib>=3.0.0",
+    #
+    # The V3 bridge forwards Maxim.polarity to erisml-lib's deontic gate
+    # (erisml.ethics.deontic_gate); that gate requires an erisml-lib build
+    # with EthicalFacts.maxim (the maxim-gate change). Older builds are
+    # tolerated — maxim forwarding is skipped if the field is absent.
 ]
 test = [
     "pytest>=8.0",

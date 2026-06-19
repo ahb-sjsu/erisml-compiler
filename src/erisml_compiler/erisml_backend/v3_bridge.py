@@ -166,7 +166,7 @@ def ir_to_v2_facts(ir: CompilerIR) -> "V2EthicalFacts":
         for field_path, op in _FACT_KIND_TO_V2_FIELD.get(fact.kind, []):
             _apply_op(nodes, field_path, op, magnitude, fact)
 
-    return EthicalFacts(
+    facts = EthicalFacts(
         option_id=ir.document.doc_id if ir.document else "scenario",
         consequences=consequences,
         rights_and_duties=rights_and_duties,
@@ -178,6 +178,25 @@ def ir_to_v2_facts(ir: CompilerIR) -> "V2EthicalFacts":
         procedural_and_legitimacy=procedural_and_legitimacy,
         epistemic_status=epistemic_status,
     )
+
+    # Forward the maxim (incl. polarity) so erisml-lib's deontic gate can run.
+    # Guarded: older erisml-lib builds lack EthicalFacts.maxim / Maxim.
+    try:
+        from erisml.ethics.facts import Maxim as V2Maxim  # noqa: PLC0415
+
+        from erisml_compiler.projections.substrate import _derive_maxim  # noqa: PLC0415
+
+        derived = _derive_maxim(ir)
+        if derived is not None and hasattr(facts, "maxim"):
+            facts.maxim = V2Maxim(
+                action_kind=derived.action_kind,
+                polarity=getattr(derived, "polarity", "affirmed"),
+                description=getattr(derived, "description", "") or "",
+            )
+    except Exception as exc:  # pragma: no cover - defensive, lib optional
+        log.debug("V3 bridge: maxim forwarding skipped (%s)", exc)
+
+    return facts
 
 
 def _apply_op(
