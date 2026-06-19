@@ -4,6 +4,7 @@ A negated maxim ("did not promise", "refused to lie") must be evaluated as the
 maxim of *not performing* the action, not as the affirmed action. These tests
 cover the universalizability KB, the deontic gate, and the virtue gate.
 """
+
 from __future__ import annotations
 
 from erisml_compiler.delta.universalizability import (
@@ -57,15 +58,15 @@ def test_deontic_gate_flips_for_negated_prohibition():
     affirmed = DeonticProjection()._gate_universalizability(_sub("deceive", "affirmed"))
     negated = DeonticProjection()._gate_universalizability(_sub("deceive", "negated"))
     assert affirmed.passed is False  # lying fails
-    assert negated.passed is True    # not lying passes
+    assert negated.passed is True  # not lying passes
     assert negated.detail["polarity"] == "negated"
 
 
 def test_deontic_gate_flips_for_negated_imperfect_duty():
     affirmed = DeonticProjection()._gate_universalizability(_sub("protect", "affirmed"))
     negated = DeonticProjection()._gate_universalizability(_sub("protect", "negated"))
-    assert affirmed.passed is True   # protecting passes
-    assert negated.passed is False   # not protecting fails (CIW)
+    assert affirmed.passed is True  # protecting passes
+    assert negated.passed is False  # not protecting fails (CIW)
 
 
 # ----------------------------------------------------- virtue gate
@@ -76,10 +77,10 @@ def test_virtue_gate_refraining_from_vice_is_not_a_concern():
     affirmed = proj._character_finding(_sub("deceive", "affirmed"))
     negated = proj._character_finding(_sub("deceive", "negated"))
     assert affirmed.passed is False  # deceiving = vice concern
-    assert negated.passed is True    # not deceiving = expresses honesty
+    assert negated.passed is True  # not deceiving = expresses honesty
 
 
 def test_virtue_gate_omitting_a_virtue_is_a_concern():
     proj = VirtueProjection()
     negated = proj._character_finding(_sub("protect", "negated"))
-    assert negated.passed is False   # not protecting = callousness
+    assert negated.passed is False  # not protecting = callousness

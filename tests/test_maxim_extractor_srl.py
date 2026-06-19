@@ -217,9 +217,7 @@ def test_srl_marks_affirmed_action() -> None:
 
 def test_srl_marks_negated_promise() -> None:
     # Previously the negated and affirmed forms produced an identical maxim.
-    m, _ = extract_maxim_srl(
-        "The doctor did not promise to help the patient.", stakeholders=[]
-    )
+    m, _ = extract_maxim_srl("The doctor did not promise to help the patient.", stakeholders=[])
     assert m is not None
     assert m.action_kind == "make_or_keep_commitment"
     assert m.polarity == "negated"
