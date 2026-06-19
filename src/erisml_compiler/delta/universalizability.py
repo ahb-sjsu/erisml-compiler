@@ -295,18 +295,16 @@ DEFAULT_INSTITUTION_DEPENDENCIES: dict[str, InstitutionDependency] = {
 }
 
 
-def test_universalizability(
-    action_kind: str | None,
-    *,
-    mapping: dict[str, InstitutionDependency] | None = None,
-) -> InstitutionDependency:
-    """Test whether a maxim's action_kind is universalisable.
+# Imperfect (positive) duties: the only kinds whose *omission* is itself a
+# categorical-imperative failure. Refraining from a prohibition or from a merely
+# permissible act is fine; refusing universal aid/protection cannot be willed.
+IMPERFECT_DUTIES: frozenset[str] = frozenset({"help", "protect"})
 
-    Returns the `InstitutionDependency` for the action_kind. When
-    the action_kind is None or not in the mapping, returns an
-    `undetermined` entry rather than silently passing — the gate
-    can decide how to handle uncertainty.
-    """
+
+def _lookup(
+    action_kind: str | None,
+    mapping: dict[str, InstitutionDependency] | None,
+) -> InstitutionDependency:
     if action_kind is None:
         return InstitutionDependency(
             action_kind="<unknown>",
@@ -315,7 +313,6 @@ def test_universalizability(
             passes=True,  # benefit of doubt; gate records undetermined
             justification="No action_kind extracted; test indeterminate.",
         )
-
     m = mapping if mapping is not None else DEFAULT_INSTITUTION_DEPENDENCIES
     if action_kind not in m:
         return InstitutionDependency(
@@ -329,3 +326,67 @@ def test_universalizability(
             ),
         )
     return m[action_kind]
+
+
+def test_universalizability(
+    action_kind: str | None,
+    *,
+    polarity: str = "affirmed",
+    mapping: dict[str, InstitutionDependency] | None = None,
+) -> InstitutionDependency:
+    """Test whether a maxim's action_kind is universalisable.
+
+    ``polarity`` reflects whether the maxim is asserted or negated in the
+    source ("did not promise", "refused to lie"). A negated maxim is the maxim
+    of *not performing* the action, which can have the opposite universalisability
+    status, so it is tested separately rather than as the affirmed action.
+
+    Returns the `InstitutionDependency` for the (possibly negated) action_kind.
+    Unknown / None action kinds return an `undetermined` entry rather than
+    silently passing.
+    """
+    base = _lookup(action_kind, mapping)
+    if polarity != "negated":
+        return base
+
+    neg_kind = f"not:{base.action_kind}"
+
+    # Negation of an indeterminate action is also indeterminate.
+    if base.contradiction_type == "undetermined":
+        return InstitutionDependency(
+            action_kind=neg_kind,
+            presupposes=base.presupposes,
+            contradiction_type="undetermined",
+            passes=True,
+            justification=(
+                f"Negated maxim of {base.action_kind!r}, which is outside the "
+                f"knowledge base; the negation is likewise indeterminate."
+            ),
+        )
+
+    # Omission of an imperfect (positive) duty fails contradiction-in-will.
+    if action_kind in IMPERFECT_DUTIES:
+        return InstitutionDependency(
+            action_kind=neg_kind,
+            presupposes=base.presupposes,
+            contradiction_type="contradiction_in_will",
+            passes=False,
+            justification=(
+                f"Refraining from {action_kind!r} is the omission of an imperfect "
+                f"duty. Universal omission cannot be rationally willed — the agent "
+                f"will themselves stand in need of {action_kind} (Kant, Groundwork II)."
+            ),
+        )
+
+    # Negating a prohibition or a merely-permissible act is universalisable.
+    return InstitutionDependency(
+        action_kind=neg_kind,
+        presupposes=base.presupposes,
+        contradiction_type="no_contradiction",
+        passes=True,
+        justification=(
+            f"The maxim of NOT performing {base.action_kind!r} is universalisable: "
+            f"refraining from a prohibited or merely-permissible act introduces no "
+            f"contradiction in conception or will."
+        ),
+    )

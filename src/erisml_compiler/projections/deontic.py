@@ -108,14 +108,21 @@ class DeonticProjection(Projection):
                 detail={"result": "undetermined"},
             )
         kind = substrate.maxim.action_kind
+        polarity = substrate.maxim.polarity
 
         # Prefer the Z3-based SMT solver when available, fall back to
         # the v1 KB lookup. The SMT path runs a real consistency check
         # over the institutional fact universe and returns a satisfying
         # assignment (when SAT) for audit.
+        #
+        # The SMT model tests the affirmed action; it does not model
+        # negation, so a negated maxim ("did not promise") is routed to the
+        # polarity-aware KB test instead.
         smt_used = False
         smt_model_facts: dict[str, bool] = {}
-        if is_smt_available():
+        if polarity == "negated":
+            dep = test_universalizability(kind, polarity="negated")
+        elif is_smt_available():
             smt_result = test_universalizability_smt(kind)
             if smt_result.used_z3:
                 dep = smt_result.base
@@ -128,6 +135,7 @@ class DeonticProjection(Projection):
 
         detail: dict[str, Any] = {
             "action_kind": kind,
+            "polarity": polarity,
             "contradiction_type": dep.contradiction_type,
             "presupposes": list(dep.presupposes),
             "justification": dep.justification,
@@ -152,7 +160,8 @@ class DeonticProjection(Projection):
             name="universalizability",
             passed=True,
             reason=(
-                f"Maxim's action kind '{kind}' passes universalizability: " f"{dep.justification}"
+                f"Maxim's action kind '{dep.action_kind}' passes universalizability: "
+                f"{dep.justification}"
             ),
             severity="grave",
             detail=detail,

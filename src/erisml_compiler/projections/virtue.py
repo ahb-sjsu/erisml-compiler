@@ -102,6 +102,7 @@ class VirtueProjection(Projection):
                 severity="moderate",
             )
         kind = substrate.maxim.action_kind
+        polarity = substrate.maxim.polarity
         if kind not in _ACTION_VIRTUE_AXES:
             return GateFinding(
                 name="character_consistency",
@@ -110,25 +111,33 @@ class VirtueProjection(Projection):
                 severity="moderate",
             )
         virtue, vice = _ACTION_VIRTUE_AXES[kind]
-        # v0: any vice-evidence kind fires as a concern, not a verdict.
-        if kind in ("deceive", "impose_externality"):
+        detail = {"virtue": virtue, "vice": vice, "action_kind": kind, "polarity": polarity}
+        # v0: a vice-evidence kind normally fires as a concern. Negation flips
+        # the valence: refraining from a vice ("did not deceive") expresses the
+        # virtue, while omitting a virtue ("did not protect") becomes the concern.
+        expresses_vice = kind in ("deceive", "impose_externality")
+        if polarity == "negated":
+            expresses_vice = not expresses_vice
+        if expresses_vice:
+            refrain = " (by refraining)" if polarity == "negated" else ""
             return GateFinding(
                 name="character_consistency",
                 passed=False,
                 reason=(
-                    f"This act expresses {vice!r} on the {virtue!r}/{vice!r} "
+                    f"This act{refrain} expresses {vice!r} on the {virtue!r}/{vice!r} "
                     f"axis. A single act is weak evidence; virtue ethics "
                     f"reads patterns. Flag for habit-level review."
                 ),
                 severity="moderate",
-                detail={"virtue": virtue, "vice": vice, "action_kind": kind},
+                detail=detail,
             )
+        refrain = " (by refraining)" if polarity == "negated" else ""
         return GateFinding(
             name="character_consistency",
             passed=True,
-            reason=f"Act expresses {virtue!r} on the {virtue!r}/{vice!r} axis",
+            reason=f"Act{refrain} expresses {virtue!r} on the {virtue!r}/{vice!r} axis",
             severity="moderate",
-            detail={"virtue": virtue, "vice": vice, "action_kind": kind},
+            detail=detail,
         )
 
     # ---------------------------------------------------- fidelity
