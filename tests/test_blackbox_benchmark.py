@@ -4,6 +4,7 @@ The claim is procedural, not "more moral": ErisML is negation-aware and
 auditable where a scalar keyword classifier is neither. Skips if spaCy is
 absent (the ErisML path needs the SRL extractor).
 """
+
 from __future__ import annotations
 
 import pytest
@@ -43,8 +44,8 @@ def test_erisml_beats_blackbox_on_negation():
 def test_erisml_is_auditable_blackbox_is_not():
     bb = BlackBoxScorer()
     sample = GOLD[0][0]
-    assert len(erisml_judge(sample).reasoning_fields) >= 3   # action_kind, polarity, ...
-    assert len(bb.judge(sample).reasoning_fields) == 0       # scalar only
+    assert len(erisml_judge(sample).reasoning_fields) >= 3  # action_kind, polarity, ...
+    assert len(bb.judge(sample).reasoning_fields) == 0  # scalar only
 
 
 def test_blackbox_misreads_negated_prohibition():
