@@ -23,6 +23,8 @@ explicit extractor outputs.
 
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import BaseModel, ConfigDict, Field
 
 from erisml_compiler.ir.schemas import (
@@ -54,6 +56,13 @@ class Maxim(BaseModel):
     """Stakeholder id of the agent whose maxim this is."""
     action_kind: str | None = None
     """Coarse action label: lie, promise, refuse, harm, protect, ..."""
+    polarity: Literal["affirmed", "negated"] = "affirmed"
+    """Whether the action is asserted or negated in the source. "negated"
+    means the agent did NOT perform / explicitly declined the action
+    ("did not promise", "refused to lie"). The universalizability test
+    applies to the maxim as actually instantiated, so a negated promise is
+    not a commitment-making maxim. Defaults to "affirmed" for backward
+    compatibility with extractors that don't set it."""
     purpose: str | None = None
     """What the agent is trying to achieve via the action."""
     treats_persons_as: dict[str, str] = Field(default_factory=dict)

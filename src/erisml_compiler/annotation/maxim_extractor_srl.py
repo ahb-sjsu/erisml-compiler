@@ -182,6 +182,22 @@ class SrlMaximEvidence:
     selection_score: float
 
 
+def _verb_is_negated(tok) -> bool:
+    """True if the chosen verb is syntactically negated.
+
+    Covers "did not promise" / "didn't promise" (a ``neg`` dependency child)
+    and "never promised" (a ``never`` adverbial modifier). spaCy attaches the
+    negation to the content verb, so checking the verb's own children is enough
+    for the common cases.
+    """
+    for child in tok.children:
+        if child.dep_ == "neg":
+            return True
+        if child.dep_ == "advmod" and child.lemma_ == "never":
+            return True
+    return False
+
+
 def extract_maxim_srl(
     text: str,
     *,
@@ -282,6 +298,7 @@ def extract_maxim_srl(
         description=description,
         agent_id=best.subject_resolved_to,
         action_kind=best.action_kind,
+        polarity="negated" if _verb_is_negated(best.token) else "affirmed",
         purpose=best.purpose_phrase,
         treats_persons_as=treats,
     )
