@@ -85,15 +85,21 @@ strengthen §5, ranked by fit:
 Also: Social Chemistry 101 (already used for ethos profiles), MFTC, Moral Stories.
 
 ## External validation (MFRC) — human-grounded, in the paper (§5)
-- `mfrc_validation.ipynb` (+ `deme_mfrc_scores.jsonl`, `score_mfrc_nrp.py`) — does DEME's
+- `mfrc_validation.ipynb` (+ `mfrc_multi.jsonl`, `score_mfrc_multi.py`) — does DEME's
   representation track *independent human* moral labels? Scored 280 Moral Foundations Reddit
-  Corpus comments (human-annotated) on DEME's dims via the NRP LLM panel. **All four
-  pre-registered alignments hold and are the argmax**: care↔Care ρ=0.49, fairness↔Equality
-  ρ=0.47, legitimacy↔Authority ρ=0.48, fidelity↔Loyalty ρ=0.47 (all p<1e-16, n=280); Purity
-  (no DEME analog) is the quiet negative control. This is the strongest single answer to the
-  "are the dimensions real / validate the core" critique — against human ground truth, not
-  model-mediated self-reference. `deme_mfrc_scores.jsonl` is derived (scores + human label
-  fractions, no raw comment text; source HF: USC-MOLA-Lab/MFRC). Notebook verified to run.
+  Corpus comments (human-annotated) on DEME's dims via the NRP LLM panel, across THREE
+  instruments (10-module, 9-axis, 7-axis) and TWO model families (qwen3, glm-5). Three tests,
+  all pass:
+  1. **Alignment** — all four pre-registered pairs are the argmax: care↔Care ρ=0.51,
+     fairness↔Equality 0.48, legitimacy↔Authority 0.43, fidelity↔Loyalty 0.45 (p<1e-15, n=280);
+     Purity (no DEME analog) is the quiet negative control.
+  2. **Multi-model robustness** — replicates across qwen3 + glm-5 with overlapping 95%
+     bootstrap CIs (inter-model agreement mean ρ=0.79). Kills the single-LLM-artifact critique.
+  3. **Cross-instrument core** (validates Appendix A) — 9-axis vs 10-module agree on the shared
+     core at mean ρ=0.88; the differently-based 7-axis harm space recovers the subcore
+     (ρ 0.51–0.77).
+  `mfrc_multi.jsonl` is derived (scores + human label fractions, no raw text; source HF
+  USC-MOLA-Lab/MFRC). Notebook verified to run; reproducibility statement added to §5.
 
 ## Companion notebook
 - `keystone_aita_demo.ipynb` — reproduces the four thesis claims on 240 AITA dilemmas from the

@@ -327,19 +327,26 @@ polarities, routing genuine disagreement to human review.
 The preceding results concern the framework's internal behavior; a sharper test is whether its
 dimensions recover \emph{independently human-annotated} moral structure. We scored a stratified
 sample of $280$ comments from the Moral Foundations Reddit Corpus \citep{trager2022mfrc}---hand
--labeled by trained annotators for moral foundations---on DEME's dimensions and correlated the
-two. Four pre-registered alignments hold strongly and are each the \emph{argmax} over
-foundations: \texttt{care\_protection} with Care ($\rho=0.49$), \texttt{fairness\_equity} with
-Equality ($\rho=0.47$), \texttt{legitimacy\_trust} with Authority ($\rho=0.48$), and
-\texttt{vow\_fidelity} with Loyalty ($\rho=0.47$); all $p<10^{-16}$, $n=280$. The Purity
-foundation, which has no DEME analog, correlates weakly with every dimension---the expected
-negative control. The dimensions are thus not arbitrary coordinates: they track human moral
-judgment where they should and stay quiet where they should not (companion notebook).
+-labeled by trained annotators for moral foundations---on DEME's dimensions via an LLM panel,
+and correlated the two. Four pre-registered alignments hold and are each the \emph{argmax}
+over foundations: \texttt{care\_protection} with Care ($\rho=0.51$), \texttt{fairness\_equity}
+with Equality ($\rho=0.48$), \texttt{legitimacy\_trust} with Authority ($\rho=0.43$), and
+\texttt{vow\_fidelity} with Loyalty ($\rho=0.45$); all $p<10^{-15}$, $n=280$. The result
+\emph{replicates across two independent model families} (qwen3 and glm-5) with overlapping
+$95\%$ bootstrap confidence intervals, ruling out a single-model artifact; the Purity
+foundation, which has no DEME analog, is the quiet negative control. The dimensions are thus
+not arbitrary coordinates: they track human moral judgment where they should and stay quiet
+where they should not (companion notebook).
 
 \paragraph{Honest negatives.} DEME is not a culpability classifier: on this fully contested
 corpus, near-universal escalation does not by itself discriminate hard from easy cases. We
 report this because the framework's contribution is to \emph{surface} disagreement
 faithfully, not to adjudicate it.
+
+\paragraph{Reproducibility.} Every figure in this section is reproducible from released
+derived data and self-contained notebooks (\texttt{numpy}/\texttt{scipy}/\texttt{matplotlib}
+only); the LLM-panel scoring scripts are provided for re-derivation from public corpora. The
+released data contain derived scores and human label proportions only---no raw post text.
 
 % =====================================================================
 \section{Philosophy Engineering}
@@ -415,10 +422,12 @@ principal component of the moral vectors explains only $35\%$ of the variance an
 components are needed for $90\%$ (companion notebook), so the representation is empirically far
 from one-dimensional, and an external check against human moral-foundation annotations
 (\S\ref{sec:eval}) finds each tested dimension aligned with---and most correlated with---its
-intended foundation. What remains unvalidated is the cross-instrument map \emph{itself}: that the
-distinct instruments share the claimed common core. The verdict thresholds, the worst-off
-aggregation, and the constitutional vetoes likewise remain declared normative choices:
-contestable, not derived.
+intended foundation. The cross-instrument map is also now supported empirically: scoring the
+same $280$ inputs on the $9$-axis and $10$-module instruments, their core projections agree at
+mean $\rho=0.88$ (per-axis $0.75$--$0.95$), and the differently-based $7$-axis harm space
+recovers the shared subcore ($\rho=0.51$--$0.77$); full validation across all instruments and
+corpora remains future work. The verdict thresholds, the worst-off aggregation, and the
+constitutional vetoes likewise remain declared normative choices: contestable, not derived.
 
 % =====================================================================
 \section{Conclusion}
