@@ -68,6 +68,22 @@ Three reviewer critiques addressed in the paper, not just acknowledged:
    down-payment: PCA shows PC1 explains only 35% of moral variance, 5 comps for 90% (in the
    notebook), so the representation is far from one-dimensional.
 
+## Stronger-eval datasets (next — AITA labels are coarse)
+AITA gives one coarse label (NTA/YTA/ESH/NAH). Richer human-labeled corpora that would
+strengthen §5, ranked by fit:
+1. **MFRC** (Moral Foundations Reddit Corpus) — 16k comments, ≥3 annotators, **8 moral
+   dimensions** (Care, Proportionality, Equality, Purity, Authority, Loyalty, Thin,
+   Implicit/Explicit). Best for *validating the multi-dimensional representation/core against
+   human labels* (HF: USC-MOLA-Lab/MFRC).
+2. **ValuePrism / Kaleido** (Sorensen, AAAI 2024) — 218k values/rights/duties over 31k
+   situations, Support/Oppose + rationale, split into Rights/Values/Duties. Best for the
+   *pluralism + Hohfeld rights/duties* angle.
+3. **ETHICS** (Hendrycks) — per-framework labels (justice/deontology/virtue/util/commonsense).
+   Best for *validating the four projections* against framework-specific human judgments.
+4. **Scruples** (32k anecdotes, 625k judgments) — AITA-style but with the full *judgment
+   distribution* (captures disagreement directly). Easy richer drop-in for the AITA eval.
+Also: Social Chemistry 101 (already used for ethos profiles), MFTC, Moral Stories.
+
 ## Companion notebook
 - `keystone_aita_demo.ipynb` — reproduces the four thesis claims on 240 AITA dilemmas from the
   precomputed DEME evaluations in `aita_deme_results.jsonl`. Self-contained: needs only
