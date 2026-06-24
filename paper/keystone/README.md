@@ -55,6 +55,14 @@ instruments (projections/refinements). Gauge theory / Noether / quantum stay in 
 (one hedged citation). Per author: the quantum CHSH null is MODEL-MEDIATED — "awaiting
 human-subjects trials," not falsified — but it is not load-bearing here and stays out.
 
+## Companion notebook
+- `keystone_aita_demo.ipynb` — reproduces the four thesis claims on 240 AITA dilemmas from the
+  precomputed DEME evaluations in `data/aita_deme_results.jsonl`. Self-contained: needs only
+  `numpy`/`scipy`/`matplotlib` (no LLM/GPU/network). Verified to run clean; reproduces §5
+  (divergence 34.2%, L2 0.140, harm ρ≈0 vs fairness/care significant, escalation ~91%). The
+  results jsonl carries vectors/verdicts only (no raw Reddit post text). Ships un-executed
+  (run it to populate figures; nbconvert was unavailable in the authoring env).
+
 ## Files & build
 - `body.tex` — shared content (abstract + sections + appendix). Single source of truth.
 - `keystone.tex` — article wrapper for LOCAL PREVIEW. `pdflatex keystone && bibtex keystone
