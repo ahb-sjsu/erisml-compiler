@@ -328,13 +328,6 @@ corpus, near-universal escalation does not by itself discriminate hard from easy
 report this because the framework's contribution is to \emph{surface} disagreement
 faithfully, not to adjudicate it.
 
-% TODO (reconciliation -- see note to author): the three studies use three related but
-% DISTINCT dimensional schemes -- BDS 7-D harm space; the moderation EM-DAG 10-module set
-% (incl. fidelity/externality/repair); and the canonical DEME 9-D MoralVector. The keystone
-% must explicitly state the canonical 9-D and frame the others as projections/instruments,
-% or a reviewer will flag the inconsistency. Add a short "representations" paragraph in
-% \S\ref{sec:deme} or here once the author confirms the mapping.
-
 % =====================================================================
 \section{Philosophy Engineering}
 \label{sec:phileng}
@@ -367,25 +360,49 @@ testability, and revisability we expect of any engineered system; a fuller accou
 separate work.
 
 % =====================================================================
-\section{Limitations}
+\section{Limitations and Open Problems}
 \label{sec:limits}
-The pipeline is bounded by its weakest stage. Moral evaluation begins with extracting structured
-facts from natural language; errors there propagate to every downstream verdict, and the
-calibrated probe extractor is uncalibrated by default, so its confidence outputs should not be
-read as probabilities without per-deployment calibration. The graded dimensions are grounded in
-normative corpora that are predominantly English-language, Western, and model-mediated rather
-than drawn from human subjects; cross-cultural external validity is therefore unestablished, and
-the figures of \S\ref{sec:eval} are inter-model and inter-run, not human-grounded.
 
-The framework is deliberately not a moral authority. It refuses to adjudicate genuine
-inter-framework disagreement, and on a fully contested corpus this yields near-universal
-escalation that does not by itself separate hard cases from easy ones (\S\ref{sec:eval}); the
-value is in surfacing disagreement faithfully, and a system that escalates everything is useful
-only where escalation is cheap. The verdict thresholds, the worst-off aggregation, and the
-choice of constitutional vetoes are themselves declared normative choices---contestable, not
-derived. Finally, the commensurability of instruments (\S\ref{sec:formal}) rests on a proposed
-core map (Appendix~A) that is asserted, not yet empirically validated, and the formalization is
-an engineering abstraction over the implementation, not a metaphysical claim about value.
+\paragraph{The ingestion bottleneck.} The pipeline is bounded by its weakest stage. Moral
+evaluation begins by extracting structured facts from natural language, and an error there
+propagates to a verdict that is then computed flawlessly and certified with hash-chained
+certainty---formally verified garbage out. Three mechanisms bound, but do not eliminate, this:
+a critic pass that re-checks each extraction against the source text, a calibrated probe whose
+disagreement with the LLM extractor flags low-confidence parses, and the out-of-band monitor,
+whose only output on anomaly is \texttt{requires\_human\_review}. Each catches some bad parses;
+none audits the \emph{parser itself}. Bounding how often a subtle maxim or stakeholder is
+missed, and with what downstream effect on the verdict, is the single most important open
+problem for the framework. The graded dimensions inherit a further limitation: their grounding
+corpora are predominantly English-language, Western, and model-mediated, so the figures of
+\S\ref{sec:eval} are inter-model, not human-grounded.
+
+\paragraph{The escalation--throughput tension.} Refusing to aggregate is honest but, at the
+limit, expensive: under worst-off/escalate roughly $91\%$ of our evaluation cases route to
+human review, which would make the system a triage tool rather than an autonomous layer. Two
+considerations temper this. First, the corpus is worst-case: every AITA post \emph{is} a
+submitted moral dilemma, and notably its ``clear'' cases escalate at essentially the same rate
+as its contested ones ($90.7\%$ vs.\ $91.2\%$), because escalation is driven by genuine
+disagreement \emph{among the ethical frameworks}---near-universal on hard dilemmas, and
+near-absent on the benign content that dominates real streams, where the frameworks simply
+agree to permit. The $91\%$ is thus an upper bound on an all-dilemmas distribution, not an
+expected deployment rate. Second, worst-off/escalate is the maximally cautious endpoint of a
+tunable family: escalating only on \emph{decision-relevant} polarity conflicts (permit-vs-forbid
+rather than differences of degree), gating by stakes or severity, or imposing an escalation
+budget each trade pluralist purity for throughput---and, in the spirit of the framework, that
+trade is itself a declared, auditable governance choice rather than a hidden threshold.
+Characterizing this integrity--throughput frontier is important future work.
+
+\paragraph{Validating the moral core.} The commensurability of instruments
+(\S\ref{sec:formal}) currently rests on a \emph{proposed} core map (Appendix~A). Its
+validation is concrete and high-priority: run the canonical $9$-axis, $7$-axis, and
+$10$-module instruments on the \emph{same} inputs and test whether
+$\pi_k\mu_k\approx\pi_l\mu_l$ on the shared core to a stated tolerance. A first step on
+effective dimensionality is already encouraging---on the governance corpus the leading
+principal component of the moral vectors explains only $35\%$ of the variance and five
+components are needed for $90\%$ (companion notebook), so the representation is empirically far
+from one-dimensional---but the cross-instrument map itself remains unvalidated. The verdict
+thresholds, the worst-off aggregation, and the constitutional vetoes likewise remain declared
+normative choices: contestable, not derived.
 
 % =====================================================================
 \section{Conclusion}

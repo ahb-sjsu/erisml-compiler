@@ -55,6 +55,19 @@ instruments (projections/refinements). Gauge theory / Noether / quantum stay in 
 (one hedged citation). Per author: the quantum CHSH null is MODEL-MEDIATED — "awaiting
 human-subjects trials," not falsified — but it is not load-bearing here and stays out.
 
+## Peer-review responses folded in (§7 "Limitations and Open Problems")
+Three reviewer critiques addressed in the paper, not just acknowledged:
+1. **Ingestion bottleneck** ("formally verified garbage out") — named the three partial
+   safeguards (critic pass, probe-vs-LLM disagreement, monitor) and flagged *auditing the
+   parser itself* as the #1 open problem.
+2. **Escalation trap** — AITA is a worst-case all-dilemmas corpus (clear cases escalate
+   90.7% vs contested 91.2% — escalation tracks *framework* disagreement, near-absent on
+   benign streams); 91% is an upper bound. Added the tunable integrity-throughput family
+   (decision-relevant conflicts, severity gating, escalation budget) as future work.
+3. **Core-map validation** — elevated to a concrete high-priority item; added an empirical
+   down-payment: PCA shows PC1 explains only 35% of moral variance, 5 comps for 90% (in the
+   notebook), so the representation is far from one-dimensional.
+
 ## Companion notebook
 - `keystone_aita_demo.ipynb` — reproduces the four thesis claims on 240 AITA dilemmas from the
   precomputed DEME evaluations in `aita_deme_results.jsonl`. Self-contained: needs only
