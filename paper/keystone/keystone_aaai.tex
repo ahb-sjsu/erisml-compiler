@@ -1,0 +1,53 @@
+% AAAI 2026 / AIES SUBMISSION version.
+%
+% REQUIRES the AAAI 2026 author-kit style files -- aaai2026.sty and aaai2026.bst --
+% which are NOT on CTAN. Get them from the official template:
+%   https://www.overleaf.com/latex/templates/aaai-2026-press-formatting-instructions-for-authors-using-latex/qnpmwrzmddjj
+% Drop aaai2026.sty and aaai2026.bst into this directory, then compile:
+%   pdflatex keystone_aaai && bibtex keystone_aaai && pdflatex x2
+%
+% Shared content (abstract + sections + appendix) is in body.tex.
+% [submission] = anonymous review build (no author names / copyright). For the
+% camera-ready, remove [submission] and fill in \author/\affiliations below.
+
+\documentclass[letterpaper]{article}
+\usepackage[submission]{aaai2026}  % remove [submission] for camera-ready
+\usepackage{times}
+\usepackage{helvet}
+\usepackage{courier}
+\usepackage[hyphens]{url}
+\usepackage{graphicx}
+\urlstyle{rm}
+\def\UrlFont{\rm}
+\usepackage{natbib}        % DO NOT add options (per AAAI template)
+\usepackage{caption}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\frenchspacing
+\setlength{\pdfpagewidth}{8.5in}
+\setlength{\pdfpageheight}{11in}
+\setcounter{secnumdepth}{2}  % number sections so \S\ref{} cross-references resolve
+
+\pdfinfo{
+/TemplateVersion (2026.1)
+}
+
+\title{ErisML and DEME: A Structure-Preserving, Framework-Pluralist Pipeline
+for Auditable Machine Ethics}
+
+% Camera-ready author block (used when [submission] is removed):
+\author{
+    Andrew H. Bond
+}
+\affiliations{
+    San Jos\'e State University \\
+    agi.hpc@gmail.com
+}
+
+\begin{document}
+\maketitle
+\input{body}
+% aaai2026.sty sets the bibliography style automatically; do NOT \bibliographystyle.
+\bibliography{keystone}
+\end{document}

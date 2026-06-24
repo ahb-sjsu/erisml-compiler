@@ -1,0 +1,441 @@
+% Shared content for the keystone paper (abstract + sections + appendix).
+% Included by keystone.tex (article preview) and keystone_aaai.tex (AAAI 2026 submission).
+% Format-specific preamble/title/author/bibliography live in those wrappers.
+
+\begin{abstract}
+AI safety and governance increasingly demand that systems' normative judgments be
+transparent, testable, and auditable, yet deployed alignment overwhelmingly reduces
+moral evaluation to a scalar---a reward score, a safety probability, a guardrail
+pass/fail---which both discards moral structure and silently pre-commits to a single
+ethical framework while appearing neutral. We present \textbf{ErisML}, a
+structure-preserving compiler that parses natural-language scenarios into a typed,
+canonically-hashed \emph{moral-graph} intermediate representation and runs a plurality
+of framework analyses over it (consequentialist, Kantian with an SMT-checked
+universalizability gate, virtue, care), refusing to aggregate when frameworks disagree;
+and \textbf{DEME} (Democratically-Governed Ethics Modules), an evaluation engine mapping
+situations to a canonical nine-dimensional moral vector and per-stakeholder tensor, with
+constitutional modules that hold hard veto. We frame the methodology as
+\emph{Philosophy Engineering}: converting normative claims into explicit models with
+declared invariance assumptions, extracting measurable predictions, and testing them. We
+report reliability (inter-model agreement ICC$(2,k)=0.97$ on the harm subspace), a
+measured safety property (robustness to meaning-preserving manipulation, surfaced as
+invariance violations), and pluralist governance (a worst-off/escalate policy that routes
+genuine disagreement to human review). Both systems are open and installable.
+\end{abstract}
+
+% =====================================================================
+\section{Introduction}
+\label{sec:intro}
+
+Deployed AI alignment overwhelmingly reduces moral evaluation to a \textbf{scalar}: a
+reward-model score, a safety-classifier probability, a guardrail pass/fail. This is
+computationally convenient and, we argue, structurally wrong in two ways. First, it
+\emph{discards moral structure}---who is harmed, under which maxim, with what consent, in
+tension with whose rights---collapsing a high-dimensional situation into one number from
+which the reasoning cannot be recovered. Second, and more insidiously, any single score
+\emph{silently pre-commits to one ethical framework} (typically aggregative
+consequentialism) while presenting itself as neutral. A system that returns ``0.83 safe''
+has made deep normative choices that are now unauditable.
+
+We take a different stance, by analogy to compilers. A modern compiler does not map source
+text directly to machine code; it first builds a \emph{typed intermediate representation}
+that preserves program structure, enabling analysis and verification before any lowering.
+Moral evaluation deserves the same discipline: preserve the structure of the situation in
+an inspectable representation, apply explicitly named ethical frameworks to it, and only
+then---transparently, and revocably---contract to a decision.
+
+We present two open, shipped artifacts that realize this. \textbf{ErisML} is a
+structure-preserving compiler that parses natural-language scenarios into a typed
+\emph{MoralGraph} intermediate representation (a canonically-hashed DAG over stakeholders,
+acts, maxims, commitments, facts, and norms) and runs a plurality of framework
+\emph{projections} over it---consequentialist, Kantian (with an SMT-checked
+universalizability gate), virtue, and care. Critically, when frameworks disagree, ErisML
+\emph{refuses to aggregate}, exposing the disagreement as a first-class, caller-resolved
+metaethical event rather than laundering it into a number. \textbf{DEME}
+(Democratically-Governed Ethics Modules) is the evaluation engine: it maps situations to a
+canonical nine-dimensional \emph{moral vector}---physical harm, rights, fairness, autonomy,
+privacy, societal/environmental, virtue/care, legitimacy/trust, and epistemic
+quality---extended to a per-stakeholder moral \emph{tensor}, with tier-0 constitutional
+modules that hold hard veto power.
+
+We frame the underlying methodology as \emph{Philosophy Engineering}: the practice of
+converting normative claims into explicit models with declared invariance assumptions,
+extracting measurable predictions, testing them against data, and versioning the result.
+The framework is its existence proof. We report (i) \textbf{reliability}---inter-model
+agreement ICC$(2,k)=0.97$ on the harm subspace; (ii) a measured \textbf{safety
+property}---robustness analysis showing where meaning-preserving manipulations
+(euphemistic rewrites) move opaque moderators across decision thresholds, surfaced here as
+invariance violations; and (iii) \textbf{pluralist governance}---a worst-off/escalate
+policy that routes genuine cross-stakeholder disagreement to human review instead of
+overruling it. Both systems are installable with hash-chained audit artifacts.
+
+\paragraph{Contributions.}
+(1) A structure-preserving compiler IR for moral reasoning that survives to the decision
+boundary; (2) first-class framework \emph{pluralism with honest disagreement}, including an
+SMT-verified Kantian gate; (3) a canonical nine-axis moral representation with
+per-stakeholder tensors and constitutional veto; (4) an auditability layer (canonical
+hashing, decision proofs, an out-of-band monitor whose only failure output is
+\emph{requires human review}); (5) the articulation of Philosophy Engineering as a
+falsifiable, benchmarked methodology, with the framework as a worked instance.
+
+% =====================================================================
+\section{Related Work}
+\label{sec:related}
+
+\paragraph{Machine ethics.}
+The field has long been organized around top-down approaches that encode explicit rules
+and bottom-up approaches that learn moral behavior from data or feedback
+\citep{wallach2009moral,anderson2011machine}. Recent bottom-up systems learn moral
+judgments at scale---Delphi from a large corpus of human verdicts \citep{jiang2021delphi},
+and classifiers trained on the ETHICS benchmark \citep{hendrycks2021ethics}. These advanced
+what is learnable, but their output is a \emph{descriptive scalar} whose reasoning is not
+recoverable and whose implicit ethical commitments are not declared. Our framework is
+neither purely top-down nor purely learned: it compiles the situation into structure and
+then applies explicitly named frameworks to that structure, so a verdict carries both its
+grounds and its theoretical commitments.
+
+\paragraph{The scalar-collapse problem has ethical, not merely engineering, roots.}
+Reducing a moral situation to one number is a form of \emph{moral monism}---the assumption
+that a single currency of value underlies all considerations---and it inherits monism's
+classic difficulties. Williams' critique of utilitarian aggregation \citep{williams1973}
+and Ross's account of \emph{prima facie} duties \citep{ross1930} both insist that moral
+considerations are plural and not losslessly summable. We take this seriously at the level
+of representation: DEME's nine dimensions are intended as plural, irreducible considerations
+in the spirit of a Rossian manifold, not as components of a hidden scalar.
+
+\paragraph{Value pluralism and incommensurability.}
+That ErisML \emph{refuses to aggregate} across conflicting frameworks is not an engineering
+convenience but a commitment to value pluralism and the incommensurability of values
+\citep{berlin1969,williams1981,chang1997}. When a Kantian and a consequentialist analysis
+genuinely diverge, silently trading them into a single recommendation manufactures a false
+commensuration; surfacing the disagreement as a first-class, caller-resolved event is the
+philosophically honest output. To our knowledge, no deployed alignment system treats
+inter-framework disagreement as a structured output rather than noise to be averaged away.
+
+\paragraph{Value alignment and constitutional AI.}
+Mainstream alignment embeds values implicitly---in model weights via RLHF
+\citep{christiano2017}, or semi-explicitly via a natural-language constitution
+\citep{bai2022constitutional}---within a broader project of specifying what alignment to
+human values means \citep{gabriel2020}. A constitution is a real step toward explicitness,
+but its application remains an opaque forward pass returning a scalar preference. We make
+both the framework and its application explicit, inspectable, and, for the Kantian gate,
+formally checkable.
+
+\paragraph{Pluralistic alignment and computational social choice.}
+Our verdict-level pluralism connects to recent calls for pluralistic alignment
+\citep{sorensen2024} and to the long tradition of computational social choice on preference
+aggregation \citep{brandt2016}, including its emerging application to aligning language
+models \citep{conitzer2024}. The distinction we draw is between an \emph{implicit}
+social-welfare function buried in a reward model and an \emph{explicit, declared}
+aggregation rule---here, a worst-off/escalate policy whose normative commitments are stated
+and contestable rather than latent.
+
+\paragraph{Formal and deontic ethics.}
+For hard constraints we build on deontic logic \citep{vonwright1951,horty2001}, Hohfeld's
+analysis of fundamental legal relations \citep{hohfeld1917}, and prior attempts to formalize
+the categorical imperative for machines \citep{powers2006,lindner2019}. ErisML's SMT-checked
+universalizability gate and its $D_4$-structured Hohfeld module sit in this lineage. But we
+resist the assumption that \emph{all} moral structure is axiomatizable: the graded
+dimensions are grounded empirically, closer in spirit to moral particularism's holism of
+reasons \citep{dancy2004} than to a complete deductive system---a deliberate hybrid of
+verified hard constraints and learned soft structure.
+
+\paragraph{Governance and auditability.}
+Documentation and audit frameworks specify \emph{what} should be disclosed about a system
+\citep{mitchell2019,raji2020,nist2023}, but stop short of a mechanism that \emph{produces}
+inspectable moral reasoning. ErisML's canonically-hashed moral graphs, hash-chained decision
+proofs, and review-only monitor are a concrete substrate to which such governance can
+attach---turning auditability from a reporting practice into a property of the computation.
+
+\paragraph{Position.}
+No prior line combines (i) a structure-preserving intermediate representation that survives
+to the decision boundary, (ii) first-class framework pluralism with honest, non-aggregated
+disagreement, (iii) an executable and partly formally-verified artifact, and (iv) an
+auditable decision trail---grounded throughout in plural-duty and incommensurability ethics
+rather than in a single value currency. The dimensional structure and the
+descriptive-invariance properties our representation is built to satisfy are developed in
+separate foundational work \citep{bond_geometric_ethics}; here we treat them purely as
+engineering desiderata and evaluate them empirically, making no claim that depends on that
+apparatus.
+
+% =====================================================================
+\section{ErisML: a structure-preserving moral compiler}
+\label{sec:erisml}
+
+ErisML compiles a natural-language scenario into a typed \emph{MoralGraph} intermediate
+representation and runs a plurality of ethical analyses over it. Ingestion proceeds through
+a multi-pass pipeline: the text is segmented and passed to tiered extractors---deterministic
+rule-based, LLM-backed (with a critic pass), and a calibrated LaBSE probe---which populate
+entities, stakeholders, acts, norms, and \emph{ethical facts}. These are resolved to a
+canonical form and \emph{promoted} to the MoralGraph: a directed acyclic graph over six node
+kinds (stakeholder, act, maxim, commitment, fact, norm) and eleven edge kinds (e.g.,
+\texttt{performs}, \texttt{imposes\_on}, \texttt{consents\_to},
+\texttt{would\_violate\_if\_universalised}), fingerprinted by a canonical SHA-256 hash so
+that any two runs producing the same moral structure are provably identical.
+
+Over this substrate, ErisML runs four framework \emph{projections}---consequentialist,
+deontic (Kantian), virtue, and care---each an independent analyzer emitting a
+\texttt{ProjectionResult}: a native verdict, a normalized polarity in
+\{permit, forbid, escalate, neutral\}, and categorical \emph{gate findings}. The deontic
+projection is notable: universalizability is checked by an SMT solver (Z3), and violations of
+the mere-means and valid-consent gates are reported as discrete findings rather than folded
+into a score. When two or more projections disagree in polarity, ErisML populates a
+\texttt{cross\_projection\_disagreement} field and \emph{declines to aggregate}---the choice
+between conflicting ethical frameworks is surfaced to the caller as an explicit metaethical
+act, not silently resolved. An out-of-band I-EIP monitor inspects the process along text,
+activation, and delta lenses; its only sanctioned output on failure is
+\texttt{requires\_human\_review}. Every run emits a hash-chained \emph{DecisionProof} linking
+verdict to graph identity and module weights.
+
+% =====================================================================
+\section{DEME: Democratically-Governed Ethics Modules}
+\label{sec:deme}
+
+Where ErisML supplies structure and pluralism, DEME supplies the graded, multi-dimensional
+valuation. DEME evaluates a situation---represented as per-party \emph{ethical
+facts}---through a layered ensemble of \emph{Ethics Modules} (EMs): a fast reflex layer of
+hard vetoes, then tactical and strategic layers, with every registered EM emitting a
+contribution to a canonical nine-dimensional \emph{moral vector}: physical harm, rights,
+fairness, autonomy, privacy, societal/environmental, virtue/care, legitimacy/trust, and
+epistemic quality (each in $[0,1]$; harm inverted). For multi-stakeholder situations this
+lifts to a \emph{moral tensor} indexed by dimension and party. Verdicts take one of five
+values---\{strongly\_prefer, prefer, neutral, avoid, forbid\}---computed from the vector
+under explicit thresholds, with any veto forcing \texttt{forbid}.
+
+EMs are organized into governed \emph{tiers}: tier-0 \emph{constitutional} modules (the
+\emph{Geneva} module, encoding Geneva-Convention and fundamental-rights constraints, with
+non-disableable hard veto), then core-safety, rights/fairness, soft-value, and
+meta-governance tiers. A Hohfeld module represents the four fundamental normative positions
+with $D_4$ dihedral-group structure, making correlative relations (claim$\leftrightarrow$duty,
+liberty$\leftrightarrow$no-claim) explicit and testable. Module \emph{weights} are not fixed:
+they are set by \emph{ethos profiles}---the ``democratically-governed'' element---calibrated
+from a normative corpus, so that distinct stakeholder value systems instantiate distinct,
+declared evaluators rather than one universal scorer. Per-party verdicts aggregate
+conservatively (most-restrictive-wins).
+
+\paragraph{Why these dimensions.}
+The nine axes are derived, not stipulated. They arise from crossing two independent
+classifications of a moral consideration---its \emph{scope} (individual, relational,
+collective) and its \emph{mode} (what matters, who decides, what is known)---yielding a
+$3\times 3$ structure whose nine cells are the dimensions. The construction is validated by
+\emph{subsumption}: the principles of major applied-ethics frameworks map onto the nine
+dimensions without residue---the EU High-Level Expert Group's seven requirements for
+trustworthy AI \citep{euhleg2019}, Beauchamp and Childress's four principles of biomedical
+ethics \citep{beauchamp2019}, and the Markkula Center's six ethical lenses \citep{markkula}
+each decompose into the nine without a leftover consideration. The completeness claim is explicitly falsifiable: exhibit a genuine moral
+consideration that is independent of all nine and not a combination of them, and the basis
+must be extended. We therefore treat the nine-dimensional representation as
+\emph{provisionally sufficient and empirically revisable}---a declared modeling choice in the
+sense of Philosophy Engineering (\S\ref{sec:phileng}), not a claim that these are the unique
+axes of value. The derivation, the subsumption arguments, and cross-lingual stability
+evidence are developed in the foundational work \citep{bond_geometric_ethics}; we use the
+result here as an engineering basis and evaluate it empirically.
+
+\paragraph{Instruments.}
+The framework's commitments are \emph{structural}: that moral evaluation be
+\emph{multi-dimensional} (preserving the trade-offs a scalar destroys), \emph{invariant}
+under meaning-preserving re-description, and \emph{projectable} onto task-specific bases. A
+task may call for a coarser or finer basis, and the framework treats such variants as
+declared \emph{instruments}---projections or refinements of the canonical nine
+(\S\ref{sec:formal}). The reliability study (\S\ref{sec:eval}) uses a seven-axis harm space
+that resolves harm into physical, emotional, and financial channels; the governance study
+uses a ten-module evaluator that adds task-salient axes (fidelity, externality, repair).
+These are variations on one theme, related to the canonical basis by the projection map of
+Appendix~A, not competing ontologies.
+
+\subsection{Instruments, the moral core, and invariance}
+\label{sec:formal}
+We make the preceding precise without committing to a privileged basis.
+
+\paragraph{Instruments.} A \emph{moral instrument} is a pair $(\mu,\nu)$ of an evaluation map
+$\mu:\mathcal{S}\to\mathbb{R}^{d}$ on situations $\mathcal{S}$ and an order-preserving
+\emph{verdict map} $\nu:\mathbb{R}^{d}\to\mathcal{V}$ into the totally ordered verdict set
+$\mathcal{V}=(\textsf{forbid}<\textsf{avoid}<\textsf{neutral}<\textsf{prefer}<\textsf{strongly\_prefer})$.
+The canonical DEME instrument has $d=9$.
+
+\paragraph{Commensurability and the moral core.} Two instruments $(\mu_k,\nu_k)$ and
+$(\mu_l,\nu_l)$ are \emph{commensurable} if their spaces share a common linear quotient---a
+\emph{moral core} $C\cong\mathbb{R}^{c}$ with surjections $\pi_k:\mathbb{R}^{d_k}\!\to\!C$ and
+$\pi_l:\mathbb{R}^{d_l}\!\to\!C$ such that $\pi_k\!\circ\!\mu_k=\pi_l\!\circ\!\mu_l$ on shared
+situations. The core carries the value information the instruments agree on; each kernel
+$\ker\pi_k$ carries task-specific structure the other does not resolve. This is the precise
+sense in which the basis is ``arbitrary'': it is fixed only up to the choice of instrument,
+while the core and the verdict order are shared. The canonical $9$-axis instrument, the
+$7$-axis harm space, and the $10$-module evaluator are pairwise commensurable through a
+$c$-dimensional core (Appendix~A).
+
+\paragraph{Invariance.} Let $\mathcal{T}$ be a set of \emph{meaning-preserving} re-descriptions
+of situations (paraphrase, reframing, reordering). An instrument \emph{respects invariance to
+tolerance} $\epsilon$ if $\lVert\mu(Ts)-\mu(s)\rVert\le\epsilon$ for all $T\in\mathcal{T}$ and
+$s\in\mathcal{S}$; a \emph{violation} is a transformation that crosses a verdict boundary,
+$\nu(\mu(Ts))\neq\nu(\mu(s))$. The manipulation study (\S\ref{sec:eval}) measures this violation
+rate directly. We state invariance as a tolerance over a \emph{set} of transformations---and
+deliberately \emph{not} as a group action---to keep the claim empirical and minimal.
+
+% TODO accuracy note: LLM-based extraction of ethical facts lives in ErisML's front-end and
+% external eval harnesses, NOT inside DEME's engine -- DEME consumes structured facts. State
+% this boundary plainly in the final text.
+% TODO Appendix A: the instrument-to-canonical projection map (7-D harm space and 10-module
+% evaluator -> canonical 9-D), drafted once the author confirms which task axes refine vs.
+% add to the canonical basis.
+
+% =====================================================================
+\section{Evaluation}
+\label{sec:eval}
+
+An auditable machine-ethics framework must satisfy three properties: its judgments must be
+\emph{reproducible}, \emph{robust to meaning-preserving manipulation}, and \emph{honest
+about disagreement}. We consolidate evidence from three studies; full protocols, data, and
+reproduction notebooks appear in the companion papers \citep{bond2026secureai,bond2026deme},
+and we report verified figures here rather than re-deriving them.
+
+\subsection{Reliability}
+A six-model panel (qwen3, qwen3-small, glm-5, gpt-oss, minimax-m2, gemma) independently
+scored 31 scenarios on a seven-dimension harm subspace---a measurement-reliable projection
+of the canonical representation (\S\ref{sec:deme}). Inter-model agreement is high: overall
+ICC$(2,k)=0.969$ with Krippendorff interval-$\alpha=0.836$ over $n=217$ rows, and
+per-dimension ICC ranges from $0.893$ (physical, autonomy) to $0.983$ (financial).
+Test--retest reliability across re-runs is Pearson $r=0.87$--$0.98$ per model. The framework's
+moral assessments are reproducible across independent models and repeated evaluation.
+
+\subsection{Robustness to manipulation}
+A system whose verdicts can be flipped by paraphrase that preserves the underlying act is
+unsafe; descriptive invariance is therefore a core requirement. Probing it across 161
+scenario--perturbation pairs, \emph{euphemistic} rewrites---which soften the description while
+preserving the act---shift verdicts toward the permissive in $13.7\%$ of cases, collapsing
+\texttt{forbid} verdicts from $44$ to $27$ and reducing assessed harm by $14.0$ points on a
+$0$--$70$ scale (mean ordinal shift $+0.65$ toward permissive). Symmetrically, dramatizing
+rewrites shift $16.1\%$ toward the restrictive. Crucially, the framework \emph{surfaces} each
+such shift as an invariance violation rather than silently re-deciding---the manipulation
+becomes an auditable event, not an undetected exploit.
+
+\subsection{Pluralist governance}
+Two stakeholder ethos---a harm/care advocate and a fairness/fidelity community, each a
+declared module-weighting---evaluated 231 real moral dilemmas. The ethos produce
+systematically different moral vectors (mean $L_2$ distance $0.140$; verdict divergence
+$34.2\%$; directional sign-tests $p<0.001$ on physical-harm and fidelity dimensions),
+confirming that declared value systems instantiate distinct evaluators rather than one
+universal scorer. The multi-dimensional representation also separates situation-level harm
+from agent culpability: aggregate harm is uncorrelated with human blame judgments
+(Spearman $\rho=-0.05$, n.s.), while the fairness and care dimensions track it
+($\rho=-0.18$, $p=0.006$; $\rho=-0.16$, $p=0.014$)---structure a scalar score discards. Under
+the worst-off/escalate policy, the governed decision differs from the most-permissive single
+stakeholder in $33.8\%$ of cases, and every dilemma exhibits $\geq 2$ distinct framework
+polarities, routing genuine disagreement to human review.
+
+\paragraph{Honest negatives.} DEME is not a culpability classifier: on this fully contested
+corpus, near-universal escalation does not by itself discriminate hard from easy cases. We
+report this because the framework's contribution is to \emph{surface} disagreement
+faithfully, not to adjudicate it.
+
+% TODO (reconciliation -- see note to author): the three studies use three related but
+% DISTINCT dimensional schemes -- BDS 7-D harm space; the moderation EM-DAG 10-module set
+% (incl. fidelity/externality/repair); and the canonical DEME 9-D MoralVector. The keystone
+% must explicitly state the canonical 9-D and frame the others as projections/instruments,
+% or a reviewer will flag the inconsistency. Add a short "representations" paragraph in
+% \S\ref{sec:deme} or here once the author confirms the mapping.
+
+% =====================================================================
+\section{Philosophy Engineering}
+\label{sec:phileng}
+The framework instantiates a methodology we call \emph{Philosophy Engineering}: the
+construction of executable, falsifiable implementations of normative frameworks, with modeling
+assumptions declared, predictions extracted and tested, and the result versioned and revised
+when predictions fail. It is neither normative ethics (it does not pronounce which theory is
+correct) nor descriptive moral psychology (it does not merely predict human judgments); it is
+the practice between them---making normative commitments explicit enough to be built, measured,
+and corrected.
+
+Four commitments distinguish it. First, \emph{declared modeling choices}: every bridge from a
+moral claim to a computational object carries its epistemic status---definition, assumption,
+conditional theorem, or empirical result---so that what is proven is not confused with what is
+posited. Second, \emph{stated invariances}: the transformations under which an evaluation must
+be stable (\S\ref{sec:formal}) are written down and tested, not assumed silently. Third,
+\emph{extracted predictions}: a model earns its keep by entailing measurable claims---here,
+inter-model reliability and manipulation-violation rates (\S\ref{sec:eval}). Fourth,
+\emph{versioned revision}: when a prediction fails the model is amended and the change recorded,
+exactly as the nine-dimensional basis is held under a falsifiable completeness claim
+(\S\ref{sec:deme}) rather than as fixed truth.
+
+ErisML and DEME are a worked instance of all four: the moral-graph IR and the nine-dimensional
+representation are declared modeling choices with stated assumptions; the invariance principle
+is a declared invariance whose violations \S\ref{sec:eval} measures; reliability and robustness
+are extracted predictions tested against data; and both systems ship under versioned APIs whose
+evaluation history is part of the artifact. The claim we make for Philosophy Engineering here is
+narrow and by example---that normative frameworks can be built to the standard of explicitness,
+testability, and revisability we expect of any engineered system; a fuller account is left to
+separate work.
+
+% =====================================================================
+\section{Limitations}
+\label{sec:limits}
+The pipeline is bounded by its weakest stage. Moral evaluation begins with extracting structured
+facts from natural language; errors there propagate to every downstream verdict, and the
+calibrated probe extractor is uncalibrated by default, so its confidence outputs should not be
+read as probabilities without per-deployment calibration. The graded dimensions are grounded in
+normative corpora that are predominantly English-language, Western, and model-mediated rather
+than drawn from human subjects; cross-cultural external validity is therefore unestablished, and
+the figures of \S\ref{sec:eval} are inter-model and inter-run, not human-grounded.
+
+The framework is deliberately not a moral authority. It refuses to adjudicate genuine
+inter-framework disagreement, and on a fully contested corpus this yields near-universal
+escalation that does not by itself separate hard cases from easy ones (\S\ref{sec:eval}); the
+value is in surfacing disagreement faithfully, and a system that escalates everything is useful
+only where escalation is cheap. The verdict thresholds, the worst-off aggregation, and the
+choice of constitutional vetoes are themselves declared normative choices---contestable, not
+derived. Finally, the commensurability of instruments (\S\ref{sec:formal}) rests on a proposed
+core map (Appendix~A) that is asserted, not yet empirically validated, and the formalization is
+an engineering abstraction over the implementation, not a metaphysical claim about value.
+
+% =====================================================================
+\section{Conclusion}
+\label{sec:conc}
+We have presented ErisML and DEME as a structure-preserving, framework-pluralist, and auditable
+pipeline for machine ethics: a typed moral-graph IR that survives to the decision boundary,
+plural framework analyses that refuse to silently aggregate, a derived multi-dimensional
+evaluation with constitutional veto, and a hash-chained audit trail. The framework's judgments
+are reproducible across models (ICC$(2,k)=0.969$), expose meaning-preserving manipulations as
+invariance violations rather than absorbing them, and route genuine stakeholder disagreement to
+human review under a declared policy---none of it requiring the collapse of moral structure to a
+scalar, and all of it open and installable. More broadly, the work is an argument by
+construction for Philosophy Engineering: that normative commitments are better made explicit,
+testable, and revisable than left implicit in a number. We release the artifacts in that
+spirit---as infrastructure to be scrutinized, contested, and extended.
+
+\appendix
+\section{Instrument-to-core projection map}
+\label{app:map}
+Table~\ref{tab:map} gives the proposed correspondence underlying \S\ref{sec:formal}. The
+shared moral core $C$ comprises the seven axes on which all three instruments agree (up to
+coarsening). Beyond the core, the canonical instrument adds \emph{privacy} and
+\emph{societal/environmental}; the ten-module evaluator adds \emph{fidelity},
+\emph{externality}, and \emph{repair}; and the seven-axis harm space resolves the harm axis
+into \emph{physical}, \emph{emotional}, and \emph{financial} channels and adds a
+\emph{social}/\emph{identity} pair. These extensions lie in the respective kernels
+$\ker\pi_k$; commensurability is claimed on $C$ only, and the extensions are \emph{not}
+asserted to be inter-derivable. (Proposed map; axis assignments to be confirmed against the
+released instrument specifications.)
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{@{}llll@{}}
+\toprule
+Core axis $c_i$ & Canonical ($9$) & Harm space ($7$) & Module eval. ($10$) \\
+\midrule
+Harm              & \texttt{physical\_harm}    & physical$^\dagger$ & harm \\
+Rights            & \texttt{rights\_respect}   & (identity)         & rights \\
+Fairness          & \texttt{fairness\_equity}  & ---                & fairness \\
+Autonomy          & \texttt{autonomy\_respect} & autonomy           & autonomy\_consent \\
+Legitimacy/Trust  & \texttt{legitimacy\_trust} & trust              & legitimacy\_trust \\
+Epistemic         & \texttt{epistemic\_quality}& ---                & epistemic\_quality \\
+Care              & \texttt{virtue\_care}      & ---                & care\_protection \\
+\bottomrule
+\end{tabular}
+\caption{Proposed instrument-to-core map. $\dagger$: the harm space refines this axis into
+physical/emotional/financial channels. ``---'': the harm space, being harm-focused, does not
+resolve this core axis. Instrument-specific extensions (privacy, societal; fidelity,
+externality, repair) are omitted as they lie outside $C$.}
+\label{tab:map}
+\end{table}
+
