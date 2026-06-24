@@ -1,0 +1,26 @@
+% LOCAL-PREVIEW wrapper (standard article class) -- compiles anywhere.
+% The SUBMISSION version is keystone_aaai.tex (AAAI 2026 / AIES format).
+% Shared content (abstract + sections + appendix) lives in body.tex.
+%
+% Constraints (see README): NO field-theory/gauge-theory framing (one hedged citation
+% only); 9-D is canonical and derived; lead with artifact + evidence.
+
+\documentclass[11pt,letterpaper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{natbib}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\title{ErisML and DEME: A Structure-Preserving, Framework-Pluralist\\
+Pipeline for Auditable Machine Ethics}
+\author{Andrew H. Bond}
+\date{Draft --- \today}
+
+\begin{document}
+\maketitle
+\input{body}
+\bibliographystyle{plainnat}
+\bibliography{keystone}
+\end{document}
