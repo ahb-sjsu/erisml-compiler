@@ -84,6 +84,17 @@ strengthen §5, ranked by fit:
    distribution* (captures disagreement directly). Easy richer drop-in for the AITA eval.
 Also: Social Chemistry 101 (already used for ethos profiles), MFTC, Moral Stories.
 
+## External validation (MFRC) — human-grounded, in the paper (§5)
+- `mfrc_validation.ipynb` (+ `deme_mfrc_scores.jsonl`, `score_mfrc_nrp.py`) — does DEME's
+  representation track *independent human* moral labels? Scored 280 Moral Foundations Reddit
+  Corpus comments (human-annotated) on DEME's dims via the NRP LLM panel. **All four
+  pre-registered alignments hold and are the argmax**: care↔Care ρ=0.49, fairness↔Equality
+  ρ=0.47, legitimacy↔Authority ρ=0.48, fidelity↔Loyalty ρ=0.47 (all p<1e-16, n=280); Purity
+  (no DEME analog) is the quiet negative control. This is the strongest single answer to the
+  "are the dimensions real / validate the core" critique — against human ground truth, not
+  model-mediated self-reference. `deme_mfrc_scores.jsonl` is derived (scores + human label
+  fractions, no raw comment text; source HF: USC-MOLA-Lab/MFRC). Notebook verified to run.
+
 ## Companion notebook
 - `keystone_aita_demo.ipynb` — reproduces the four thesis claims on 240 AITA dilemmas from the
   precomputed DEME evaluations in `aita_deme_results.jsonl`. Self-contained: needs only
