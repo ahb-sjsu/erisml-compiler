@@ -381,6 +381,28 @@ emits IR + RLEF record + V3 tensor + DEME verdict + audit hash +
 Monitor trace + Delta report + HTML report + audit bundle + plain-text
 summary in `out/reproduce_nazi_attic/`. Idempotent; safe in CI.
 
+## Research & papers
+
+This compiler and the DEME engine (`erisml-lib`) are the worked instance of **Philosophy
+Engineering** — the practice of building executable, falsifiable, and auditable implementations
+of normative frameworks: declared modeling assumptions, stated invariances, *tested*
+predictions, and versioned revision.
+
+- **Keystone paper** (draft; targets AIES 2027) — *ErisML and DEME: A Structure-Preserving,
+  Framework-Pluralist Pipeline for Auditable Machine Ethics*: [`paper/keystone/`](paper/keystone/).
+  Ships reproducible companion notebooks (AITA governance demo; MFRC external validation).
+- **External validation** — DEME's moral dimensions track *independent human* moral-foundation
+  labels (Moral Foundations Reddit Corpus): each pre-registered dimension aligns with, and is
+  most correlated with, its intended foundation (care↔Care, fairness↔Equality,
+  legitimacy↔Authority, fidelity↔Loyalty; ρ≈0.43–0.53), replicated across two model families,
+  with distinct instruments agreeing on a shared core (ρ=0.88). See
+  [`paper/keystone/mfrc_validation.ipynb`](paper/keystone/mfrc_validation.ipynb).
+- **Workshop (proposed)** — an AIES 2027 workshop on Philosophy Engineering:
+  [`paper/aies_workshop/`](paper/aies_workshop/).
+- **Related peer-reviewed work** — manipulation detection in LLM moral judgment (IEEE
+  BigDataService 2026, accepted); per-stakeholder content moderation with DEME (IEEE TCSS,
+  under review).
+
 ## Citing
 
 If you use this work academically, please cite via the Zenodo DOI. The
