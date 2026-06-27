@@ -1,7 +1,9 @@
-# Architecture (v0.8.0)
+# Architecture (v0.9.0)
 
 This document describes the runtime architecture of the ErisML
-Compiler as of `main` at v0.8.0. For the original 31-section design
+Compiler as of `main` at v0.9.0 (the framework-pluralist DAG-native
+architecture introduced in v0.8.0, with the v0.9.0 production Kantian +
+virtue analysers on top). For the original 31-section design
 spec see `ErisML-Compiler.md`. For per-component delivery status see
 `SCOPE.md`. For the I-EIP Monitor threat model see
 `docs/i_eip_monitor.md`. For the architectural argument behind the
@@ -21,53 +23,21 @@ populated so existing consumers continue to work.
 
 ## The two-layer split
 
-```
-                  ┌────────────────────────────────────────┐
-                  │       MoralSubstrate (DAG)             │
-                  │                                        │
-                  │   Nodes: stakeholder · act · maxim ·   │
-                  │          commitment · fact · norm      │
-                  │                                        │
-                  │   Edges: performs · imposes_on ·       │
-                  │          consents_to · holds_commitment│
-                  │          commitment_binds · treats_as ·│
-                  │          under_maxim · coerces ·       │
-                  │          surfaces_fact · fact_subject ·│
-                  │          would_violate_if_universalised│
-                  │                                        │
-                  │   Canonical SHA-256 → audit.graph_hash │
-                  └────────────────────────────────────────┘
-                                    │
-                          (typed graph queries)
-                                    │
-        ┌───────────────────────────┼───────────────────────────────┐
-        ▼                           ▼                               ▼
-┌──────────────────┐  ┌──────────────────────┐   ┌──────────────────────────┐
-│ Consequentialist │  │ Deontic (Kantian)    │   │ Virtue / CareEthics      │
-│ Projection       │  │ Projection           │   │ Projections              │
-│                  │  │                      │   │                          │
-│ rank-N tensor +  │  │ GateFinding[]:       │   │ GateFinding[]:           │
-│ DEME verdict +   │  │   universalizability │   │   character / habit /    │
-│ Gini / Shapley   │  │   mere_means         │   │   power_asymmetry  …     │
-│                  │  │   valid_consent      │   │   relational_attent. /   │
-│ verdict:         │  │   legitimate_authority   asymmetric_resp. …       │
-│  permitted /     │  │                      │   │                          │
-│  tragic_*        │  │ verdict:             │   │ verdicts:                │
-│                  │  │  permissible /       │   │  virtuous / caring /     │
-│ polarity:        │  │  forbidden /         │   │  requires_practical_wisdom│
-│  permit/escalate │  │  requires_review     │   │                          │
-└──────────────────┘  └──────────────────────┘   └──────────────────────────┘
-        │                           │                               │
-        └───────────────────────────┴───────────────────────────────┘
-                                    ▼
-        ┌────────────────────────────────────────────────────────┐
-        │  Cross-projection polarity comparison                  │
-        │  ──────────────────────────────────────                │
-        │  If {permit, forbid, escalate} > 1 polarity distinct,  │
-        │  populate ir.cross_projection_disagreement.            │
-        │  Compiler refuses to aggregate. Choice deferred to     │
-        │  caller; documented as metaethical move.               │
-        └────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph SUB["MoralSubstrate — typed MoralGraph (DAG)"]
+      direction TB
+      NODES["<b>Nodes:</b> stakeholder · act · maxim ·<br/>commitment · fact · norm"]
+      EDGES["<b>Edges:</b> performs · imposes_on · consents_to ·<br/>holds_commitment · commitment_binds · treats_as ·<br/>under_maxim · coerces · surfaces_fact · fact_subject ·<br/>would_violate_if_universalised"]
+      HASH["Canonical SHA-256 → audit.graph_hash"]
+    end
+    SUB -- "typed graph queries" --> CONS["<b>Consequentialist</b><br/>rank-N tensor + DEME verdict + Gini/Shapley<br/><i>polarity: permit / escalate</i>"]
+    SUB --> DEON["<b>Deontic (Kantian)</b><br/>GateFinding[]: universalizability · mere_means ·<br/>valid_consent · legitimate_authority<br/><i>polarity: permit / forbid / escalate</i>"]
+    SUB --> VC["<b>Virtue / CareEthics</b><br/>GateFinding[]: character · habit · power_asymmetry ·<br/>relational_attentiveness · asymmetric_responsibility<br/><i>polarity: permit / forbid / escalate</i>"]
+    CONS --> CMP{"Cross-projection<br/>polarity comparison"}
+    DEON --> CMP
+    VC --> CMP
+    CMP -- ">1 distinct polarity" --> DIS["populate ir.cross_projection_disagreement<br/>— compiler refuses to aggregate;<br/>choice deferred to caller (a metaethical move)"]
 ```
 
 The substrate is descriptive (who did what to whom, with what
@@ -193,20 +163,25 @@ The compiler does **not** populate a winner. Choosing across
 projections is the caller's responsibility and is itself a
 metaethical move.
 
-## The 13-pass pipeline
+## The 12-pass pipeline
+
+Implemented in `pipeline/orchestrator.py:compile_document()` (invoked by
+`cli.py:cmd_compile`); the same flow is rendered as a Mermaid diagram in the
+README.
 
 | Pass | Stage | Implementation |
 |---|---|---|
 | 0 | Ingestion | `ingestion/text_loader.py` (Tier 2/3) or `structured_loader.py` (Tier 1) |
 | 1 | Segmentation | `segmentation/segmenter.py` |
-| 2–6 | Extraction (entity, stakeholder, event, norm, ethical fact) | `annotation/{mock,rule,llm,probe}_extractor.py` |
-| 7 | Canonical-form resolution | `canonicalizer/` (Jaccard registry → LaBSE cosine snap) + `annotation/critic.py` |
-| **7.5** | **Graph identity (NEW v0.8.0)** | `ir/graph/promote.py` — promote flat extractor output to `MoralGraph`, compute `graph_hash`. Skipped when extractor provided `result.graph`. |
-| **8** | **Projection pass (CHANGED v0.8.0)** | `projections/` — run every enabled framework projection over the substrate; back-fill legacy `ir.moral_tensor_v3`/`ir.deme_verdict`/etc. from `projections["consequentialist_distributive"]` for backward compat |
-| 9 | ErisML IR | `erisml_backend/codegen.py` |
-| 10 | DEME evaluation | (no-op pass record — already done inside the consequentialist projection) |
-| 11 | Contraction & residue | Embedded in `DEMEVerdict` |
-| 12 | Audit artifact | `audit/hash_chain.py` (now includes `graph_hash`, `ethos_profile`, `ethos_profile_sha256`) |
+| 2–7 | Extraction (entity, stakeholder, event, norm, ethical fact) | `annotation/{mock,rule,llm,probe}_extractor.py` + `annotation/critic.py` |
+| 7 | Canonical-form resolution | `canonicalizer/` (Jaccard registry → LaBSE cosine snap) |
+| **7.5** | Graph identity | `ir/graph/promote.py:graph_from_flat()` — promote flat extractor output to `MoralGraph`, compute `graph_hash`. Skipped when the extractor provided `result.graph`. |
+| 8 | EM-DAG evaluation | `em_dag/dag.py:EMDAG.evaluate()` — 10 ethical modules, topological order |
+| **8.5** | Projection pass | `projections/` — run every enabled framework projection over the substrate; back-fill legacy `ir.moral_tensor_v3` / `ir.deme_verdict` / etc. from `projections["consequentialist_distributive"]` for backward compat |
+| 9 | Tensorization | `evaluation/tensor_builder_v3.py:build_moral_tensor_v3()` → `MoralTensorV3` (rank 1–6) |
+| 10 | DEME verdict | `erisml_backend/deme_bridge.py:DEMEBridge.evaluate()` → `DEMEVerdict` |
+| 11 | Spectral analysis | `evaluation/spectral.py` — principal stress / conflict / effective moral rank |
+| 12 | Audit + export | `audit/hash_chain.py:finalize_audit()` (incl. `graph_hash`, `ethos_profile`) + `export/json_export.py` |
 
 ## Audit chain extensions
 
@@ -232,15 +207,23 @@ case yield bit-identical audit records.
 
 `src/erisml_compiler/em_dag/`
 
-10 ethical modules feed the consequentialist projection's tensor:
+10 ethical modules feed the consequentialist projection's tensor.
+Roots have no dependencies; edges point from a module to the module
+that depends on it (topological evaluation order):
 
-```
-Roots         : harm, rights, fairness, legitimacy, epistemic
-Second tier   : autonomy (← legitimacy)
-                fidelity (← legitimacy)
-                externality (← harm)
-                care (← harm)
-Composition   : repair (← harm, externality, fidelity)
+```mermaid
+flowchart LR
+    H[harm]:::root --> EX[externality]
+    H --> CARE[care]
+    H --> REP[repair]
+    L[legitimacy]:::root --> AU[autonomy]
+    L --> FI[fidelity]
+    EX --> REP
+    FI --> REP
+    R[rights]:::root
+    FA[fairness]:::root
+    EP[epistemic]:::root
+    classDef root fill:#e8f0ff,stroke:#3060c0,stroke-width:2px;
 ```
 
 A different deployment can swap in a different DAG by writing a new
