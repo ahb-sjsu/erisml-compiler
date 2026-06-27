@@ -21,6 +21,19 @@ score. When the lenses agree the Monitor stays silent. When they
 disagree, it surfaces the disagreement structure rather than picking a
 winner.
 
+```mermaid
+flowchart LR
+    OUT["Model output text"] --> TEXT["Text lens<br/>CompilerIR + MoralVector + DEME verdict"]
+    HID["Hidden states<br/>chosen transformer layers"] --> ACT["Activation lens<br/>per-layer MoralVectors (MonitorTrace)"]
+    TEXT --> DELTA["Delta lens<br/>structured disagreement + equivariance"]
+    ACT --> DELTA
+    DELTA --> AGREE{"Lenses agree?"}
+    AGREE -- yes --> SILENT["Monitor stays silent"]
+    AGREE -- no --> FM["FailureModeReport<br/>text_internal_mismatch · layerwise_drift ·<br/>group_symmetry_break · probe_uncertainty_spike ·<br/>audit_chain_break · rho_non_orthogonal"]
+    FM --> HR["requires_human_review = True"]
+    HR -. "never overrules" .-> DEME["DEME verdict"]
+```
+
 ## Threat model
 
 The Monitor's authority depends on three pieces of trust, and each is

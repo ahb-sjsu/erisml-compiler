@@ -5,7 +5,7 @@
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 [![Pydantic v2](https://img.shields.io/badge/pydantic-v2-green.svg)](https://docs.pydantic.dev/)
 [![Schema](https://img.shields.io/badge/IR%20schema-erisml__compiler__ir__v0.3-orange.svg)](SCOPE.md)
-[![Tests](https://img.shields.io/badge/tests-440%2B%20passing-brightgreen.svg)](#status)
+[![Tests](https://img.shields.io/badge/tests-462%2B%20passing-brightgreen.svg)](#status)
 [![SMT](https://img.shields.io/badge/universalizability-Z3%20SMT-purple)](docs/architecture.md)
 [![SRL](https://img.shields.io/badge/maxim%20extraction-spaCy%20SRL-darkblue)](docs/architecture.md)
 [![Projections](https://img.shields.io/badge/projections-4%20(conseq%20%2B%20deontic%20%2B%20virtue%20%2B%20care)-blueviolet)](docs/plans/release-planning-06-framework-pluralist-architecture.md)
@@ -37,6 +37,24 @@ typed queries:
 - **CareEthicsProjection** — Gilligan / Noddings / Tronto relational
   primitives (attentiveness, asymmetric responsibility, dependency
   response).
+
+The substrate every projection reads is a typed `MoralGraph` —
+6 node kinds and 11 edge kinds, carrying a canonical SHA-256 hash:
+
+```mermaid
+flowchart LR
+    S(["stakeholder"]) -- performs --> A(["act"])
+    A -- "imposes_on {severity}" --> S2(["stakeholder"])
+    S -- "consents_to {duress?}" --> A
+    A -- "treats_as {end | means | mere_means}" --> S2
+    A -- under_maxim --> M(["maxim"])
+    A -- would_violate_if_universalised --> N(["norm"])
+    A -- surfaces_fact --> F(["fact"])
+    F -- fact_subject --> S2
+    S -- coerces --> S2
+    S -- holds_commitment --> C(["commitment"])
+    C -- commitment_binds --> S2
+```
 
 When projections disagree by normalised verdict polarity, the
 compiler **does not aggregate** — it surfaces all verdicts via
@@ -116,7 +134,7 @@ eris-compile delta out/nazi_attic.ir.json out/nazi_attic.trace.json \
 # Emit synthesizable Vitis HLS C++ for the silicon target
 eris-compile silicon-emit --out-dir out/silicon
 
-# Run the full test suite (~330 tests across V3 alignment, projections,
+# Run the full test suite (462 tests across V3 alignment, projections,
 # MoralGraph, ρ-estimation, social_chem, bench, virtue/care, etc.)
 pytest
 
@@ -132,23 +150,52 @@ jupyter notebook notebooks/quickstart.ipynb
 
 The compiler implements the 12-pass pipeline from spec §12 with a tiered
 extractor stack, a silicon-castable evaluation kernel, and the I-EIP Monitor
-on top.
+on top. Text is compiled into a typed `MoralGraph`; a framework-pluralist
+projection layer then reads that graph, and disagreement is surfaced rather
+than averaged away:
 
+```mermaid
+flowchart TD
+    IN["Natural-language moral text"] --> ING["Ingestion<br/>text / structured loader"]
+    ING --> SEG["Segmentation<br/>morally-coherent segments"]
+    SEG --> EXT["Extraction (tiered)<br/>Mock · Rule · LLM · Probe + Critic"]
+    EXT --> CAN["Canonicalization<br/>Registry (Jaccard) / LaBSE cosine"]
+    CAN --> G["MoralGraph<br/>typed nodes + edges · SHA-256"]
+    G --> EM["EM-DAG<br/>10 ethical modules (topological)"]
+    EM --> PROJ["Framework projections"]
+    subgraph PL["Framework-pluralist projection layer"]
+      direction LR
+      PROJ --> CONS["Consequentialist<br/>tensor · Gini · DEME"]
+      PROJ --> DEON["Deontic / Kantian<br/>4 Z3 gates"]
+      PROJ --> VIRT["Virtue<br/>character / habit"]
+      PROJ --> CARE["Care Ethics<br/>relational"]
+    end
+    CONS --> TEN["Tensorization<br/>MoralTensorV3 · rank 1–6"]
+    TEN --> DV["DEME verdict<br/>permit / escalate / forbid"]
+    CONS --> DIS{"Verdict polarities<br/>disagree?"}
+    DEON --> DIS
+    VIRT --> DIS
+    CARE --> DIS
+    DIS -- yes --> SURF["Surface all verdicts<br/>cross_projection_disagreement<br/>(no silent aggregation)"]
+    DV --> SPEC["Spectral analysis<br/>stress · conflict · effective rank"]
+    DIS -- no --> SPEC
+    SURF --> SPEC
+    SPEC --> AUD["Audit + export<br/>ir_hash · graph_hash · JSON"]
 ```
-text  ──► ingest ──► segment ──► extract ──► canonicalize ──► tensorize
-                          │            │
-                          │            └── Mock | Rule | LLM (NRP / local vLLM)
-                          │                + Critic + ProbeExtractor
-                          │
-                          └──► EM-DAG (10 modules) ──► FSMs ──► DEME ──► audit
-                                                    │
-                                                    └──► silicon emit (Vitis HLS)
 
-                          (out-of-band, sampled audit)
-                          model ──► hooks ──► IEIPMonitor ──► Delta lens
-                                                                │
-                                                                └─► requires_human_review
-                                                                    + failure-mode report
+The I-EIP Monitor runs **out-of-band** on sampled audits — it compares what a
+model *says* against what it *internally exhibits*, and can only ever raise
+`requires_human_review`; it never overrules DEME:
+
+```mermaid
+flowchart LR
+    IR["Compiled IR<br/>(text lens — what it says)"] --> DELTA
+    MODEL["Model under audit"] --> HOOKS["Forward hooks<br/>(sampled)"]
+    HOOKS --> ACT["Activation lens<br/>what it internally exhibits"]
+    ACT --> DELTA["Delta lens<br/>structured by moral dimension"]
+    DELTA --> FM["5 named failure modes"]
+    FM --> HR["requires_human_review"]
+    HR -. "never overrules" .-> DV["DEME verdict"]
 ```
 
 Three extractor tiers cover the latency / faithfulness frontier:
@@ -230,13 +277,17 @@ erisml-compiler/
     nazi_attic.txt
     medical_confidentiality.txt
     whistleblower.txt
-  tests/                      # 142 tests
+  tests/                      # 462 tests across 41 files
   notebooks/quickstart.ipynb
   docs/
-    architecture.md
-    silicon_target.md
-    nrp_coder_deployment.md
-    i_eip_monitor.md          # I-EIP Monitor threat model & trust boundaries
+    architecture.md           # runtime architecture (12-pass pipeline, Mermaid)
+    i_eip_monitor.md          # I-EIP Monitor threat model & trust boundaries (Mermaid)
+    silicon_target.md         # Vitis HLS C++ emission for the U55C target
+    nrp_coder_deployment.md   # NRP Coder workspace + bitstream build
+    migration/                # DEME V3 alignment (six-phase)
+    eval/                     # ground-truth evaluation methodology
+    plans/                    # release-planning 02–07 (design arguments)
+    articles/                 # public write-ups
   scripts/atlas/
     probe_models.py           # Recon: enumerate HF + GGUF models on Atlas
 ```
@@ -289,7 +340,7 @@ the silicon and Monitor paths migrate.
 **v0.9.0 — alpha. Production-grade Kantian + virtue analysers on top
 of the v0.8.0 framework-pluralist DAG-native architecture: spaCy SRL
 maxim extraction, Z3-based universalizability solver, SQLite habit
-store, temporally-weighted virtue assessment. ~440 tests passing**
+store, temporally-weighted virtue assessment. 462 tests passing**
 across IR (V2 + V3), EM-DAG (now graph-native), FSMs, canonicalizer,
 critic, correction, calibration, export (RLEF v0.2), silicon emit,
 activation lens, delta lens, equivariance, ρ-estimation, failure-mode
