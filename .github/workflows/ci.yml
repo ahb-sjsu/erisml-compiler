@@ -30,6 +30,11 @@ jobs:
         run: ruff check src tests
       - name: Black check
         run: black --check src tests
+      - name: Type check (ty — advisory)
+        continue-on-error: true  # ty is preview (0.0.x); advisory until src is ty-clean
+        run: |
+          pip install ty==0.0.55
+          ty check src
 
   # -----------------------------------------------------------------
   # Core Python tests — fast, no heavy ML deps
