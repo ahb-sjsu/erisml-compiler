@@ -216,10 +216,11 @@ def nonconsenting_third_party_ids(ir: CompilerIR) -> set[str]:
     without consent', which is the actual semantic relationship.
     """
     sids: set[str] = set()
-    if getattr(ir, "graph", None) is not None:
+    graph = ir.graph
+    if graph is not None:
         from erisml_compiler.ir.graph import EdgeKind, NodeKind
 
-        for n in ir.graph.nodes_of_kind(NodeKind.STAKEHOLDER):
+        for n in graph.nodes_of_kind(NodeKind.STAKEHOLDER):
             labels = [lbl.lower() for lbl in (n.labels or [])]
             if "nonconsenting_third_party" in labels:
                 sids.add(
@@ -227,8 +228,8 @@ def nonconsenting_third_party_ids(ir: CompilerIR) -> set[str]:
                     or n.id.removeprefix("stakeholder:")
                 )
         # Augment with IMPOSES_ON-without-CONSENTS_TO targets.
-        for e in ir.graph.edges_of_kind(EdgeKind.IMPOSES_ON):
-            has_consent = ir.graph.has_edge(e.dst, e.src, kind=EdgeKind.CONSENTS_TO)
+        for e in graph.edges_of_kind(EdgeKind.IMPOSES_ON):
+            has_consent = graph.has_edge(e.dst, e.src, kind=EdgeKind.CONSENTS_TO)
             if not has_consent:
                 sids.add(e.dst.removeprefix("stakeholder:"))
         return sids

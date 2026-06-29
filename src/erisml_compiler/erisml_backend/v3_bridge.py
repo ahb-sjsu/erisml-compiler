@@ -180,19 +180,21 @@ def ir_to_v2_facts(ir: CompilerIR) -> "V2EthicalFacts":
     )
 
     # Forward the maxim (incl. polarity) so erisml-lib's deontic gate can run.
-    # Guarded: older erisml-lib builds lack EthicalFacts.maxim / Maxim.
+    # Guarded: only erisml-lib builds that ship `Maxim` resolve this import;
+    # its absence (and any attr mismatch) is handled by the try/except below.
     try:
-        from erisml.ethics.facts import Maxim as V2Maxim  # noqa: PLC0415
+        from erisml.ethics.facts import Maxim  # noqa: PLC0415  # ty: ignore[unresolved-import]
 
         from erisml_compiler.projections.substrate import _derive_maxim  # noqa: PLC0415
 
         derived = _derive_maxim(ir)
         if derived is not None and hasattr(facts, "maxim"):
-            facts.maxim = V2Maxim(
+            maxim_obj = Maxim(
                 action_kind=derived.action_kind,
                 polarity=getattr(derived, "polarity", "affirmed"),
                 description=getattr(derived, "description", "") or "",
             )
+            facts.maxim = maxim_obj  # ty: ignore[invalid-assignment]  # Maxim is Unknown
     except Exception as exc:  # pragma: no cover - defensive, lib optional
         log.debug("V3 bridge: maxim forwarding skipped (%s)", exc)
 

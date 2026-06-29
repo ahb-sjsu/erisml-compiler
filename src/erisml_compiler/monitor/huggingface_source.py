@@ -141,13 +141,14 @@ class HuggingFaceActivationSource(ActivationSource):
             self._selected = list(layers)
 
         # Hidden dim — fields differ slightly across architectures.
-        self.hidden_dim = (
+        hidden_dim = (
             getattr(cfg, "hidden_size", None)
             or getattr(cfg, "n_embd", None)
             or getattr(cfg, "d_model", None)
         )
-        if self.hidden_dim is None:
+        if hidden_dim is None:
             raise ValueError(f"Could not infer hidden_dim for {model_id}")
+        self.hidden_dim = int(hidden_dim)
 
         self._captured: dict[int, "torch.Tensor"] = {}
         self._hook_handles: list = []
@@ -183,6 +184,7 @@ class HuggingFaceActivationSource(ActivationSource):
         target_layers = list(layers) if layers is not None else self._selected
         self._captured.clear()
 
+        assert self._tokenizer is not None  # set in __init__; only cleared by close()
         enc = self._tokenizer(
             text,
             return_tensors="pt",

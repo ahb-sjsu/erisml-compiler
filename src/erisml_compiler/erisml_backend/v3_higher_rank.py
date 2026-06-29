@@ -188,7 +188,12 @@ def build_moral_tensor_v3_rank3plus(
     coalition_is_real = has_coalition and config.coalition_mode != "grand_only"
 
     for tau_idx, tau_val in enumerate(time_indices) if has_tau else [(0, None)]:
-        snapshot = _snapshot_at_time(ir, tau_val) if has_tau else ir
+        if has_tau:
+            # has_tau => iterated enumerate(time_indices), so tau_val is an int.
+            assert tau_val is not None
+            snapshot = _snapshot_at_time(ir, tau_val)
+        else:
+            snapshot = ir
 
         for s_idx in range(config.n_samples) if has_s else [0]:
             perturbed = _perturb_for_sample(snapshot, s_idx, config) if has_s else snapshot

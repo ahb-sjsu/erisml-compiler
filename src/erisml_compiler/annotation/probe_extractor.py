@@ -60,7 +60,7 @@ DEFAULT_FACT_KIND_CLASSES: tuple[EthicalFactKind, ...] = (
 
 @dataclass
 class ProbeExtractorConfig:
-    role_classes: tuple[str, ...] = DEFAULT_ROLE_CLASSES
+    role_classes: tuple[StakeholderRole, ...] = DEFAULT_ROLE_CLASSES
     fact_kind_classes: tuple[EthicalFactKind, ...] = DEFAULT_FACT_KIND_CLASSES
     role_checkpoint: str | None = None
     fact_kind_checkpoint: str | None = None
@@ -100,7 +100,7 @@ class ProbeExtractor(Extractor):
                 device=self.config.device,
             )
 
-    def _predict_role(self, text: str) -> tuple[str, float]:
+    def _predict_role(self, text: str) -> tuple[StakeholderRole, float]:
         if self._role_backbone is None:
             return ("agent", 0.1)
         import torch

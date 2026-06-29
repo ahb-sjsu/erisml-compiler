@@ -13,11 +13,21 @@ into a Vitis HLS project on NRP Coder.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
+from pathlib import Path
 from textwrap import dedent
+from typing import TypeVar
 
 from erisml_compiler.fsm.commitment_fsm import _TRANSITIONS as COMMITMENT_TRANSITIONS
 from erisml_compiler.fsm.consent_fsm import _TRANSITIONS as CONSENT_TRANSITIONS
 from erisml_compiler.fsm.legitimacy_fsm import _TRANSITIONS as LEGITIMACY_TRANSITIONS
+
+# FSM transition tables are keyed by per-FSM Literal state/event types
+# (e.g. dict[ConsentState, dict[ConsentEvent, ConsentState]]). These
+# TypeVars let the emitters accept any such table without dict's
+# invariance rejecting the Literal keys.
+_State = TypeVar("_State", bound=str)
+_Event = TypeVar("_Event", bound=str)
 
 # ============================================================================
 # FSM emission
@@ -41,7 +51,7 @@ def _event_enum(events: list[str], prefix: str) -> str:
 
 
 def _transition_switch(
-    transitions: dict[str, dict[str, str]],
+    transitions: Mapping[_State, Mapping[_Event, _State]],
     states: list[str],
     events: list[str],
     prefix: str,
@@ -74,7 +84,7 @@ def _transition_switch(
 
 def _emit_one_fsm(
     name: str,
-    transitions: dict[str, dict[str, str]],
+    transitions: Mapping[_State, Mapping[_Event, _State]],
     all_states: list[str],
     all_events: list[str],
     terminal_states: list[str] | None = None,
@@ -197,7 +207,7 @@ def emit_fsm_cpp() -> str:
 
 
 def emit_em_dag_pipeline(
-    profile_path: str | None = None,
+    profile_path: str | Path | None = None,
     fixed_point_total_bits: int = 16,
     fixed_point_int_bits: int = 4,
 ) -> str:
@@ -213,7 +223,6 @@ def emit_em_dag_pipeline(
     per-module fixed-point arithmetic.
     """
     from erisml_compiler.em_dag import load_profile
-    from pathlib import Path
 
     if profile_path is None:
         profile_path = (

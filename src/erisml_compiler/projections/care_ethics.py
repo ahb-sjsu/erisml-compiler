@@ -191,7 +191,7 @@ class CareEthicsProjection(Projection):
         care_kinds = {"care", "non_maleficence"}
         has_care_act = any(
             (
-                getattr(f, "kind", None).value
+                getattr(getattr(f, "kind", None), "value")
                 if hasattr(getattr(f, "kind", None), "value")
                 else str(getattr(f, "kind", ""))
             ).lower()
