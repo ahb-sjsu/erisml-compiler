@@ -107,7 +107,7 @@ def score_ethical_fact_kind_recall(expected_kinds: list[str], ir: CompilerIR) ->
         (
             (getattr(f, "kind", None) or getattr(f, "type", "") or "").lower()
             if not hasattr(getattr(f, "kind", None), "value")
-            else f.kind.value.lower()
+            else getattr(f.kind, "value").lower()
         )
         for f in ir.ethical_facts
     }

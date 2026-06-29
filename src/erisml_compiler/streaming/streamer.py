@@ -107,14 +107,14 @@ class MoralStreamer:
 
         # 6) Verdict.
         if self.ir.deme_verdict:
-            v = self.ir.deme_verdict
+            verdict = self.ir.deme_verdict
             yield StreamEvent(
                 kind="verdict",
-                label=f"DEME verdict: {v.verdict}",
+                label=f"DEME verdict: {verdict.verdict}",
                 detail={
-                    "confidence": v.confidence,
-                    "rationale": v.rationale,
-                    "escalation_required": v.escalation_required,
-                    "moral_residue": v.moral_residue,
+                    "confidence": verdict.confidence,
+                    "rationale": verdict.rationale,
+                    "escalation_required": verdict.escalation_required,
+                    "moral_residue": verdict.moral_residue,
                 },
             )

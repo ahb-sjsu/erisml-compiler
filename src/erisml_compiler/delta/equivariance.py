@@ -213,9 +213,15 @@ def check_equivariance(
             if rho_map is not None and rw.name in rho_map and la.layer_index in rho_map[rw.name]:
                 import numpy as np
 
-                from erisml_compiler.delta.rho_estimation import equivariance_residual
+                from erisml_compiler.delta.rho_estimation import (
+                    RhoEstimate,
+                    equivariance_residual,
+                )
 
                 est = rho_map[rw.name][la.layer_index]
+                # rho_map values are RhoEstimate per the public contract
+                # (declared `object` only to avoid an import cycle).
+                assert isinstance(est, RhoEstimate)
                 base_arr = np.asarray(base_pooled.float().cpu().numpy()).flatten()
                 new_arr = np.asarray(la.pooled.float().cpu().numpy()).flatten()
                 rho_residual = equivariance_residual(est, base_arr, new_arr)

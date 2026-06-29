@@ -34,7 +34,12 @@ from erisml_compiler.history.habit_store import (
     HabitStore,
     record_from_compile,
 )
-from erisml_compiler.projections.base import GateFinding, Projection, ProjectionResult
+from erisml_compiler.projections.base import (
+    GateFinding,
+    Projection,
+    ProjectionResult,
+    VerdictPolarity,
+)
 from erisml_compiler.projections.substrate import MoralSubstrate
 from erisml_compiler.projections.virtue import VirtueProjection
 
@@ -201,7 +206,9 @@ class LongitudinalVirtueProjection(Projection):
 
     # ------------------------------------------------------ combiner
 
-    def _combine_verdicts(self, single_verdict: str, assessment) -> tuple[str, str | None]:
+    def _combine_verdicts(
+        self, single_verdict: str, assessment
+    ) -> tuple[str, VerdictPolarity | None]:
         """Combine the single-case and longitudinal readings.
 
         Virtue ethics judges character. Character IS the longitudinal

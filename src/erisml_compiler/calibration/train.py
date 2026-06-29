@@ -105,6 +105,7 @@ def train_probe(
 
     params = list(backbone.head.parameters())
     if config.use_vib:
+        assert backbone.vib is not None  # use_vib=True => vib set in ProbeBackbone.__init__
         params += list(backbone.vib.parameters())
     params += list(adv_lang.parameters())
     params += list(adv_period.parameters())

@@ -133,6 +133,7 @@ class ProbeBackbone(nn.Module):
         mu and log_var are None and post_vib_z equals the input.
         """
         if self.use_vib:
+            assert self.vib is not None  # use_vib=True => vib set in __init__
             z, mu, log_var = self.vib(embeddings)
         else:
             z, mu, log_var = embeddings, None, None
@@ -143,6 +144,7 @@ class ProbeBackbone(nn.Module):
         """Save only the trainable parts (head + VIB), not the frozen backbone."""
         sd = {"head": self.head.state_dict()}
         if self.use_vib:
+            assert self.vib is not None  # use_vib=True => vib set in __init__
             sd["vib"] = self.vib.state_dict()
         sd["config"] = {
             "num_classes": self.head.num_classes,
@@ -154,4 +156,5 @@ class ProbeBackbone(nn.Module):
     def load_state_dict_from_checkpoint(self, sd: dict) -> None:
         self.head.load_state_dict(sd["head"])
         if self.use_vib and "vib" in sd:
+            assert self.vib is not None  # use_vib=True => vib set in __init__
             self.vib.load_state_dict(sd["vib"])

@@ -21,7 +21,10 @@ from __future__ import annotations
 import hashlib
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from erisml_compiler.annotation.llm_extractor import ModelAdapter
 
 import yaml
 
@@ -141,7 +144,7 @@ class CompileOptions:
     time. Audit record carries the profile name + YAML sha256. Defaults
     to None — no ethos, all modules at equal weight."""
     canonicalizer: Canonicalizer | None = None  # default: auto-select
-    llm_adapter: object | None = None  # for tier="llm" or critic="llm"
+    llm_adapter: "ModelAdapter | None" = None  # for tier="llm" or critic="llm"
     probe_config: object | None = None  # ProbeExtractorConfig for tier="probe"
     fail_unknown_mock: bool = True
     tensor_rank: int = 2  # DEME V3 rank for ir.moral_tensor_v3 (1-6)
@@ -212,7 +215,7 @@ def _resolve_ethos_profile(
 
 
 def _resolve_extractor(
-    name: str, llm_adapter: object | None = None, probe_config=None
+    name: str, llm_adapter: "ModelAdapter | None" = None, probe_config=None
 ) -> Extractor:
     if name == "mock":
         return MockExtractor()

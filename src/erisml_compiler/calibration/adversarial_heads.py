@@ -13,10 +13,18 @@ to the encoder.
 
 from __future__ import annotations
 
+from typing import TypedDict
+
 import torch
 import torch.nn as nn
 
 from erisml_compiler.calibration.losses import grad_reverse
+
+
+class _HeadConfig(TypedDict):
+    hidden_dim: int
+    n_layers: int
+    dropout: float
 
 
 class AdversarialHead(nn.Module):
@@ -59,7 +67,7 @@ class MultiHeadAdversarial(nn.Module):
     ):
         super().__init__()
         # Vary architectures across heads.
-        configs = [
+        configs: list[_HeadConfig] = [
             {"hidden_dim": 256, "n_layers": 2, "dropout": 0.3},
             {"hidden_dim": 512, "n_layers": 3, "dropout": 0.2},
             {"hidden_dim": 128, "n_layers": 2, "dropout": 0.4},

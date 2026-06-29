@@ -33,7 +33,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
-from typing import Any
+from typing import Any, Literal, cast
 
 from erisml_compiler.ir.schemas import CompilerIR
 from erisml_compiler.ir.v3 import MoralTensorV3
@@ -68,7 +68,9 @@ def _build_coalition_context(ir: CompilerIR, mode: str = "grand_only"):
     if mode not in VALID_COALITION_MODES:
         log.warning("Unknown coalition_mode=%r; defaulting to grand_only", mode)
         mode = "grand_only"
-    return CoalitionContext(agent_ids=agent_ids, coalition_mode=mode)
+    # mode is now guaranteed to be one of VALID_COALITION_MODES.
+    coalition_mode = cast(Literal["all_subsets", "grand_only", "singletons_only", "pairwise"], mode)
+    return CoalitionContext(agent_ids=agent_ids, coalition_mode=coalition_mode)
 
 
 # ---------- strategic analysis -------------------------------------------

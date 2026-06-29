@@ -102,7 +102,9 @@ class GradientReversalFn(torch.autograd.Function):
         return x.view_as(x)
 
     @staticmethod
-    def backward(ctx, grad_output):
+    def backward(
+        ctx, grad_output
+    ):  # ty: ignore[invalid-method-override]  # torch autograd Function.backward uses (ctx, *grad_outputs); ty can't model the staticmethod override
         return -ctx.lam * grad_output, None
 
 
