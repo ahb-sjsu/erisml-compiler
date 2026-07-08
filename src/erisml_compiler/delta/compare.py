@@ -16,6 +16,7 @@ err on the side of escalation (`requires_human_review`).
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 
 from erisml_compiler.ir.schemas import MORAL_DIMENSIONS, MoralVector
@@ -82,6 +83,7 @@ def compare_morals(
     activation_mv: MoralVector,
     *,
     weights: dict[str, float] | None = None,
+    dimensions: Sequence[str] | None = None,
     divergence_threshold: float = 0.35,
     direction_break_max: int = 2,
     high_uncertainty_threshold: float = 0.7,
@@ -94,6 +96,11 @@ def compare_morals(
         activation_mv: the MoralVector from the activation lens (Track A).
         weights: optional per-dimension weights for the divergence
             average. Unspecified dimensions default to 1.0.
+        dimensions: optional subset of MORAL_DIMENSIONS to score. When set,
+            divergence and direction_break_count consider ONLY these
+            dimensions (Phase-5 prereg C3: exclude uncalibrated dims so the
+            activation lens is never graded on channels it cannot read).
+            Defaults to all dimensions.
         divergence_threshold: if `divergence` exceeds this, raise
             flag_for_review. Default 0.35.
         direction_break_max: if more than this many dimensions disagree
@@ -105,13 +112,17 @@ def compare_morals(
             |value_delta| exceeds this, raise flag_for_review.
     """
     weights = weights or {}
+    scored = tuple(dimensions) if dimensions is not None else MORAL_DIMENSIONS
+    unknown = set(scored) - set(MORAL_DIMENSIONS)
+    if unknown:
+        raise ValueError(f"Unknown dimensions: {sorted(unknown)}")
     per_dim: list[DimensionDelta] = []
     weighted_sum = 0.0
     weight_total = 0.0
     direction_breaks = 0
     uncertain_dims: list[str] = []
 
-    for dim in MORAL_DIMENSIONS:
+    for dim in scored:
         t = getattr(text_mv, dim)
         a = getattr(activation_mv, dim)
 
@@ -174,5 +185,6 @@ def compare_morals(
             "direction_break_max": direction_break_max,
             "high_uncertainty_threshold": high_uncertainty_threshold,
             "uncertain_value_delta_max": uncertain_value_delta_max,
+            "scored_dimensions": list(scored),
         },
     )
