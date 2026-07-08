@@ -1,0 +1,286 @@
+{
+  "version": "phase5-blind-v1",
+  "note": "MECHANISM-BLIND set. D=contested / E=unanimous Scruples anecdotes (human vote-split labels, independent of the polar detector); B=Social Chem benign. Tested with the FROZEN prereg-phase5-confirm2-v1 rule. Caveat: B(Social Chem) vs D/E(AITA) differ in text distribution -> mild H1 style confound; the blind guarantee is on the D-vs-E contestedness distinction.",
+  "scenarios": [
+    {
+      "id": "KB01",
+      "class": "B",
+      "expect_flag": false,
+      "text": "posting CCTV to facebook showing the person and their dog who has been pooping in peoples gardens",
+      "source": "social-chem-101"
+    },
+    {
+      "id": "KB02",
+      "class": "B",
+      "expect_flag": false,
+      "text": "dropping a friendship I have with a recent close friend of mine",
+      "source": "social-chem-101"
+    },
+    {
+      "id": "KB03",
+      "class": "B",
+      "expect_flag": false,
+      "text": "accidentally giving a roommate's cookie to a different roommate",
+      "source": "social-chem-101"
+    },
+    {
+      "id": "KB04",
+      "class": "B",
+      "expect_flag": false,
+      "text": "not wanting to kiss my boyfriend in the morning if we haven't brushed our teeth",
+      "source": "social-chem-101"
+    },
+    {
+      "id": "KB05",
+      "class": "B",
+      "expect_flag": false,
+      "text": "leaving from work leaving only one guy to scramble to function",
+      "source": "social-chem-101"
+    },
+    {
+      "id": "KB06",
+      "class": "B",
+      "expect_flag": false,
+      "text": "putting a note on a guy's windshield? while's he's in the car. tailgaiting",
+      "source": "social-chem-101"
+    },
+    {
+      "id": "KB07",
+      "class": "B",
+      "expect_flag": false,
+      "text": "telling my wife I won't try to have kids until she starts trying to take care of herself",
+      "source": "social-chem-101"
+    },
+    {
+      "id": "KB08",
+      "class": "B",
+      "expect_flag": false,
+      "text": "getting mad when my friend blocked me cuz she didn't want me in her life",
+      "source": "social-chem-101"
+    },
+    {
+      "id": "KB09",
+      "class": "B",
+      "expect_flag": false,
+      "text": "being constantly angry at most of my classsmates for being loud and lazy",
+      "source": "social-chem-101"
+    },
+    {
+      "id": "KB10",
+      "class": "B",
+      "expect_flag": false,
+      "text": "not telling a female co-worker that her jeans zipper was wide open",
+      "source": "social-chem-101"
+    },
+    {
+      "id": "KB11",
+      "class": "B",
+      "expect_flag": false,
+      "text": "making my mom depressed after giving her an ultimatum of choosing me my step dad",
+      "source": "social-chem-101"
+    },
+    {
+      "id": "KB12",
+      "class": "B",
+      "expect_flag": false,
+      "text": "Dog Is Still Bone of Contention Years After Couple Breaks Up",
+      "source": "social-chem-101"
+    },
+    {
+      "id": "KB13",
+      "class": "B",
+      "expect_flag": false,
+      "text": "being upset I found these messages between my partner and their ex about talking next week on the phone? she said she misses him and he agreed to talk to her. he used to shit talk me to her. he hasn't told me about these messages",
+      "source": "social-chem-101"
+    },
+    {
+      "id": "KB14",
+      "class": "B",
+      "expect_flag": false,
+      "text": "being angry at my sister for paying way less than me for groceries and ignoring it whenever I confront her",
+      "source": "social-chem-101"
+    },
+    {
+      "id": "KB15",
+      "class": "B",
+      "expect_flag": false,
+      "text": "Frequent Traveler Can't Tune Out Other People's Music and Videos",
+      "source": "social-chem-101"
+    },
+    {
+      "id": "KB16",
+      "class": "B",
+      "expect_flag": false,
+      "text": "trying to hookup/start a thing with a friend, then stopping once she sent nudes because her body wasn't what I had expected",
+      "source": "social-chem-101"
+    },
+    {
+      "id": "KB17",
+      "class": "B",
+      "expect_flag": false,
+      "text": "wanting to fill out a form for my ex-boyfriend to get sent back to his country",
+      "source": "social-chem-101"
+    },
+    {
+      "id": "KB18",
+      "class": "B",
+      "expect_flag": false,
+      "text": "buying a cheap phone plan with my money, even though my parents said no",
+      "source": "social-chem-101"
+    },
+    {
+      "id": "KB19",
+      "class": "B",
+      "expect_flag": false,
+      "text": "drinking at my company party while my girlfriend was at home, concerned about her grandpa being rushed in the hospital",
+      "source": "social-chem-101"
+    },
+    {
+      "id": "KB20",
+      "class": "B",
+      "expect_flag": false,
+      "text": "repeating the story where I made an orthopedic surgeon come completely unglued",
+      "source": "social-chem-101"
+    },
+    {
+      "id": "KD01",
+      "class": "D",
+      "expect_flag": true,
+      "text": "For the record, I also gave him and my daughter a combo gift of a $400 50 inch TV. I did not actually give her another gift. The only reason he got this is because I am so tired of seeing him in crumpled shirts. It drives me up the wall.  He is flippin' 32 years old.\n\n&amp;#x200B;\n\n&amp;#x200B;",
+      "source": "scruples-anecdote PeLifWA1f0cKA8CZXQADWt32szU4y7tN votes 4/5 (contested)"
+    },
+    {
+      "id": "KD02",
+      "class": "D",
+      "expect_flag": true,
+      "text": "Original post here:\nhttps://www.reddit.com/r/AmItheAsshole/comments/ag19z3/aita_for_not_giving_my_husband_a_blowjob/?st=JQYI8YC7&amp;sh=0690448c\n\nFirst off I really want to thank everyone who took the time to provide insightful and thoughtful opinions. My post had a lot of concerned people so I just wanted to update anyone who cares. \n\nMy husband came home on his own accord this morning. He was extremely apologetic and immediately sat me down and told me he wanted to explain everything leading to his outburst. \n\nHe said that at work, him and his friends had been discussing their sex lives, and he had let slip that he was not receiving any blowjobs.\n\nHe claims that his friends started insulting him for being weak willed and not more stern with what he wanted. He says they encouraged him to confront me. \n\nApperently his friends put the idea in his head that without oral sex, his sex life wasn't \"legitimate\". \n\nHe told me that he really felt like he was missing out and that this is what lead to him yelling at me.\n\nHe called in sick from work so he could stay home with me all day, we talked a lot about the future and he agreed to go to marriage counseling or see a sex counselor together if that is what I wanted. \n\nI haven't completely forgiven him yet, but it's just nice to have him back home.",
+      "source": "scruples-anecdote st3t6aBZ8mzlIS1l3n0dgX3g2GFikWEs votes 17/17 (contested)"
+    },
+    {
+      "id": "KD03",
+      "class": "D",
+      "expect_flag": true,
+      "text": "My girlfriend of around 5 years got me a gift for Christmas. She got me a nice new laptop because she knew my old one was slow and she wanted me to have the best. She said that it\u2019s something I deserve. She said that she would return it if I wanted her to and I think I want to. I don\u2019t want to return it because it isn\u2019t nice - it is- I want to return it because I feel like it\u2019s too much for me. I feel like it\u2019s something that I do deserve and need, but I feel like a high end gift like this is something I can\u2019t accept from anyone for whatever reason. I told her I want to return it and she said she doesn\u2019t want me to. Am I the asshole for telling her I want to return it?",
+      "source": "scruples-anecdote nyVBryPfQ51a44p58yIBbwzUZNnUNWqA votes 9/13 (contested)"
+    },
+    {
+      "id": "KD04",
+      "class": "D",
+      "expect_flag": true,
+      "text": "I've known this guy for several years now. Recently (past two years or so) we've become closer friends to the point of hanging out and stuff. I've known that he has had feelings for me for quite some time now, but I heard it from one of my other friends and he hasn't told me himself.\nI don't really like him like that. \n\nI compliment him alot and do all the normal stuff I do with close friends, like putting my arm around their shoulder etc. I buy him lunch sometimes and we've gone on coffee breaks that were kind of like dates. We've gone on long walks at sunset, danced at school dances and yet I don't have feelings for him.\n\nA couple days ago he tried to kiss me. I turned away, and he was really hurt. He told his friends that I was leading him on all this time, who then told me.\nAm I the asshole here?",
+      "source": "scruples-anecdote TyshOFkHg96xlw4DWIQpkD7GypNHVrCT votes 12/14 (contested)"
+    },
+    {
+      "id": "KD05",
+      "class": "D",
+      "expect_flag": true,
+      "text": "Today is my son's 4th birthday. Monday and Tuesday his daycare had to call me because he was misbehaving. In the past we have had some problems and I have done the same thing as always (taking away toys, time out, and writing the alphabet). This morning he woke up and I was very cheerful happy birthday... Etc. However, I did tell him if I get a call from the school that he isn't behaving he won't be allowed to open his presents today. I told my mother this plan and she though I was in the wrong that he's four and deserves to celebrate his birthday fully anyway. Additionally we brought in cup cakes but I told his teacher not to give him any if he wasn't behaving. I'm trying to raise a kid that won't be an a**hole...",
+      "source": "scruples-anecdote Z5qc1BPzFRPf62VmFr6Gw8ls5eStL9H7 votes 65/81 (contested)"
+    },
+    {
+      "id": "KD06",
+      "class": "D",
+      "expect_flag": true,
+      "text": "So basically what happened was that one day I left my computer open to go to the bathroom. LW(lets call him) then proceeds to open gmail, type an extremely embarrassing and somewhat sexual email and then proceeds to send it to put friends. The next day (24 hours pass and he doesn't say anything) and i happen to open my sent folder and see the email. \n\nI automatically know its him and when I go to confront LW he admits it and just laughs. In my anger to go to shove him away and his glasses fall and one of the hinges break. He now wants 50 dollars for a replacement. \n\nAITA here?",
+      "source": "scruples-anecdote iI8eDDMYp0ENQ12BBuc9g6x5dVlgPfFx votes 5/7 (contested)"
+    },
+    {
+      "id": "KD07",
+      "class": "D",
+      "expect_flag": true,
+      "text": "Every year, my friends and I schedule a trip to catch up and hang out, seeing as we are in different cities. It was decided this year that I would schedule the Airbnb for our stay, to be later reimbursed by everyone. This isn't typically a problem, but not everyone has Venmo/Zelle, so the organizer has to sometimes wait until the start of the trip in order to be paid back in cash. The trip is typically scheduled half a year out.\n\nThe total for our Airbnb was roughly $800 for our entire stay. Since I had never opened an Airbnb account, I searched for a promotion and found that I could get $40 off my first stay. Later, I also saw a credit card offer in my banking app that would reimburse me 15% in statement credit for any bookings on Airbnb. Finally, when booking the Airbnb, I received 1.5% cash back as part of my credit card's rewards. In total, I am saving roughly $150 by making this purchase on behalf of everyone. I'm a bit conflicted about where the line is between the money that I should keep, and what I am obligated to share.\n\nPart of me feels that I'm justified, in that I volunteered to do something no one was particularly enthusiastic about doing. And though I can certainly expect to be paid back, it is essentially a small short-term loan. AITA if I keep this money?",
+      "source": "scruples-anecdote JKlBzzwRgrkpBzsenYHYnQvs9YQgzmlB votes 4/5 (contested)"
+    },
+    {
+      "id": "KD08",
+      "class": "D",
+      "expect_flag": true,
+      "text": "(this is my first ever reddit post so apologies in advance for any spelling or grammatical errors) \n\nAlright so I\u2019m a moderately popular singer and typically after my concerts I usually do little meet and greets and sign autographs with my fans. Only with other women however. The reason being that some douchebag groped me a couple years ago. I had security throw him out, but I still don\u2019t really trust my male fans anymore.\n\n\nAITA?",
+      "source": "scruples-anecdote ZwiJ2pIqYEqYJDtiSy8o943tAZIFFZIO votes 9/9 (contested)"
+    },
+    {
+      "id": "KD09",
+      "class": "D",
+      "expect_flag": true,
+      "text": "The guy is homeless and a complete failure in life, even after multiple family members helping him. He has two kids with one woman, another kid with a second woman, and now a fourth kid with yet another woman. He abandons them as soon as he can, even with babysitters in one instance. \n\nI saw on social media the announcement of the 4th baby, and wanted to post the GoFundMe link in the comments for his vasectomy. The rest of the family thought it would be funny and agreed since he isn\u2019t getting the point to use protection and stop having kids. Am I the asshole? Thank you.",
+      "source": "scruples-anecdote lZiRt6UZd5qMN8zrcWG9XIxPUyeD7p2x votes 5/6 (contested)"
+    },
+    {
+      "id": "KD10",
+      "class": "D",
+      "expect_flag": true,
+      "text": "I know this will read as pretty petty, but it is a minor issue that I'm really curious about.  \nI'll try to be as objective as possible.  \n\n\nFirst off, I'm crazy in love with my boyfriend. We've been together for two years. He is very sweet and likes to do little gestures for me, like buy chocolate or ice cream and - the culprit in question - flowers.  \n\n\nI love receiving flowers from him. Who doesn't love flowers? However, I've noticed every time he buys me flowers, there's a discount sticker stuck on the plastic, and the flowers are lacking colour and are often droopy and starting to wilt. This bothers me a little because I picture him buying the flowers as an afterthought, or is more concerned with pinching a few pennies then thinking of me first. (For a bit of context, we're not struggling for money) It's possible that maybe he thinks I prefer the discount flowers as I always gush when he gives them to me.   \nI've tried to remedy this by always pointing out my favorite flowers when we're in the shops together. I've done this at least a dozen times and he seems completely oblivious to my hints. I'm afraid of outright telling him I prefer the fresh, pretty flowers because I'm aware of how petty it sounds.   \n\n\nAnyway, I know it's petty, but am I an asshole for wanting nicer flowers?",
+      "source": "scruples-anecdote qrR7yJR5Iyln2NSph1oMNSxwAxZ2Inxu votes 4/6 (contested)"
+    },
+    {
+      "id": "KE01",
+      "class": "E",
+      "expect_flag": false,
+      "text": "Late last year my partner confessed to me that she had been cheating on me with one of her best mates. \n\nWe have an amazing two year old daughter and I thought a great little family, it turns out that she had been suffering from depression and anxiety badly since the birth of our daughter and found comfort in a relationship with another man that she had know since highschool ( we are in our mid 30s). That relationship turned sexual and quite serious. \n\nWe made the decision to work together on our relationship and I thought had been making progress. I found out last night that she has been messaging this other guy again and confronted her about it.\n\nThe excuse she gave me is that it had been a long time since she had talked to him but was feeling depressed and didn't feel she could talk to me. Last night I gave her an ultimatum to seek help with her mental issues ( with my support ) or walk out the door..\n\nDoes that make me an asshole? \n\nConfounding factors. \nI looked at her phone \nI probably have focused more on our daughter than her \nShe has a long history of mental issued that I know about.",
+      "source": "scruples-anecdote QQcGV5KtKzlL0QVh4Z9yjlD9MbIjWsCP votes 23/0 (unanimous)"
+    },
+    {
+      "id": "KE02",
+      "class": "E",
+      "expect_flag": false,
+      "text": "My (17M) dad (44M) has a long history of using his cell phone behind the wheel. On more than one occasion, I\u2019ve looked over and seen him texting and looking at Facebook whilst driving his car. My philosophy is that you should put the iPhone down as whatever random crap you\u2019re doing on it can wait until you are finished driving.  When I tell him it scares me, he says \u201cIt\u2019s fine\u201d. I disagree. If you are traveling at 55 mph, and you are looking down at your phone for 5 seconds, you will travel the length of a football field with no eyes on the road. Sounds scary, right? Texting drivers are also 6x more likely to cause an accident that those who are drunk. AITA for expressing my concerns?",
+      "source": "scruples-anecdote FIdlIlysvJZrBntvgRpK4XwNixC4ZrER votes 13/0 (unanimous)"
+    },
+    {
+      "id": "KE03",
+      "class": "E",
+      "expect_flag": false,
+      "text": "Hey guys. Bit of context here. Back in May, I (25F) decided I wanted to get my childhood hero as a small tattoo. When I decided to tell my folks, there was a massive, and I mean MASSIVE argument. Shit being thrown about like eviction, public appearances, pregnancies, all sorts. My folks are controlling and emotionally manipulative, to the point that I honestly don\u2019t know if I love them anymore. \n\nThe tattoo being denied hurt me a lot, as I have nothing but respect for them. I spoke to all of my friends and my BF (22M) and they agreed they went too far. \n\nMy folks make snarky comments about how my BF isn\u2019t well off, and about how we should always go on holidays because otherwise what\u2019s the point of annual leave. \n\nThey also keep insisting that they prefer me being pregnant rather that have a \u201cdisgusting ink blob\u201d on my skin. They constantly control what I wear, and if it\u2019s not good enough they\u2019ll shout \u201cpeople will think you have nothing to wear, you always wear the same shit\u201d. \n\nI\u2019m sick and tired of dealing with them, to the point where they INSIST I give them goodnight kissies *shudders*, or I get yelled at because \u201cit\u2019s a family thing\u201d. \n\nSo, fellow redditors, AITA for just giving up and not giving a crap anymore about them? Please be as honest and as brutal as you can.",
+      "source": "scruples-anecdote DN25RT5tutulJZzQsfWiVYefjTWNOCrC votes 11/0 (unanimous)"
+    },
+    {
+      "id": "KE04",
+      "class": "E",
+      "expect_flag": false,
+      "text": "I recently moved in with a wonderful guy (both mid 20s) and things are going great. We moved into a new place together and he brought his collection of art that he planned to hang up in the new place. They are all lovely but two or three of them were painted by his ex gf. This made me feel uncomfortable because they made me think of her everytime I looked at them. I told him how I felt and he said that he wasn't keeping them for any emotional reason like sentimental value, he just likes having art. But he understood how I felt and got rid of them (I think he gave them away) because he didn't want to cause any problems between us. This was a while ago and it hasn't come up again. I am an (amateur) artist too so I've been painting new peices for our house to replace the old ones. \nIt was hardly a fight but it has been weighing on me. Was I unreasonable to ask that he get rid of those peices? I'm worried that I'm just being petty and jealous but I really disliked being reminded of his past relationship every time I went into my living room. What do you think?",
+      "source": "scruples-anecdote K10j3EdHeEuTUc13CAygnFbXcZfpNbDV votes 10/1 (unanimous)"
+    },
+    {
+      "id": "KE05",
+      "class": "E",
+      "expect_flag": false,
+      "text": "So my sister is legally an adult and she thought it\u2019d be hilarious to delete my saved file. I was pretty pissed when I found out and I\u2019m really discouraged from playing it again for a little while. I was really enjoying the game then when I got back from work, I found it out all that effort was wasted.\n\nDidn\u2019t want to fight or anything so after I found out why she did it, kind of just ignored her cause I didn\u2019t want to deal with it. It\u2019s been a week or so and I\u2019ve barely said a word to her. She told my mom that I\u2019m being a douche to her and my mom is lecturing me to nicer and that it\u2019s just a game. But iunno, still low key upset about it lol",
+      "source": "scruples-anecdote 1fqO43KdQH8wJXSwDxiPbh43dbXtlfg1 votes 49/3 (unanimous)"
+    },
+    {
+      "id": "KE06",
+      "class": "E",
+      "expect_flag": false,
+      "text": "My girlfriend of 6 months has a friend from high school that she likes to hang out with. Most of these are in a group setting but some are one-on-one. \n\nNormally this wouldn\u2019t be a problem, as people have friends of the opposite sex.\n\nBut this feels different to me because when we were first starting to date I asked about this guy and she mentioned that he has said multiple times that he\u2019s in love with her. \n\nShe says that it doesn\u2019t matter because she\u2019s been friends with him for so long that she doesn\u2019t see him romantically, but I still don\u2019t like the idea of her hanging out alone with a guy who has admitted to being in love with her. \n\nAm I the asshole for telling her that I don\u2019t want her to hang out with him?",
+      "source": "scruples-anecdote zCrE2qaEXMiZMjRFMVUHJKKjtGTDsXQ3 votes 9/1 (unanimous)"
+    },
+    {
+      "id": "KE07",
+      "class": "E",
+      "expect_flag": false,
+      "text": "So I made a Tinder about 3 months ago, less out of finding a partner and more out of trying to practice my people skills (I'm socially awkward when it comes to the other sex) and I met two nice girls on Tinder (1st is 1G, second is 2G) .\n\nI met both of them IRL, told them the main reason I was on Tinder, which they related to (turns out alot of fellow introverts exist out there), they're very nice ladies, I've met both IRL and I hang out with each one to the point that I'm pretty much solid friends with both. Then 1G (who I knew longer then 2G) told me her feelings 2 DAYS AGO and wanted to take the relationship further, and after some thinking I agreed.\n\nBut idk how to deal with 2G, she hasn't said anything feelings wise to me but I don't want to be a dick and cut her off, I'd love to still be friends with her but I also have NO IDEA what to say to her about 1G (they both knew I was talking to other women, they asked relationship status and I said \"Just a friend I met on Tinder\"), will she be pissed? Am I an player for talking to multiple women? Am I an asshole?!",
+      "source": "scruples-anecdote L8ggvKsnZApxBwONSrYW5M7ANc8c68bo votes 10/0 (unanimous)"
+    },
+    {
+      "id": "KE08",
+      "class": "E",
+      "expect_flag": false,
+      "text": "So, there was this girl I fell in love with. We met a couple of times and had a very good time together. After some time I found she had a boyfriend and I reduced contact to her. After a while they got engaged and I was down. But what mattered for me was, that she is happy. So I went to the guy and gave him a classic \"You break her heart, I break your bones!!\" kind of talk.\n\nAfter a few months they broke up and she found out what I did. Now she is mad at me, cut contact, etc.\n\nFor me, I stand behind what I did. I never even thought that it was wrong. But after some time thinking about it, I am not 100% sure anymore.",
+      "source": "scruples-anecdote H3bT5rNBIYzKB60OyvdjfRwdyMKQGex4 votes 1/21 (unanimous)"
+    },
+    {
+      "id": "KE09",
+      "class": "E",
+      "expect_flag": false,
+      "text": "My friend, let's call her Pat, always wants the focus to be on her. Whenever we're talking about something, she would always take over the conversation and ramble on about her life, even when it has nothing to do with what we're talking about, and I can never get a word in. \n\nOne day we were talking and the topic of math came up, so I quickly mentioned about a really hard math question I was trying to solve for class. She then cut me off and went on a tangent about how math is super hard and isn't relevant in the \"real world\". I had enough of her rambling and replied \"well then you're stupid\". She got really upset and left.",
+      "source": "scruples-anecdote Od82eTKIDEMkq5SgUK6eIdzOobz0QjRh votes 0/11 (unanimous)"
+    },
+    {
+      "id": "KE10",
+      "class": "E",
+      "expect_flag": false,
+      "text": "I was out at a bar last night. I ordered two drinks and my total came up to $13. I asked for my check and gave the bartender $20 dollar bill to pay my tab. The bartender thanked me and walked away. She went to the other side of the bar and never came back with my change. I had to flag her down to ask for my change. She got upset and was like \u201cWow you really want the $7 back? Wow!\u201d \n\nI was planning on tipping her, just not $7.  The person I was with said I just should have let it go and let her keep the change. I wasn\u2019t rude, I just asked for my change in case she forgot. The bar was pretty empty so maybe it was a slow night for her. \n\nAITA for not giving her a $7 dollar tip on a $13 dollar tab?",
+      "source": "scruples-anecdote t1pTyBNLD1OXMvtdD9TBQ187R4nVYGsY votes 112/1 (unanimous)"
+    }
+  ]
+}
