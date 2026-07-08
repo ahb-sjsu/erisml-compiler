@@ -1,0 +1,210 @@
+{
+  "rule": "experiments/phase5_polar/contestedness_rule.json",
+  "rates": {
+    "B": 0.2,
+    "D": 0.9,
+    "E": 0.0
+  },
+  "per_scenario": [
+    {
+      "id": "GB01",
+      "class": "B",
+      "flag": true
+    },
+    {
+      "id": "GB02",
+      "class": "B",
+      "flag": false
+    },
+    {
+      "id": "GB03",
+      "class": "B",
+      "flag": false
+    },
+    {
+      "id": "GB04",
+      "class": "B",
+      "flag": false
+    },
+    {
+      "id": "GB05",
+      "class": "B",
+      "flag": false
+    },
+    {
+      "id": "GB06",
+      "class": "B",
+      "flag": false
+    },
+    {
+      "id": "GB07",
+      "class": "B",
+      "flag": true
+    },
+    {
+      "id": "GB08",
+      "class": "B",
+      "flag": false
+    },
+    {
+      "id": "GB09",
+      "class": "B",
+      "flag": true
+    },
+    {
+      "id": "GB10",
+      "class": "B",
+      "flag": false
+    },
+    {
+      "id": "GB11",
+      "class": "B",
+      "flag": false
+    },
+    {
+      "id": "GB12",
+      "class": "B",
+      "flag": false
+    },
+    {
+      "id": "GB13",
+      "class": "B",
+      "flag": false
+    },
+    {
+      "id": "GB14",
+      "class": "B",
+      "flag": false
+    },
+    {
+      "id": "GB15",
+      "class": "B",
+      "flag": false
+    },
+    {
+      "id": "GB16",
+      "class": "B",
+      "flag": false
+    },
+    {
+      "id": "GB17",
+      "class": "B",
+      "flag": false
+    },
+    {
+      "id": "GB18",
+      "class": "B",
+      "flag": true
+    },
+    {
+      "id": "GB19",
+      "class": "B",
+      "flag": false
+    },
+    {
+      "id": "GB20",
+      "class": "B",
+      "flag": false
+    },
+    {
+      "id": "GD01",
+      "class": "D",
+      "flag": true
+    },
+    {
+      "id": "GD02",
+      "class": "D",
+      "flag": true
+    },
+    {
+      "id": "GD03",
+      "class": "D",
+      "flag": true
+    },
+    {
+      "id": "GD04",
+      "class": "D",
+      "flag": true
+    },
+    {
+      "id": "GD05",
+      "class": "D",
+      "flag": true
+    },
+    {
+      "id": "GD06",
+      "class": "D",
+      "flag": true
+    },
+    {
+      "id": "GD07",
+      "class": "D",
+      "flag": true
+    },
+    {
+      "id": "GD08",
+      "class": "D",
+      "flag": true
+    },
+    {
+      "id": "GD09",
+      "class": "D",
+      "flag": true
+    },
+    {
+      "id": "GD10",
+      "class": "D",
+      "flag": false
+    },
+    {
+      "id": "GE01",
+      "class": "E",
+      "flag": false
+    },
+    {
+      "id": "GE02",
+      "class": "E",
+      "flag": false
+    },
+    {
+      "id": "GE03",
+      "class": "E",
+      "flag": false
+    },
+    {
+      "id": "GE04",
+      "class": "E",
+      "flag": false
+    },
+    {
+      "id": "GE05",
+      "class": "E",
+      "flag": false
+    },
+    {
+      "id": "GE06",
+      "class": "E",
+      "flag": false
+    },
+    {
+      "id": "GE07",
+      "class": "E",
+      "flag": false
+    },
+    {
+      "id": "GE08",
+      "class": "E",
+      "flag": false
+    },
+    {
+      "id": "GE09",
+      "class": "E",
+      "flag": false
+    },
+    {
+      "id": "GE10",
+      "class": "E",
+      "flag": false
+    }
+  ]
+}
