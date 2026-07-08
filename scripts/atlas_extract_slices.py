@@ -7,9 +7,9 @@ from pathlib import Path
 
 import paramiko
 
-ATLAS_HOST = "100.68.134.21"
-ATLAS_USER = "claude"
-ATLAS_PASS = "roZes9090!~"
+from erisml_compiler.atlas_creds import atlas_credentials
+
+ATLAS_HOST, ATLAS_USER, ATLAS_PASS = atlas_credentials()  # env or ~/.atlas_creds; never hardcoded
 
 # Carve slices on Atlas (preserve header), then sha256.
 EXTRACT = r"""#!/usr/bin/env bash

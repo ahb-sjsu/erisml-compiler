@@ -13,19 +13,14 @@ Atlas: GPU-1 only (GPU-0 = artemis-avatar). Never kills/reboots anything.
 from __future__ import annotations
 
 import argparse
-import os
 import sys
 
 import paramiko
 
-# Credentials come from a gitignored sibling `_atlas.py` (preferred) or env.
-# Never hardcode the password in this committed file.
-try:
-    from _atlas import HOST, PASSWORD, USER
-except ImportError:  # pragma: no cover
-    HOST = os.environ.get("ATLAS_HOST", "100.68.134.21")
-    USER = os.environ.get("ATLAS_USER", "claude")
-    PASSWORD = os.environ["ATLAS_PASSWORD"]
+from erisml_compiler.atlas_creds import atlas_credentials
+
+# Credentials from env (ATLAS_PASSWORD) or gitignored ~/.atlas_creds — never hardcoded.
+HOST, USER, PASSWORD = atlas_credentials()
 VENV_PY = "/home/claude/env/bin/python3"
 REMOTE_DIR = "/home/claude/erisml_calib"
 FILES = ["experiments/calibration/calib_texts.jsonl",

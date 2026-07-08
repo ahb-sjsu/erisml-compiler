@@ -13,9 +13,9 @@ import json
 import sys
 import paramiko
 
-ATLAS_HOST = "100.68.134.21"  # Tailscale; LAN fallback removed at user request
-USER = "claude"
-PASSWORD = "roZes9090!~"
+from erisml_compiler.atlas_creds import atlas_credentials
+
+ATLAS_HOST, USER, PASSWORD = atlas_credentials()  # env or ~/.atlas_creds; never hardcoded
 VENV_PY = "/home/claude/env/bin/python3"
 
 
