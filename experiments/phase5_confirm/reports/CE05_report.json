@@ -1,0 +1,98 @@
+{
+  "summary": {
+    "scenario": "CE05",
+    "requires_human_review": false,
+    "delta_divergence": 0.0,
+    "delta_direction_breaks": 0,
+    "equivariance_failed_layers": [],
+    "failure_modes_fired": [],
+    "scored_dimensions": [],
+    "readout_layer": 8,
+    "class": "E"
+  },
+  "delta": {
+    "note": "text lens took no stance on any calibrated dim"
+  },
+  "activation_moral_vector": {
+    "physical_harm": {
+      "value": -0.014876192435622215,
+      "confidence": 0.014876192435622215,
+      "uncertainty": 0.9851238075643778,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": null
+    },
+    "rights_respect": {
+      "value": 0.016340693458914757,
+      "confidence": 0.016340693458914757,
+      "uncertainty": 0.9836593065410852,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": null
+    },
+    "fairness_equity": {
+      "value": -0.07248890399932861,
+      "confidence": 0.07248890399932861,
+      "uncertainty": 0.9275110960006714,
+      "direction": "negative",
+      "source_spans": [],
+      "explanation": null
+    },
+    "autonomy_consent": {
+      "value": 0.1021835133433342,
+      "confidence": 0.1021835133433342,
+      "uncertainty": 0.8978164866566658,
+      "direction": "positive",
+      "source_spans": [],
+      "explanation": null
+    },
+    "legitimacy_trust": {
+      "value": -0.059773340821266174,
+      "confidence": 0.059773340821266174,
+      "uncertainty": 0.9402266591787338,
+      "direction": "negative",
+      "source_spans": [],
+      "explanation": null
+    },
+    "epistemic_quality": {
+      "value": 0.02364792488515377,
+      "confidence": 0.02364792488515377,
+      "uncertainty": 0.9763520751148462,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": null
+    },
+    "care_protection": {
+      "value": -0.11996707320213318,
+      "confidence": 0.11996707320213318,
+      "uncertainty": 0.8800329267978668,
+      "direction": "negative",
+      "source_spans": [],
+      "explanation": null
+    },
+    "vow_fidelity": {
+      "value": -0.12884411215782166,
+      "confidence": 0.12884411215782166,
+      "uncertainty": 0.8711558878421783,
+      "direction": "negative",
+      "source_spans": [],
+      "explanation": null
+    },
+    "third_party_externality": {
+      "value": -0.0811779648065567,
+      "confidence": 0.0811779648065567,
+      "uncertainty": 0.9188220351934433,
+      "direction": "negative",
+      "source_spans": [],
+      "explanation": null
+    },
+    "repair_residue": {
+      "value": -0.031084157526493073,
+      "confidence": 0.031084157526493073,
+      "uncertainty": 0.9689158424735069,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": null
+    }
+  }
+}
