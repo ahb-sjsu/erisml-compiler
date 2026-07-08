@@ -1,0 +1,16 @@
+{
+  "model_id": "Qwen/Qwen2.5-7B-Instruct",
+  "hidden_dim": 3584,
+  "selected_layers": [
+    0,
+    4,
+    8,
+    12,
+    16,
+    20,
+    24,
+    27
+  ],
+  "n_captures": 160,
+  "n_scenarios": 40
+}
