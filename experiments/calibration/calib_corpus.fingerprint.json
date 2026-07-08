@@ -1,0 +1,17 @@
+{
+  "source": "social-chem-101",
+  "license": "CC-BY 4.0",
+  "citation": "Forbes, Hwang, Shwartz, Sap, Choi. Social Chemistry 101: Learning to Reason about Social and Moral Norms. EMNLP 2020. https://aclanthology.org/2020.emnlp-main.48/",
+  "tsvs": [
+    "data/social-chem-101/social-chem-101.dearabby.tsv",
+    "data/social-chem-101/social-chem-101.amitheasshole.tsv"
+  ],
+  "seed": 20260707,
+  "min_chars": 60,
+  "max_chars": 1200,
+  "n_requested": 5000,
+  "n_available_after_filter": 10662,
+  "n_written": 5000,
+  "corpus_canonical_sha256": "1d15c53ec3c1f709814a3fbb377b292e6bbbb7576d61e2faabb3f7ccd955d87c",
+  "sample_sha256": "d3206e45f0761e61a4a42c45f012ec2052cc952cf4e9e45e7e563a65c7fc0424"
+}

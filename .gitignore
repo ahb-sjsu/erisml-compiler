@@ -62,6 +62,12 @@ data/
 *.ckpt
 *.bin
 *.safetensors
+*.npz
+
+# Phase-5 calibration: regenerable features, licensed corpus sample, Atlas creds
+experiments/calibration/calib_features/
+experiments/calibration/calib_texts.jsonl
+experiments/calibration/_atlas.py
 
 # LaTeX build products (none here, just in case)
 *.aux
