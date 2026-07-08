@@ -1,0 +1,13 @@
+{
+  "prereg": "prereg-phase5-confirm2-v1",
+  "frozen_before": "confirm2 activation extraction",
+  "rule": "frozen PolarQuant contestedness (angle-vector+loading LDA fit on original+confirm) UNION text-conflict; flag=(score>tau)|text_conflict",
+  "files": {
+    "experiments/scenarios_phase5_confirm2.json": "52e2ad51f62cf50f89ab3b6d823eb7f6eb625f9d0f8beeb1a9614b8eaa5cc283",
+    "experiments/phase5_polar/contestedness_rule.json": "8b6d62c04fef56cefdc86163a297988a368642e0dc2da59c34bdf812d6f8ad6d",
+    "experiments/phase5_confirm2_run.py": "30835d20eca8668bd2d4a7d47f638a8ecc28707546a753f3191dcb0ec132e3a3",
+    "src/erisml_compiler/monitor/polar_encoding.py": "0ca62cfe9202006e78040ebcf5961b048951b499457413cb1311bbdcec160c84",
+    "experiments/calibration/out/checkpoints/layer_08.pt": "f9c734b61bfb3378a7c3dd9fbe1bb2986776f7b5205d3f5b2a113fcacaa3c3de"
+  },
+  "combined_sha256": "bf321818b45cd06786826a284a29a922625f63be34f9748065938c74de28deb8"
+}
