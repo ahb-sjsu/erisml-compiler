@@ -63,6 +63,13 @@ monitor = [
     "numpy>=1.24",
     "paramiko>=3.4",
 ]
+scorers = [
+    # Validated cross-dataset xbse feeders as the MoralVector dimension-scoring
+    # backend (one encoder per DEME-9 dimension). See scoring/xbse_scorer.py.
+    "xbse @ git+https://github.com/ahb-sjsu/xbse.git",
+    "torch>=2.1",
+    "transformers>=4.40",
+]
 deme-v3 = [
     # erisml-lib carries the DEME V3 modules (Geneva, Triage, etc.) that
     # the V3 bridge invokes. When this extra is not installed, the
