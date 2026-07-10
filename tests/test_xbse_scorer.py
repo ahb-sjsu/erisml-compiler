@@ -34,6 +34,35 @@ def test_registry_covers_all_nine_dimensions():
     assert set(DEME9_REGISTRY) == set(MORAL_DIMENSIONS_V3)
 
 
+def test_validation_records_match_audit_schema():
+    """The provenance dicts must carry exactly the FeederValidationRecord fields, so DEMEv3's
+    DecisionProof can bind every xbse-scored dimension to its validated feeder + bar."""
+    from xbse.report import Report
+
+    report = Report(
+        instance="care_joint",
+        checkpoint_hash="deadbeef",
+        thresholds={"auroc>": 0.79, "fuzz>": 1.0},
+        metrics={"structure_auroc": 0.811, "bow_auroc": 0.527, "lexical_margin": 0.284},
+        passed=True,
+        bar_source="noise-ceiling(dual-judge)*0.9",
+        bar_derivation="perfect-scorer AUROC vs dual-judge-flipped labels, *0.9, pre-training",
+        bar_registered="2026-07-10",
+    )
+    backend = XBSEDimensionScorer({"virtue_care": _feeder()}, {"virtue_care": report})
+    recs = backend.validation_records()
+    assert len(recs) == 1
+    r = recs[0]
+    expected = {
+        "dimension", "feeder_name", "checkpoint_hash", "bar_auroc_min", "bar_source",
+        "bar_derivation", "bar_registered", "structure_auroc", "bow_auroc", "lexical_margin",
+        "validated",
+    }
+    assert set(r) == expected
+    assert r["dimension"] == "virtue_care" and r["feeder_name"] == "care_joint"
+    assert r["bar_auroc_min"] == 0.79 and r["structure_auroc"] == 0.811 and r["validated"] is True
+
+
 def test_wraps_valence_into_dimension_score():
     backend = XBSEDimensionScorer({"virtue_care": _feeder()})
     ds = backend.score("good good good", "virtue_care")
