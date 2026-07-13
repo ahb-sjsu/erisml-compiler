@@ -180,6 +180,40 @@ assert not (set(MORAL_EXTENSION_CHANNELS) & set(MORAL_DIMENSIONS_V3)), (
 MORAL_VECTOR_CHANNELS: tuple[str, ...] = (*MORAL_DIMENSIONS_V3, *MORAL_EXTENSION_CHANNELS)
 
 
+# ---------------------------------------------------------------------------
+# Cell semantics — the SSOT for what a channel's number *means*, so the
+# drift-guard protects semantics and not only channel names.
+#
+# The canonical per-channel cell (the representation the Moral Spectrum Analyzer
+# validates and the tensor stores) is a SIGNED VALENCE plus a PRESENCE magnitude:
+#     valence  in [-1, +1]   (-1 violated, 0 not-engaged, +1 upheld)
+#     presence in [ 0,  1]   (how strongly the dimension is engaged, sign-agnostic)
+#
+# NOTE ON A KNOWN CONVENTION DRIFT: the DEME engine's legacy per-dimension score
+# is a bounded [0, 1] value, harm-inverted (1 = upheld / no harm). That is a
+# DIFFERENT convention from the signed cell above — there is no silent
+# equivalence between them. Any consumer converting between the signed cell and
+# the legacy [0, 1] score must do so explicitly; recording both ranges here is
+# what lets a drift-guard test catch a semantics mismatch, not only a name one.
+CELL_VALENCE_RANGE: tuple[float, float] = (-1.0, 1.0)
+CELL_PRESENCE_RANGE: tuple[float, float] = (0.0, 1.0)
+CELL_SEMANTICS: dict[str, dict[str, object]] = {
+    "valence": {
+        "range": CELL_VALENCE_RANGE,
+        "meaning": "-1 violated, 0 not-engaged, +1 upheld",
+    },
+    "presence": {
+        "range": CELL_PRESENCE_RANGE,
+        "meaning": "magnitude the dimension is engaged, sign-agnostic",
+    },
+    "deme_legacy_score": {
+        "range": (0.0, 1.0),
+        "meaning": "harm-inverted bounded score (1 = upheld / no harm); a DISTINCT "
+        "convention from the signed cell — convert explicitly, never implicitly",
+    },
+}
+
+
 def is_extension_channel(name: str) -> bool:
     """True if `name` is a validated extension channel (rides in tensor metadata)."""
     return name in MORAL_EXTENSION_CHANNELS
@@ -195,6 +229,9 @@ __all__ = [
     "MORAL_EXTENSION_CHANNELS",
     "EXTENSION_CHANNEL_PROVENANCE",
     "MORAL_VECTOR_CHANNELS",
+    "CELL_VALENCE_RANGE",
+    "CELL_PRESENCE_RANGE",
+    "CELL_SEMANTICS",
     "DimensionAxis",
     "DIMENSION_MATRIX_3X3",
     "LEVELS",
