@@ -1,14 +1,16 @@
-"""Cross-package guard: the DEME-9 k-axis must be identical everywhere.
+"""Cross-package guard: the MoralVector ontology has ONE source of truth.
 
-The canonical nine moral dimensions are, by design, duplicated in three packages:
-  - erisml_compiler.ir.v3.dimensions.MORAL_DIMENSIONS_V3   (this repo)
-  - erisml.ethics.moral_tensor.MORAL_DIMENSION_NAMES       (erisml-lib / DEME engine)
-  - agi.safety.erisml.moral_tensor.MORAL_DIMENSION_NAMES   (agi-hpc safety gateway)
+`erisml_compiler.ir.v3.dimensions` is the single source of truth (SSOT) for the
+moral vector's channels. Other packages reference it:
+  - erisml.ethics.moral_tensor.MORAL_DIMENSION_NAMES       (erisml-lib) — IMPORTS the
+    SSOT, with a literal fallback (guarded here) for standalone installs.
+  - agi.safety.erisml.moral_tensor.MORAL_DIMENSION_NAMES   (agi-hpc safety gateway) —
+    a separate, safety-critical system carrying its own guarded copy.
 
-They MUST stay in sync (same names, same order) — the rank-1..6 MoralTensor's `k` axis is
-indexed positionally, so any reorder/rename in one package silently misaligns the whole stack.
-This test freezes the canonical tuple and checks every importable sibling against it, so a drift
-fails CI instead of corrupting a tensor at runtime.
+The rank-1..6 MoralTensor's `k` axis is indexed positionally, so any reorder/rename
+silently misaligns the whole stack. This test freezes the canonical tuples and checks
+every importable sibling against them, so drift fails CI instead of corrupting a tensor
+at runtime.
 """
 
 from __future__ import annotations
@@ -17,10 +19,14 @@ import importlib
 
 import pytest
 
-from erisml_compiler.ir.v3.dimensions import MORAL_DIMENSIONS_V3
+from erisml_compiler.ir.v3.dimensions import (
+    MORAL_DIMENSIONS_V3,
+    MORAL_EXTENSION_CHANNELS,
+    MORAL_VECTOR_CHANNELS,
+)
 
 # The frozen canonical order — DEME 3.0 "Nine Dimensions of Ethical Assessment" (3x3).
-# Editing this tuple is a deliberate, breaking act: update ALL THREE packages together.
+# Editing this tuple is a deliberate, breaking act: update the SSOT + any guarded copies.
 CANONICAL_9: tuple[str, ...] = (
     "physical_harm",           # k0  Relational / Consequences-and-Welfare
     "rights_respect",          # k1  Individual  / Rights-and-Duties
@@ -33,9 +39,24 @@ CANONICAL_9: tuple[str, ...] = (
     "epistemic_quality",       # k8  Relational  / Epistemic-Status
 )
 
+# The frozen extension channels — validated moral foundations OUTSIDE the k-axis.
+# Adding one is a deliberate, reviewed act (needs a validated feeder; see
+# EXTENSION_CHANNEL_PROVENANCE).
+CANONICAL_EXTENSIONS: tuple[str, ...] = ("purity", "loyalty")
+
 
 def test_compiler_matches_canonical():
     assert tuple(MORAL_DIMENSIONS_V3) == CANONICAL_9
+
+
+def test_extension_channels_frozen():
+    assert tuple(MORAL_EXTENSION_CHANNELS) == CANONICAL_EXTENSIONS
+    # extension channels must not collide with the k-axis
+    assert not (set(MORAL_EXTENSION_CHANNELS) & set(MORAL_DIMENSIONS_V3))
+
+
+def test_full_vocabulary_is_axis_plus_extensions():
+    assert tuple(MORAL_VECTOR_CHANNELS) == CANONICAL_9 + CANONICAL_EXTENSIONS
 
 
 @pytest.mark.parametrize(
@@ -54,3 +75,14 @@ def test_sibling_packages_match_canonical(modname: str, attr: str):
         pytest.skip(f"{modname} not importable in this environment")
     got = tuple(getattr(mod, attr))
     assert got == CANONICAL_9, f"{modname}.{attr} drifted from the canonical DEME-9:\n{got}"
+
+
+def test_erisml_lib_references_ssot():
+    """erisml-lib should re-export the SSOT extension channels (proves the import wiring,
+    not just an equal literal). Skips if erisml-lib isn't installed."""
+    try:
+        mod = importlib.import_module("erisml.ethics.moral_tensor")
+    except Exception:
+        pytest.skip("erisml-lib not importable in this environment")
+    assert tuple(getattr(mod, "MORAL_EXTENSION_CHANNELS")) == CANONICAL_EXTENSIONS
+    assert tuple(getattr(mod, "MORAL_VECTOR_CHANNELS")) == CANONICAL_9 + CANONICAL_EXTENSIONS

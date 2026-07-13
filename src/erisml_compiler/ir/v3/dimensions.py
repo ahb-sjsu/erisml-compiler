@@ -1,6 +1,23 @@
-"""The 9 moral dimensions of DEME V3.
+"""The MoralVector ontology — the SINGLE SOURCE OF TRUTH for DEME's moral dimensions.
 
-Derived from the "Nine Dimensions of Ethical Assessment" 3×3 matrix:
+This module is the canonical definition of the moral vector's channels: the 9
+frozen k-axis dimensions plus the validated extension channels. Every other
+package references THIS module rather than keeping its own copy:
+
+  - `erisml.ethics.moral_tensor` (erisml-lib / DEME engine) imports these names.
+  - `gtc-prototype` (`gtc.__init__`) imports `MORAL_DIMENSIONS_V3` + the
+    extension channels from here.
+  - `agi.safety.erisml.moral_tensor` (agi-hpc safety gateway) is a separate,
+    safety-critical system; it carries a guarded copy checked against this
+    module by `tests/test_dimension_consistency.py`.
+
+Why here: `erisml-compiler` is the base of the dependency graph — consumers
+hard-depend on it, and it stands alone (it only *optionally* touches erisml-lib
+via a lazy import), so it is the one node every consumer can reach without a
+dependency cycle.
+
+The 9 k-axis dimensions derive from the "Nine Dimensions of Ethical Assessment"
+3×3 matrix (frozen — see `MORAL_DIMENSIONS_V3`):
 
 |                | What Matters       | Who Decides            | What We Know          |
 |----------------|--------------------|------------------------|------------------------|
@@ -8,9 +25,9 @@ Derived from the "Nine Dimensions of Ethical Assessment" 3×3 matrix:
 | Relational     | Virtue/Care        | Consequences/Welfare   | Epistemic Status       |
 | Collective     | Justice/Fairness   | Procedural Legitimacy  | Societal/Environmental |
 
-The canonical ordering used by the tensor's k-axis matches
-`erisml.ethics.moral_tensor.MORAL_DIMENSION_NAMES` for direct
-interoperability.
+Extension channels (validated moral foundations OUTSIDE the frozen k-axis) are
+defined below as `MORAL_EXTENSION_CHANNELS`; the full ordered vocabulary is
+`MORAL_VECTOR_CHANNELS`.
 """
 
 from __future__ import annotations
@@ -101,3 +118,88 @@ V2_TO_V3_DIMENSION_MAP: dict[str, list[str]] = {
     "third_party_externality": ["societal_environmental"],
     # "repair_residue":         intentionally absent — stored in metadata
 }
+
+
+# ---------------------------------------------------------------------------
+# Extension channels (validated moral foundations OUTSIDE the frozen k-axis)
+# ---------------------------------------------------------------------------
+#
+# The canonical k-axis is frozen at 9 (the 3×3 "Nine Dimensions" matrix), and
+# is duplicated byte-for-byte across three packages
+# (`test_dimension_consistency.py`). New moral foundations therefore do NOT
+# widen the k-axis; following the `repair_residue` precedent, they ride as
+# named keys in `MoralTensorV3.metadata["extension_channels"]` while
+# `shape[0]` stays 9.
+#
+# `purity` and `loyalty` are the two MFT "binding" foundations absent from the
+# DEME-9. Both were validated through the SAME pre-registered cross-dataset
+# gate as every k-axis feeder (xbse; see `experiments/b1_results.json` and
+# `experiments/foundation_presence_findings.md`):
+#
+#   - a signed VALENCE feeder supplies the cell value in [-1, 1]
+#     (loyalty AUROC 0.911, purity 0.811 — both robust to the domain adversary)
+#   - a valence-agnostic PRESENCE feeder supplies the engagement gate: whether
+#     the foundation is *engaged* at all (purity 0.719, robust; loyalty 0.661,
+#     lam=0 config only — see EXTENSION_CHANNEL_PROVENANCE)
+#
+# This supersedes the earlier `moralvector_reference.md` note that retired
+# purity/sanctity as "off-target, not a feeder": a validated feeder now exists.
+MORAL_EXTENSION_CHANNELS: tuple[str, ...] = (
+    "purity",
+    "loyalty",
+)
+
+# Per-channel provenance: the validated xbse feeders behind each extension
+# channel. `valence` feeds the signed cell value; `presence` gates engagement.
+# `checkpoint_hash` is the sha256[:16] a downstream consumer's `require_pass`
+# binds against. `presence_caveat` records the domain-adversarial (lam) result.
+EXTENSION_CHANNEL_PROVENANCE: dict[str, dict[str, object]] = {
+    "purity": {
+        "foundation": "MFT sanctity/degradation",
+        "valence": {"auroc": 0.811, "checkpoint_hash": "001506fc21518a5e", "gate": "PASS"},
+        "presence": {"auroc": 0.719, "checkpoint_hash": "1997cb0b3ac9d12a", "gate": "PASS"},
+        "presence_caveat": "robust - passes at lam=0 AND lam=1 (0.699)",
+    },
+    "loyalty": {
+        "foundation": "MFT loyalty/betrayal",
+        "valence": {"auroc": 0.911, "checkpoint_hash": "23d54d10fac7ea90", "gate": "PASS"},
+        "presence": {"auroc": 0.661, "checkpoint_hash": "377f1bc8977fbf35", "gate": "PASS"},
+        "presence_caveat": "lam=0 joint-contrastive only - the adversary (lam=1) strips it to 0.641 (fail)",
+    },
+}
+
+# Sanity: extension channels are disjoint from the frozen k-axis.
+assert not (set(MORAL_EXTENSION_CHANNELS) & set(MORAL_DIMENSIONS_V3)), (
+    "extension channels must not collide with the canonical k-axis"
+)
+
+# The full ordered MoralVector vocabulary: the 9 frozen k-axis dimensions
+# followed by the validated extension channels. Downstream consumers that need
+# "every channel the vector can carry" (readouts, decision membership, audit)
+# reference THIS rather than concatenating the two tuples themselves.
+MORAL_VECTOR_CHANNELS: tuple[str, ...] = (*MORAL_DIMENSIONS_V3, *MORAL_EXTENSION_CHANNELS)
+
+
+def is_extension_channel(name: str) -> bool:
+    """True if `name` is a validated extension channel (rides in tensor metadata)."""
+    return name in MORAL_EXTENSION_CHANNELS
+
+
+def is_canonical_dimension(name: str) -> bool:
+    """True if `name` is one of the 9 frozen k-axis dimensions."""
+    return name in MORAL_DIMENSIONS_V3
+
+
+__all__ = [
+    "MORAL_DIMENSIONS_V3",
+    "MORAL_EXTENSION_CHANNELS",
+    "EXTENSION_CHANNEL_PROVENANCE",
+    "MORAL_VECTOR_CHANNELS",
+    "DimensionAxis",
+    "DIMENSION_MATRIX_3X3",
+    "LEVELS",
+    "FRAMINGS",
+    "V2_TO_V3_DIMENSION_MAP",
+    "is_extension_channel",
+    "is_canonical_dimension",
+]

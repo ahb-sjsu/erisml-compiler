@@ -24,7 +24,11 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from erisml_compiler.ir.v3.dimensions import DimensionAxis
+from erisml_compiler.ir.v3.dimensions import (
+    EXTENSION_CHANNEL_PROVENANCE,
+    MORAL_EXTENSION_CHANNELS,
+    DimensionAxis,
+)
 
 # Maximum rank supported by DEME V3.
 MAX_RANK: int = 6
@@ -87,7 +91,9 @@ class MoralTensorV3(BaseModel):
             apply. Empty tuple `()` means "global".
         metadata: free-form metadata; reserved keys include
             `"repair_residue"` (a [-1, 1] scalar carried from V2
-            migration), `"source"`, `"timestamp"`.
+            migration), `"extension_channels"` (validated moral
+            foundations outside the frozen 9-axis — `purity`, `loyalty`;
+            see `set_extension_channel`), `"source"`, `"timestamp"`.
 
     Construction is strict: rank, shape, first-axis length, axis names,
     and values shape are all validated. Use the `zeros` / `from_v2_*`
@@ -224,6 +230,48 @@ class MoralTensorV3(BaseModel):
 
     def set_metadata(self, indices: tuple[int, ...], md: DimensionMetadata) -> None:
         self.dimension_metadata[_cell_key(indices)] = md
+
+    # ---------- extension channels ----------
+    #
+    # Validated moral foundations that live OUTSIDE the frozen 9-axis k-axis
+    # (see dimensions.MORAL_EXTENSION_CHANNELS). They ride in
+    # metadata["extension_channels"] following the `repair_residue` precedent,
+    # so shape[0] stays 9. build_decision_proof binds them into the tensor hash.
+
+    def set_extension_channel(
+        self,
+        name: str,
+        value: float,
+        *,
+        presence: float | None = None,
+        provenance: dict[str, Any] | None = None,
+    ) -> None:
+        """Attach a validated extension channel (e.g. `purity`, `loyalty`).
+
+        `value` is the signed valence cell in [-1, 1] (from the valence feeder).
+        `presence` is the optional [0, 1] engagement gate (from the presence
+        feeder). `provenance` defaults to the registered feeder provenance.
+        """
+        if name not in MORAL_EXTENSION_CHANNELS:
+            raise ValueError(
+                f"{name!r} is not a registered extension channel "
+                f"{MORAL_EXTENSION_CHANNELS}; adding one is a deliberate, "
+                "reviewed act (dimensions.MORAL_EXTENSION_CHANNELS)."
+            )
+        if not -1.0 <= float(value) <= 1.0:
+            raise ValueError(f"extension channel {name!r} value must be in [-1, 1]; got {value}")
+        if presence is not None and not 0.0 <= float(presence) <= 1.0:
+            raise ValueError(f"extension channel {name!r} presence must be in [0, 1]; got {presence}")
+        channels = self.metadata.setdefault("extension_channels", {})
+        channels[name] = {
+            "value": float(value),
+            "presence": None if presence is None else float(presence),
+            "provenance": provenance or EXTENSION_CHANNEL_PROVENANCE.get(name),
+        }
+
+    def get_extension_channel(self, name: str) -> dict[str, Any] | None:
+        """Return the extension channel record `{value, presence, provenance}` or None."""
+        return self.metadata.get("extension_channels", {}).get(name)
 
     # ---------- DEME interop ----------
 
