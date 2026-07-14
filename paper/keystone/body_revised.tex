@@ -470,6 +470,24 @@ delta lens does implement a reference-free detector---e.g., comparing the LLM ex
 against the rule-based/probe extractions as an internal consistency check---describe that
 mechanism and its hit rate here, which would materially strengthen the claim.]}
 
+\rev{\paragraph{The invariance layer's own effect, measured.} The $13.7$/$16.1\%$ figures
+above quantify the \emph{underlying evaluator's} manipulability on paired originals; a
+separate probe isolates what the shipped invariance mechanism---an equivalence-class average
+(a Riemannian center of mass over meaning-preserving re-descriptions, \S\ref{sec:formal})---does
+to \emph{DEME's own} decision drift. Over $k{=}9$ LLM reframings per item, residual decision
+drift falls from $\theta_d{=}0.41$ with the layer off to $0.22$ with it on; under adversarial
+NLLB back-translation through six pivots, from $\theta_d{=}0.48$ to $0.30$. Both raw figures
+already clear the pre-registered $\theta_d\le0.5$ bar, and the equivalence-class average cuts
+the residual by roughly a third (back-translation) to a half (reframing): meaning-preserving
+perturbation moves the governed decision only about as much as the layer cannot absorb. Two
+caveats we state rather than bury. First, the LLM reframer declined $24\%$ of items---it
+refused to generate some paraphrases---so its figure is over the $60$ of $79$ items it served;
+the mechanical back-translation generator refused none ($n{=}50$). Second, DEME's perception
+layer is itself LLM-mediated and inherits the attack surface documented above; the invariance
+layer does not remove that manipulability, it measurably reduces the drift that survives to
+the decision. ``Physician, heal thyself'' is answered here in the only honest currency---a
+number, off and on.}
+
 \subsection{Pluralist governance}
 Two stakeholder ethos---a harm/care advocate and a fairness/fidelity community, each a
 declared module-weighting---evaluated 231 real moral dilemmas\rev{ drawn from
