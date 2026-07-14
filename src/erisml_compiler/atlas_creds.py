@@ -26,10 +26,16 @@ def atlas_credentials() -> tuple[str, str, str]:
     if not password:
         path = Path(os.path.expanduser("~/.atlas_creds"))
         if path.exists():
-            lines = [ln.strip() for ln in path.read_text(encoding="utf-8").splitlines() if ln.strip()]
+            lines = [
+                ln.strip() for ln in path.read_text(encoding="utf-8").splitlines() if ln.strip()
+            ]
             kv = {}
             for ln in lines:
-                if "=" in ln and ln.split("=", 1)[0].strip().lower() in {"host", "user", "password"}:
+                if "=" in ln and ln.split("=", 1)[0].strip().lower() in {
+                    "host",
+                    "user",
+                    "password",
+                }:
                     k, v = ln.split("=", 1)
                     kv[k.strip().lower()] = v.strip()
             host = kv.get("host", host)

@@ -54,8 +54,16 @@ def test_validation_records_match_audit_schema():
     assert len(recs) == 1
     r = recs[0]
     expected = {
-        "dimension", "feeder_name", "checkpoint_hash", "bar_auroc_min", "bar_source",
-        "bar_derivation", "bar_registered", "structure_auroc", "bow_auroc", "lexical_margin",
+        "dimension",
+        "feeder_name",
+        "checkpoint_hash",
+        "bar_auroc_min",
+        "bar_source",
+        "bar_derivation",
+        "bar_registered",
+        "structure_auroc",
+        "bow_auroc",
+        "lexical_margin",
         "validated",
     }
     assert set(r) == expected

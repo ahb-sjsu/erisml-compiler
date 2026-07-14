@@ -54,7 +54,7 @@ def polar_decode(radius, angles):
 
 
 def _quant_uniform(x, lo, hi, bits):
-    levels = 2 ** bits
+    levels = 2**bits
     step = (hi - lo) / levels
     q = np.clip(np.floor((x - lo) / step), 0, levels - 1)
     return (lo + (q + 0.5) * step).astype(np.float32)
@@ -70,7 +70,7 @@ def polar_quantize(Xr, abits, rbits=8, adaptive=True):
     angles_q = []
     for th in angles:
         if adaptive:
-            lv = np.quantile(th, (np.arange(2 ** abits) + 0.5) / 2 ** abits).astype(np.float32)
+            lv = np.quantile(th, (np.arange(2**abits) + 0.5) / 2**abits).astype(np.float32)
             bnd = ((lv[:-1] + lv[1:]) / 2).astype(np.float32)
             angles_q.append(lv[np.searchsorted(bnd, th)].astype(np.float32))
         else:
@@ -79,6 +79,7 @@ def polar_quantize(Xr, abits, rbits=8, adaptive=True):
 
 
 # ---- moral polar features ----
+
 
 def _pad_pow2(V):
     """Right-pad the feature dim to the next power of two with zeros
@@ -110,5 +111,10 @@ def moral_polar_features(V: np.ndarray, consensus: np.ndarray | None = None) -> 
     conflict = np.arccos(np.clip(alignment, 0.0, 1.0))  # 0=aligned, pi/2=orthogonal
 
     radius, angles = polar_encode(_pad_pow2(V))
-    return {"loading": loading, "conflict": conflict, "alignment": alignment,
-            "radius": radius, "angles": angles}
+    return {
+        "loading": loading,
+        "conflict": conflict,
+        "alignment": alignment,
+        "radius": radius,
+        "angles": angles,
+    }

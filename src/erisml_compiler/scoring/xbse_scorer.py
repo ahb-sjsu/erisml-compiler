@@ -62,8 +62,12 @@ def valence_to_dimension_score(valence: Valence, dimension: str) -> DimensionSco
 
 def _neutral(dimension: str, why: str) -> DimensionScore:
     return DimensionScore(
-        value=0.0, confidence=0.0, uncertainty=1.0, direction="neutral",
-        source_spans=[], explanation=f"xbse:{dimension} — {why}",
+        value=0.0,
+        confidence=0.0,
+        uncertainty=1.0,
+        direction="neutral",
+        source_spans=[],
+        explanation=f"xbse:{dimension} — {why}",
     )
 
 

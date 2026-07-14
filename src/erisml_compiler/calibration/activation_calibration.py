@@ -32,7 +32,7 @@ from typing import Sequence
 
 from erisml_compiler.ir.schemas import MORAL_DIMENSIONS
 
-DEAD_BAND = 0.05          # matches _logits_to_moral_vector's neutral band
+DEAD_BAND = 0.05  # matches _logits_to_moral_vector's neutral band
 INCLUDE_THRESHOLD = 0.70  # Phase-5 prereg C3: held-out acc >= 0.70 to include a dim
 
 
@@ -56,10 +56,10 @@ class ActivationCalibConfig:
 @dataclass
 class LayerCalibResult:
     layer_index: int
-    per_dim_signacc: dict[str, float]     # held-out sign-agreement, per dimension
-    per_dim_mae: dict[str, float]         # held-out mean abs error, per dimension
-    per_dim_n_eval: dict[str, int]        # held-out items with |target| > dead_band
-    included: dict[str, bool]             # signacc >= include_threshold
+    per_dim_signacc: dict[str, float]  # held-out sign-agreement, per dimension
+    per_dim_mae: dict[str, float]  # held-out mean abs error, per dimension
+    per_dim_n_eval: dict[str, int]  # held-out items with |target| > dead_band
+    included: dict[str, bool]  # signacc >= include_threshold
     n_train: int
     n_val: int
     final_train_loss: float
@@ -71,8 +71,10 @@ class LayerCalibResult:
 
     def summary(self) -> str:
         inc = ",".join(d for d, ok in self.included.items() if ok) or "(none)"
-        return (f"layer {self.layer_index}: {self.n_included}/{len(MORAL_DIMENSIONS)} dims "
-                f"calibrated (>= {INCLUDE_THRESHOLD:.2f} sign-acc)  included=[{inc}]")
+        return (
+            f"layer {self.layer_index}: {self.n_included}/{len(MORAL_DIMENSIONS)} dims "
+            f"calibrated (>= {INCLUDE_THRESHOLD:.2f} sign-acc)  included=[{inc}]"
+        )
 
 
 def _split(n: int, val_frac: float, seed: int):
@@ -89,7 +91,7 @@ def _sign_agreement(pred, targ, dead_band: float):
     (|target| > dead_band). Returns (signacc[10], mae[10], n_eval[10])."""
     import torch
 
-    stance = targ.abs() > dead_band                     # (N, 10) bool
+    stance = targ.abs() > dead_band  # (N, 10) bool
     agree = (torch.sign(pred) == torch.sign(targ)) & stance
     n_eval = stance.sum(dim=0).clamp(min=1)
     signacc = agree.sum(dim=0).float() / n_eval.float()
@@ -126,9 +128,13 @@ def train_layer_probe(X, Y, config: ActivationCalibConfig, layer_index: int = -1
     Xva, Yva = X[va_idx].to(config.device), Y[va_idx].to(config.device)
 
     torch.manual_seed(config.seed)
-    head = ProbeHead(in_dim=d, num_classes=len(MORAL_DIMENSIONS),
-                     hidden_dim=config.head_hidden, dropout=config.dropout,
-                     n_layers=config.head_layers).to(config.device)
+    head = ProbeHead(
+        in_dim=d,
+        num_classes=len(MORAL_DIMENSIONS),
+        hidden_dim=config.head_hidden,
+        dropout=config.dropout,
+        n_layers=config.head_layers,
+    ).to(config.device)
     opt = torch.optim.AdamW(head.parameters(), lr=config.lr, weight_decay=config.weight_decay)
 
     head.train()
@@ -139,7 +145,7 @@ def train_layer_probe(X, Y, config: ActivationCalibConfig, layer_index: int = -1
         perm = torch.randperm(len(Xtr), generator=g)
         epoch_loss, nb = 0.0, 0
         for s in range(0, len(Xtr), config.batch_size):
-            bi = perm[s:s + config.batch_size]
+            bi = perm[s : s + config.batch_size]
             pred = torch.tanh(head(Xtr[bi]))
             loss = F.mse_loss(pred, Ytr[bi])
             opt.zero_grad()
@@ -160,8 +166,10 @@ def train_layer_probe(X, Y, config: ActivationCalibConfig, layer_index: int = -1
     per_dim_signacc = {dims[i]: float(signacc[i]) for i in range(len(dims))}
     per_dim_mae = {dims[i]: float(mae[i]) for i in range(len(dims))}
     per_dim_n = {dims[i]: int(n_eval[i]) for i in range(len(dims))}
-    included = {dims[i]: bool(signacc[i] >= config.include_threshold and n_eval[i] > 0)
-                for i in range(len(dims))}
+    included = {
+        dims[i]: bool(signacc[i] >= config.include_threshold and n_eval[i] > 0)
+        for i in range(len(dims))
+    }
 
     result = LayerCalibResult(
         layer_index=layer_index,
@@ -177,11 +185,16 @@ def train_layer_probe(X, Y, config: ActivationCalibConfig, layer_index: int = -1
     return head, result
 
 
-def save_layer_checkpoint(head, path: str | Path, result: LayerCalibResult, *,
-                          corpus_fingerprint: dict | None = None,
-                          model_id: str | None = None,
-                          schema_version: str | None = None,
-                          teacher: str | None = None) -> Path:
+def save_layer_checkpoint(
+    head,
+    path: str | Path,
+    result: LayerCalibResult,
+    *,
+    corpus_fingerprint: dict | None = None,
+    model_id: str | None = None,
+    schema_version: str | None = None,
+    teacher: str | None = None,
+) -> Path:
     """Serialise a calibrated activation-probe head in the shape
     `ActivationProbe.load_head_state` consumes, with embedded provenance
     whose `calibration_metrics` carry the per-dim held-out sign accuracy."""
@@ -192,8 +205,11 @@ def save_layer_checkpoint(head, path: str | Path, result: LayerCalibResult, *,
     class _Hist:  # duck-types the fields build_provenance_for_training reads
         epoch_losses = [result.final_train_loss]
         epoch_main_accs = [
-            (sum(result.per_dim_signacc.values()) / len(result.per_dim_signacc))
-            if result.per_dim_signacc else 0.0
+            (
+                (sum(result.per_dim_signacc.values()) / len(result.per_dim_signacc))
+                if result.per_dim_signacc
+                else 0.0
+            )
         ]
 
     prov = build_provenance_for_training(
@@ -251,23 +267,29 @@ def calibration_table_rows(results: Sequence[LayerCalibResult], teacher: str) ->
     for dim in dims:
         best = max(results, key=lambda r: r.per_dim_signacc.get(dim, 0.0), default=None)
         acc = best.per_dim_signacc.get(dim, 0.0) if best else 0.0
-        rows.append({
-            "dimension": dim,
-            "teacher": teacher,
-            "best_layer": best.layer_index if best else None,
-            "held_out_signacc": round(acc, 3),
-            "n_eval": best.per_dim_n_eval.get(dim, 0) if best else 0,
-            "included": bool(best.included.get(dim, False)) if best else False,
-        })
+        rows.append(
+            {
+                "dimension": dim,
+                "teacher": teacher,
+                "best_layer": best.layer_index if best else None,
+                "held_out_signacc": round(acc, 3),
+                "n_eval": best.per_dim_n_eval.get(dim, 0) if best else 0,
+                "included": bool(best.included.get(dim, False)) if best else False,
+            }
+        )
     return rows
 
 
 def render_calibration_table_md(rows: list[dict]) -> str:
     """Render §6's table as markdown (drop-in for phase5_prereg.md)."""
-    out = ["| dimension | teacher | best layer | held-out sign-acc | n | included? |",
-           "|---|---|---|---|---|---|"]
+    out = [
+        "| dimension | teacher | best layer | held-out sign-acc | n | included? |",
+        "|---|---|---|---|---|---|",
+    ]
     for r in rows:
-        out.append(f"| {r['dimension']} | {r['teacher']} | {r['best_layer']} | "
-                    f"{r['held_out_signacc']:.3f} | {r['n_eval']} | "
-                    f"{'yes' if r['included'] else 'NO (excluded)'} |")
+        out.append(
+            f"| {r['dimension']} | {r['teacher']} | {r['best_layer']} | "
+            f"{r['held_out_signacc']:.3f} | {r['n_eval']} | "
+            f"{'yes' if r['included'] else 'NO (excluded)'} |"
+        )
     return "\n".join(out)

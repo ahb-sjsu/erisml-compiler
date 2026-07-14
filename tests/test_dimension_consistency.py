@@ -31,15 +31,15 @@ from erisml_compiler.ir.v3.dimensions import (
 # The frozen canonical order — DEME 3.0 "Nine Dimensions of Ethical Assessment" (3x3).
 # Editing this tuple is a deliberate, breaking act: update the SSOT + any guarded copies.
 CANONICAL_9: tuple[str, ...] = (
-    "physical_harm",           # k0  Relational / Consequences-and-Welfare
-    "rights_respect",          # k1  Individual  / Rights-and-Duties
-    "fairness_equity",         # k2  Collective  / Justice-and-Fairness
-    "autonomy_respect",        # k3  Individual  / Autonomy-and-Agency
-    "privacy_protection",      # k4  Individual  / Privacy-and-Data
+    "physical_harm",  # k0  Relational / Consequences-and-Welfare
+    "rights_respect",  # k1  Individual  / Rights-and-Duties
+    "fairness_equity",  # k2  Collective  / Justice-and-Fairness
+    "autonomy_respect",  # k3  Individual  / Autonomy-and-Agency
+    "privacy_protection",  # k4  Individual  / Privacy-and-Data
     "societal_environmental",  # k5  Collective  / Societal-and-Environmental
-    "virtue_care",             # k6  Relational  / Virtue-and-Care
-    "legitimacy_trust",        # k7  Collective  / Procedural-Legitimacy
-    "epistemic_quality",       # k8  Relational  / Epistemic-Status
+    "virtue_care",  # k6  Relational  / Virtue-and-Care
+    "legitimacy_trust",  # k7  Collective  / Procedural-Legitimacy
+    "epistemic_quality",  # k8  Relational  / Epistemic-Status
 )
 
 # The frozen extension channels — validated moral foundations OUTSIDE the k-axis.
@@ -94,8 +94,8 @@ def test_full_vocabulary_is_axis_plus_extensions():
 @pytest.mark.parametrize(
     "modname,attr",
     [
-        ("erisml.ethics.moral_tensor", "MORAL_DIMENSION_NAMES"),          # erisml-lib
-        ("agi.safety.erisml.moral_tensor", "MORAL_DIMENSION_NAMES"),      # agi-hpc
+        ("erisml.ethics.moral_tensor", "MORAL_DIMENSION_NAMES"),  # erisml-lib
+        ("agi.safety.erisml.moral_tensor", "MORAL_DIMENSION_NAMES"),  # agi-hpc
     ],
 )
 def test_sibling_packages_match_canonical(modname: str, attr: str):

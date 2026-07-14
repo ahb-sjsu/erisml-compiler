@@ -4,6 +4,7 @@ pure noise (so the monitor never treats random probes as calibrated), and
 (c) round-trip into a calibrated ActivationProbe whose provenance flips the
 Phase-5 C3 gate. Run: python -m pytest tests/test_activation_calibration.py -q
 """
+
 from __future__ import annotations
 
 import torch
@@ -45,8 +46,9 @@ def test_recovers_signal_excludes_noise():
     assert all(res.included[dims[i]] for i in range(n_signal)), "signal dims not included"
     # Noise dims sit near chance and are excluded — the whole point of the C3 gate.
     assert max(noise_acc) < 0.70, f"a noise dim was (wrongly) calibratable: {noise_acc}"
-    assert not any(res.included[dims[i]] for i in range(n_signal, len(dims))), \
-        "a noise dim was wrongly included"
+    assert not any(
+        res.included[dims[i]] for i in range(n_signal, len(dims))
+    ), "a noise dim was wrongly included"
 
 
 def test_checkpoint_roundtrip_flips_calibration_gate(tmp_path):
@@ -54,9 +56,14 @@ def test_checkpoint_roundtrip_flips_calibration_gate(tmp_path):
     cfg = ActivationCalibConfig(epochs=40, seed=2, log_every=0)
     head, res = train_layer_probe(X, Y, cfg, layer_index=12)
 
-    ckpt = save_layer_checkpoint(head, tmp_path / "layer12.pt", res,
-                                 corpus_fingerprint={"n_samples": X.shape[0], "d": X.shape[1]},
-                                 model_id="Qwen/Qwen2.5-7B-Instruct", teacher="unit-synth")
+    ckpt = save_layer_checkpoint(
+        head,
+        tmp_path / "layer12.pt",
+        res,
+        corpus_fingerprint={"n_samples": X.shape[0], "d": X.shape[1]},
+        model_id="Qwen/Qwen2.5-7B-Instruct",
+        teacher="unit-synth",
+    )
     probe = load_calibrated_probe(ckpt, hidden_dim=X.shape[1])
 
     # The gate the monitor branches on must now read True, with the per-dim
@@ -68,6 +75,7 @@ def test_checkpoint_roundtrip_flips_calibration_gate(tmp_path):
 
     # Loaded weights reproduce the trained head's predictions (tanh of logits).
     from erisml_compiler.monitor.base import LayerActivation
+
     x0 = X[0]
     la = LayerActivation(layer_index=12, layer_name="t", hidden=x0.unsqueeze(0), pooled=x0)
     got = probe.probe_layer(la).logits
@@ -94,6 +102,7 @@ if __name__ == "__main__":
     print("PASS recovers_signal_excludes_noise")
     import tempfile
     from pathlib import Path
+
     with tempfile.TemporaryDirectory() as t:
         test_checkpoint_roundtrip_flips_calibration_gate(Path(t))
     print("PASS checkpoint_roundtrip_flips_calibration_gate")

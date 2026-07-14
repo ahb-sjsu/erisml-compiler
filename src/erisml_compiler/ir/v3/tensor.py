@@ -261,7 +261,9 @@ class MoralTensorV3(BaseModel):
         if not -1.0 <= float(value) <= 1.0:
             raise ValueError(f"extension channel {name!r} value must be in [-1, 1]; got {value}")
         if presence is not None and not 0.0 <= float(presence) <= 1.0:
-            raise ValueError(f"extension channel {name!r} presence must be in [0, 1]; got {presence}")
+            raise ValueError(
+                f"extension channel {name!r} presence must be in [0, 1]; got {presence}"
+            )
         channels = self.metadata.setdefault("extension_channels", {})
         channels[name] = {
             "value": float(value),

@@ -169,9 +169,9 @@ EXTENSION_CHANNEL_PROVENANCE: dict[str, dict[str, object]] = {
 }
 
 # Sanity: extension channels are disjoint from the frozen k-axis.
-assert not (set(MORAL_EXTENSION_CHANNELS) & set(MORAL_DIMENSIONS_V3)), (
-    "extension channels must not collide with the canonical k-axis"
-)
+assert not (
+    set(MORAL_EXTENSION_CHANNELS) & set(MORAL_DIMENSIONS_V3)
+), "extension channels must not collide with the canonical k-axis"
 
 # The full ordered MoralVector vocabulary: the 9 frozen k-axis dimensions
 # followed by the validated extension channels. Downstream consumers that need
