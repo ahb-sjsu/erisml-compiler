@@ -49,7 +49,15 @@ which the reasoning cannot be recovered. \rev{This is not merely rhetorical: if 
 genuinely depends on two or more independent considerations, no continuous scalar can
 represent it without information loss---there is no continuous injection
 $[0,1]^d\to\mathbb{R}$ for $d\ge2$---so the choice is between preserving structure and
-losing it, with no lossless scalar option \citep{bond_gdt_theory}.} Second, and more
+losing it, with no lossless scalar option \citep{bond_gdt_theory}.} \rev{We scope this
+precisely, because our own framework ultimately emits a verdict $\nu$ that collapses to a
+five-point total order (allow\,/\,\ldots\,/\,escalate\,/\,\ldots\,/\,veto)---itself a
+scalar. The theorem does not forbid a scalar \emph{decision}; it forbids treating a scalar as
+the \emph{representation} from which reasoning is recovered. The framework preserves the
+multi-dimensional state \emph{up to the decision boundary} and keeps the pre-collapse state
+auditable: \textsf{escalate} surfaces exactly where a collapse would destroy decision-relevant
+structure rather than forcing it, and the \texttt{DecisionProof} retains the full vector
+behind every verdict. The scalar is the last step, not the substrate.} Second, and more
 insidiously, any single score
 \emph{silently pre-commits to one ethical framework} (typically aggregative
 consequentialism) while presenting itself as neutral. A system that returns ``0.83 safe''
@@ -263,17 +271,17 @@ under explicit thresholds, with any veto forcing \texttt{forbid}.
 EMs are organized into governed \emph{tiers}: tier-0 \emph{constitutional} modules (the
 \emph{Geneva} module, encoding Geneva-Convention and fundamental-rights constraints, with
 non-disableable hard veto), then core-safety, rights/fairness, soft-value, and
-meta-governance tiers. A Hohfeld module represents the four fundamental normative positions
-with $D_4$ dihedral-group structure, making correlative relations (claim$\leftrightarrow$duty,
-liberty$\leftrightarrow$no-claim) explicit and testable.
-\rev{[AUTHOR TODO --- group-order claim is likely wrong. Correlative-swap and
-opposite are two \emph{commuting} involutions on the first-order square; two commuting
-involutions generate the Klein four-group $V_4$ (order 4), not $D_4$ (order 8, non-abelian).
-$D_4$ is claimable only if the module's implemented operations on the full eight
-Hohfeld positions (first- and second-order) genuinely fail to commute. This is settleable
-in five lines---assert the Cayley table of the implemented ops---but no Hohfeld module is
-currently implemented in \texttt{erisml-compiler} to check against. Either correct the
-text to $V_4$, or exhibit the order-8 operation set.]} Module \emph{weights} are not fixed:
+meta-governance tiers. A \rev{designed} Hohfeld module \rev{---Klein four-group $V_4$ over the first-order square,
+implementation pending---}represents the four fundamental normative positions, making
+correlative relations (claim$\leftrightarrow$duty, liberty$\leftrightarrow$no-claim) explicit
+and testable.
+\rev{We correct an earlier overclaim: correlative-swap and opposite are two \emph{commuting}
+involutions, which generate the Klein four-group $V_4$ (order 4), not the dihedral $D_4$
+(order 8, non-abelian); $D_4$ would require a non-commuting operation pair over the full
+eight Hohfeld positions. And no Hohfeld module is yet implemented in
+\texttt{erisml-compiler}, so this is stated as a designed component and roadmap item, not a
+shipped artifact---the verifying check is five lines (assert the Cayley table of the
+implemented ops) once the module exists.} Module \emph{weights} are not fixed:
 they are set by \emph{ethos profiles}---the ``democratically-governed'' element---calibrated
 from a normative corpus, so that distinct stakeholder value systems instantiate distinct,
 declared evaluators rather than one universal scorer. Per-party verdicts aggregate
@@ -302,12 +310,17 @@ $3\times 3$ structure whose nine cells are the dimensions.
 % is elegant but the crossing itself is stipulated, and the cell-to-dimension
 % mapping was never exhibited. It is now (Table below), which also surfaces the
 % assignments that need defense.
-\rev{Table~\ref{tab:threebythree} makes the cell assignments explicit. [AUTHOR TODO:
-confirm the assignments; the placements marked $^{?}$ are the ones a referee will
-contest---rights vs.\ autonomy both plausibly occupy individual$\times$who-decides, and
-fairness vs.\ societal/environmental compete for collective$\times$what-matters. If a
-cell resists a unique occupant, say so in the text: the friction is informative about
-how much work the derivation is really doing.]
+\rev{Table~\ref{tab:threebythree} makes the cell assignments explicit. It is the
+\emph{canonical} assignment, generated from the single source-of-truth module
+(\texttt{erisml\_compiler.ir.v3.dimensions.DIMENSION\_MATRIX\_3X3}), and it matches---cell
+for cell---the companion instrument paper \citep{bond_moral_spectrum} and the reference
+diagram; a drift-guard test fails CI if the three diverge. Two placements are genuinely
+contestable, and we flag rather than hide the friction: \emph{rights} vs.\ \emph{autonomy}
+both plausibly occupy individual$\times$who-decides, and physical harm's placement at
+relational$\times$who-decides (consequences and welfare) is defensible but not forced---a
+referee may prefer individual$\times$what-matters. Because the assignment is frozen by the
+versioned interface (\S\ref{sec:deme}), revising a cell is a major-version change, not an
+editorial one.}
 \begin{table}[t]
 \centering
 \small
@@ -315,15 +328,16 @@ how much work the derivation is really doing.]
 \toprule
  & \textbf{what matters} & \textbf{who decides} & \textbf{what is known} \\
 \midrule
-\textbf{individual} & physical harm & autonomy$^{?}$ & privacy$^{?}$ \\
-\textbf{relational} & virtue/care & rights$^{?}$ & legitimacy/trust \\
-\textbf{collective} & societal/environ. & fairness$^{?}$ & epistemic quality \\
+\textbf{individual} & autonomy/agency & rights/duties & privacy/data \\
+\textbf{relational} & virtue/care & physical harm & epistemic quality \\
+\textbf{collective} & justice/fairness & legitimacy/trust & societal/environ. \\
 \bottomrule
 \end{tabular}
-\caption{\rev{The scope$\times$mode crossing behind the nine dimensions. Assignments
-marked $^{?}$ are provisional pending author confirmation.}}
+\caption{\rev{The scope$\times$mode crossing behind the nine dimensions---the canonical
+assignment from the single-source-of-truth module, matching the companion instrument paper
+and the reference diagram (drift-guarded in CI).}}
 \label{tab:threebythree}
-\end{table}}
+\end{table}
 The construction is validated by
 \emph{subsumption}: the principles of major applied-ethics frameworks map onto the nine
 dimensions without residue---the EU High-Level Expert Group's seven requirements for

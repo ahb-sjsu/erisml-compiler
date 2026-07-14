@@ -20,6 +20,9 @@ import importlib
 import pytest
 
 from erisml_compiler.ir.v3.dimensions import (
+    DIMENSION_MATRIX_3X3,
+    FRAMINGS,
+    LEVELS,
     MORAL_DIMENSIONS_V3,
     MORAL_EXTENSION_CHANNELS,
     MORAL_VECTOR_CHANNELS,
@@ -44,9 +47,38 @@ CANONICAL_9: tuple[str, ...] = (
 # EXTENSION_CHANNEL_PROVENANCE).
 CANONICAL_EXTENSIONS: tuple[str, ...] = ("purity", "loyalty")
 
+# The frozen scope×mode (level×framing) assignment. This is the SEMANTICS the
+# drift-guard protects, not just the names: the keystone Table 1, the MoralVector
+# paper's k-table, and the reference diagram must all match THIS assignment.
+# Editing it is a major-version change to the ontology, never an editorial one.
+CANONICAL_MATRIX_3X3: dict[str, tuple[str, str]] = {
+    "physical_harm": ("Relational", "Who Decides"),
+    "rights_respect": ("Individual", "Who Decides"),
+    "fairness_equity": ("Collective", "What Matters"),
+    "autonomy_respect": ("Individual", "What Matters"),
+    "privacy_protection": ("Individual", "What We Know"),
+    "societal_environmental": ("Collective", "What We Know"),
+    "virtue_care": ("Relational", "What Matters"),
+    "legitimacy_trust": ("Collective", "Who Decides"),
+    "epistemic_quality": ("Relational", "What We Know"),
+}
+
 
 def test_compiler_matches_canonical():
     assert tuple(MORAL_DIMENSIONS_V3) == CANONICAL_9
+
+
+def test_matrix_matches_canonical_assignment():
+    """The scope×mode assignment is frozen; papers + diagram generate from it."""
+    assert DIMENSION_MATRIX_3X3 == CANONICAL_MATRIX_3X3
+
+
+def test_matrix_is_a_bijection_onto_the_nine_cells():
+    """Each of the nine dimensions occupies exactly one distinct level×framing cell."""
+    assert set(DIMENSION_MATRIX_3X3) == set(CANONICAL_9)
+    cells = list(DIMENSION_MATRIX_3X3.values())
+    assert len(cells) == len(set(cells)) == 9
+    assert set(cells) == {(lv, fr) for lv in LEVELS for fr in FRAMINGS}
 
 
 def test_extension_channels_frozen():
