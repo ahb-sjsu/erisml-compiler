@@ -45,9 +45,9 @@ from typing import Sequence
 
 import paramiko
 
-ATLAS_HOST = "100.68.134.21"
-USER = "claude"
-PASSWORD = "roZes9090!~"
+from erisml_compiler.atlas_creds import atlas_credentials
+
+ATLAS_HOST, USER, PASSWORD = atlas_credentials()  # env or ~/.atlas_creds; never hardcoded
 VENV_PY = "/home/claude/env/bin/python3"
 MODEL_ID = "Qwen/Qwen2.5-7B-Instruct"
 

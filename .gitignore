@@ -62,13 +62,23 @@ data/
 *.ckpt
 *.bin
 *.safetensors
+*.npz
 
-# LaTeX build products (none here, just in case)
+# Phase-5 calibration: regenerable features, licensed corpus sample, Atlas creds
+experiments/calibration/calib_features/
+experiments/calibration/calib_texts.jsonl
+experiments/calibration/_atlas.py
+
+# LaTeX build products (keystone paper builds under paper/keystone/)
 *.aux
 *.log
 *.toc
 *.bbl
 *.blg
+*.fls
+*.fdb_latexmk
+*.out
+*.synctex.gz
 
 # The big spec docs we don't need to track in the package repo
 ErisML-Compiler.docx

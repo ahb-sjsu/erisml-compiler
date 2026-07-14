@@ -1,0 +1,521 @@
+{
+  "teacher": "qwen3+glm-5 signed consensus",
+  "epochs": 80,
+  "seed": 20260707,
+  "layers": [
+    {
+      "layer_index": 0,
+      "n_train": 3750,
+      "n_val": 1250,
+      "final_train_loss": 0.00656691817882455,
+      "per_dim_signacc": {
+        "physical_harm": 0.625806450843811,
+        "rights_respect": 0.6525934934616089,
+        "fairness_equity": 0.7142857313156128,
+        "autonomy_consent": 0.7015384435653687,
+        "legitimacy_trust": 0.7724137902259827,
+        "epistemic_quality": 0.679513156414032,
+        "care_protection": 0.7369914650917053,
+        "vow_fidelity": 0.832775890827179,
+        "third_party_externality": 0.8036912679672241,
+        "repair_residue": 0.7993630766868591
+      },
+      "per_dim_mae": {
+        "physical_harm": 0.10040657222270966,
+        "rights_respect": 0.23650580644607544,
+        "fairness_equity": 0.2643500864505768,
+        "autonomy_consent": 0.3142191171646118,
+        "legitimacy_trust": 0.19676052033901215,
+        "epistemic_quality": 0.19305984675884247,
+        "care_protection": 0.3116656243801117,
+        "vow_fidelity": 0.2286618947982788,
+        "third_party_externality": 0.1602279245853424,
+        "repair_residue": 0.14714068174362183
+      },
+      "per_dim_n_eval": {
+        "physical_harm": 155,
+        "rights_respect": 829,
+        "fairness_equity": 896,
+        "autonomy_consent": 975,
+        "legitimacy_trust": 725,
+        "epistemic_quality": 493,
+        "care_protection": 1057,
+        "vow_fidelity": 897,
+        "third_party_externality": 596,
+        "repair_residue": 314
+      },
+      "included": {
+        "physical_harm": false,
+        "rights_respect": false,
+        "fairness_equity": true,
+        "autonomy_consent": true,
+        "legitimacy_trust": true,
+        "epistemic_quality": false,
+        "care_protection": true,
+        "vow_fidelity": true,
+        "third_party_externality": true,
+        "repair_residue": true
+      }
+    },
+    {
+      "layer_index": 4,
+      "n_train": 3750,
+      "n_val": 1250,
+      "final_train_loss": 0.07453397762472347,
+      "per_dim_signacc": {
+        "physical_harm": 0.7032257914543152,
+        "rights_respect": 0.6320868730545044,
+        "fairness_equity": 0.703125,
+        "autonomy_consent": 0.5805128216743469,
+        "legitimacy_trust": 0.7917241454124451,
+        "epistemic_quality": 0.6592292189598083,
+        "care_protection": 0.7691580057144165,
+        "vow_fidelity": 0.8617614507675171,
+        "third_party_externality": 0.8808724880218506,
+        "repair_residue": 0.837579607963562
+      },
+      "per_dim_mae": {
+        "physical_harm": 0.0679784044623375,
+        "rights_respect": 0.22231897711753845,
+        "fairness_equity": 0.23863036930561066,
+        "autonomy_consent": 0.35952886939048767,
+        "legitimacy_trust": 0.18418189883232117,
+        "epistemic_quality": 0.1695653796195984,
+        "care_protection": 0.2979393005371094,
+        "vow_fidelity": 0.23592190444469452,
+        "third_party_externality": 0.15315258502960205,
+        "repair_residue": 0.1285434365272522
+      },
+      "per_dim_n_eval": {
+        "physical_harm": 155,
+        "rights_respect": 829,
+        "fairness_equity": 896,
+        "autonomy_consent": 975,
+        "legitimacy_trust": 725,
+        "epistemic_quality": 493,
+        "care_protection": 1057,
+        "vow_fidelity": 897,
+        "third_party_externality": 596,
+        "repair_residue": 314
+      },
+      "included": {
+        "physical_harm": true,
+        "rights_respect": false,
+        "fairness_equity": true,
+        "autonomy_consent": false,
+        "legitimacy_trust": true,
+        "epistemic_quality": false,
+        "care_protection": true,
+        "vow_fidelity": true,
+        "third_party_externality": true,
+        "repair_residue": true
+      }
+    },
+    {
+      "layer_index": 8,
+      "n_train": 3750,
+      "n_val": 1250,
+      "final_train_loss": 0.06151672667365963,
+      "per_dim_signacc": {
+        "physical_harm": 0.6645161509513855,
+        "rights_respect": 0.6767189502716064,
+        "fairness_equity": 0.7098214030265808,
+        "autonomy_consent": 0.7138461470603943,
+        "legitimacy_trust": 0.7917241454124451,
+        "epistemic_quality": 0.6328600645065308,
+        "care_protection": 0.7691580057144165,
+        "vow_fidelity": 0.8617614507675171,
+        "third_party_externality": 0.8808724880218506,
+        "repair_residue": 0.837579607963562
+      },
+      "per_dim_mae": {
+        "physical_harm": 0.06682761013507843,
+        "rights_respect": 0.2175905704498291,
+        "fairness_equity": 0.23749883472919464,
+        "autonomy_consent": 0.29835766553878784,
+        "legitimacy_trust": 0.18053466081619263,
+        "epistemic_quality": 0.17397554218769073,
+        "care_protection": 0.3063064217567444,
+        "vow_fidelity": 0.2269333451986313,
+        "third_party_externality": 0.15152272582054138,
+        "repair_residue": 0.12008415162563324
+      },
+      "per_dim_n_eval": {
+        "physical_harm": 155,
+        "rights_respect": 829,
+        "fairness_equity": 896,
+        "autonomy_consent": 975,
+        "legitimacy_trust": 725,
+        "epistemic_quality": 493,
+        "care_protection": 1057,
+        "vow_fidelity": 897,
+        "third_party_externality": 596,
+        "repair_residue": 314
+      },
+      "included": {
+        "physical_harm": false,
+        "rights_respect": false,
+        "fairness_equity": true,
+        "autonomy_consent": true,
+        "legitimacy_trust": true,
+        "epistemic_quality": false,
+        "care_protection": true,
+        "vow_fidelity": true,
+        "third_party_externality": true,
+        "repair_residue": true
+      }
+    },
+    {
+      "layer_index": 12,
+      "n_train": 3750,
+      "n_val": 1250,
+      "final_train_loss": 0.0604025498663975,
+      "per_dim_signacc": {
+        "physical_harm": 0.6451612710952759,
+        "rights_respect": 0.6610373854637146,
+        "fairness_equity": 0.7087053656578064,
+        "autonomy_consent": 0.6666666865348816,
+        "legitimacy_trust": 0.7917241454124451,
+        "epistemic_quality": 0.6713995933532715,
+        "care_protection": 0.7691580057144165,
+        "vow_fidelity": 0.8617614507675171,
+        "third_party_externality": 0.8808724880218506,
+        "repair_residue": 0.824840784072876
+      },
+      "per_dim_mae": {
+        "physical_harm": 0.06416652351617813,
+        "rights_respect": 0.21025727689266205,
+        "fairness_equity": 0.2309361845254898,
+        "autonomy_consent": 0.30097275972366333,
+        "legitimacy_trust": 0.17721357941627502,
+        "epistemic_quality": 0.1684921681880951,
+        "care_protection": 0.2999032139778137,
+        "vow_fidelity": 0.22564579546451569,
+        "third_party_externality": 0.15027092397212982,
+        "repair_residue": 0.11152933537960052
+      },
+      "per_dim_n_eval": {
+        "physical_harm": 155,
+        "rights_respect": 829,
+        "fairness_equity": 896,
+        "autonomy_consent": 975,
+        "legitimacy_trust": 725,
+        "epistemic_quality": 493,
+        "care_protection": 1057,
+        "vow_fidelity": 897,
+        "third_party_externality": 596,
+        "repair_residue": 314
+      },
+      "included": {
+        "physical_harm": false,
+        "rights_respect": false,
+        "fairness_equity": true,
+        "autonomy_consent": false,
+        "legitimacy_trust": true,
+        "epistemic_quality": false,
+        "care_protection": true,
+        "vow_fidelity": true,
+        "third_party_externality": true,
+        "repair_residue": true
+      }
+    },
+    {
+      "layer_index": 16,
+      "n_train": 3750,
+      "n_val": 1250,
+      "final_train_loss": 0.06949081360283545,
+      "per_dim_signacc": {
+        "physical_harm": 0.6129032373428345,
+        "rights_respect": 0.6779252290725708,
+        "fairness_equity": 0.703125,
+        "autonomy_consent": 0.6235897541046143,
+        "legitimacy_trust": 0.7917241454124451,
+        "epistemic_quality": 0.6511155962944031,
+        "care_protection": 0.7691580057144165,
+        "vow_fidelity": 0.8617614507675171,
+        "third_party_externality": 0.8808724880218506,
+        "repair_residue": 0.837579607963562
+      },
+      "per_dim_mae": {
+        "physical_harm": 0.06433191150426865,
+        "rights_respect": 0.21169443428516388,
+        "fairness_equity": 0.2225334495306015,
+        "autonomy_consent": 0.349913626909256,
+        "legitimacy_trust": 0.16927766799926758,
+        "epistemic_quality": 0.16900642216205597,
+        "care_protection": 0.2924952208995819,
+        "vow_fidelity": 0.23098017275333405,
+        "third_party_externality": 0.14949405193328857,
+        "repair_residue": 0.12124090641736984
+      },
+      "per_dim_n_eval": {
+        "physical_harm": 155,
+        "rights_respect": 829,
+        "fairness_equity": 896,
+        "autonomy_consent": 975,
+        "legitimacy_trust": 725,
+        "epistemic_quality": 493,
+        "care_protection": 1057,
+        "vow_fidelity": 897,
+        "third_party_externality": 596,
+        "repair_residue": 314
+      },
+      "included": {
+        "physical_harm": false,
+        "rights_respect": false,
+        "fairness_equity": true,
+        "autonomy_consent": false,
+        "legitimacy_trust": true,
+        "epistemic_quality": false,
+        "care_protection": true,
+        "vow_fidelity": true,
+        "third_party_externality": true,
+        "repair_residue": true
+      }
+    },
+    {
+      "layer_index": 20,
+      "n_train": 3750,
+      "n_val": 1250,
+      "final_train_loss": 0.06870564306944103,
+      "per_dim_signacc": {
+        "physical_harm": 0.6580645442008972,
+        "rights_respect": 0.6248492002487183,
+        "fairness_equity": 0.703125,
+        "autonomy_consent": 0.6215384602546692,
+        "legitimacy_trust": 0.7917241454124451,
+        "epistemic_quality": 0.6085192561149597,
+        "care_protection": 0.7691580057144165,
+        "vow_fidelity": 0.8617614507675171,
+        "third_party_externality": 0.8808724880218506,
+        "repair_residue": 0.837579607963562
+      },
+      "per_dim_mae": {
+        "physical_harm": 0.06422404944896698,
+        "rights_respect": 0.21871474385261536,
+        "fairness_equity": 0.23248471319675446,
+        "autonomy_consent": 0.35388824343681335,
+        "legitimacy_trust": 0.17624323070049286,
+        "epistemic_quality": 0.17193928360939026,
+        "care_protection": 0.29972758889198303,
+        "vow_fidelity": 0.23656487464904785,
+        "third_party_externality": 0.15034367144107819,
+        "repair_residue": 0.12454093247652054
+      },
+      "per_dim_n_eval": {
+        "physical_harm": 155,
+        "rights_respect": 829,
+        "fairness_equity": 896,
+        "autonomy_consent": 975,
+        "legitimacy_trust": 725,
+        "epistemic_quality": 493,
+        "care_protection": 1057,
+        "vow_fidelity": 897,
+        "third_party_externality": 596,
+        "repair_residue": 314
+      },
+      "included": {
+        "physical_harm": false,
+        "rights_respect": false,
+        "fairness_equity": true,
+        "autonomy_consent": false,
+        "legitimacy_trust": true,
+        "epistemic_quality": false,
+        "care_protection": true,
+        "vow_fidelity": true,
+        "third_party_externality": true,
+        "repair_residue": true
+      }
+    },
+    {
+      "layer_index": 24,
+      "n_train": 3750,
+      "n_val": 1250,
+      "final_train_loss": 0.07208126423470045,
+      "per_dim_signacc": {
+        "physical_harm": 0.7096773982048035,
+        "rights_respect": 0.6791315078735352,
+        "fairness_equity": 0.6941964030265808,
+        "autonomy_consent": 0.6399999856948853,
+        "legitimacy_trust": 0.7586206793785095,
+        "epistemic_quality": 0.6430020332336426,
+        "care_protection": 0.7360454201698303,
+        "vow_fidelity": 0.8483834862709045,
+        "third_party_externality": 0.8607382774353027,
+        "repair_residue": 0.8121019005775452
+      },
+      "per_dim_mae": {
+        "physical_harm": 0.0749625638127327,
+        "rights_respect": 0.2344876527786255,
+        "fairness_equity": 0.25150254368782043,
+        "autonomy_consent": 0.3468962013721466,
+        "legitimacy_trust": 0.19990471005439758,
+        "epistemic_quality": 0.18620438873767853,
+        "care_protection": 0.3064757287502289,
+        "vow_fidelity": 0.24496705830097198,
+        "third_party_externality": 0.1569291353225708,
+        "repair_residue": 0.14102593064308167
+      },
+      "per_dim_n_eval": {
+        "physical_harm": 155,
+        "rights_respect": 829,
+        "fairness_equity": 896,
+        "autonomy_consent": 975,
+        "legitimacy_trust": 725,
+        "epistemic_quality": 493,
+        "care_protection": 1057,
+        "vow_fidelity": 897,
+        "third_party_externality": 596,
+        "repair_residue": 314
+      },
+      "included": {
+        "physical_harm": true,
+        "rights_respect": false,
+        "fairness_equity": false,
+        "autonomy_consent": false,
+        "legitimacy_trust": true,
+        "epistemic_quality": false,
+        "care_protection": true,
+        "vow_fidelity": true,
+        "third_party_externality": true,
+        "repair_residue": true
+      }
+    },
+    {
+      "layer_index": 27,
+      "n_train": 3750,
+      "n_val": 1250,
+      "final_train_loss": 0.9301888568926666,
+      "per_dim_signacc": {
+        "physical_harm": 0.34838709235191345,
+        "rights_respect": 0.5621230602264404,
+        "fairness_equity": 0.703125,
+        "autonomy_consent": 0.47999998927116394,
+        "legitimacy_trust": 0.7917241454124451,
+        "epistemic_quality": 0.456389456987381,
+        "care_protection": 0.7691580057144165,
+        "vow_fidelity": 0.8617614507675171,
+        "third_party_externality": 0.8808724880218506,
+        "repair_residue": 0.837579607963562
+      },
+      "per_dim_mae": {
+        "physical_harm": 1.0190000534057617,
+        "rights_respect": 0.9671599864959717,
+        "fairness_equity": 0.885360062122345,
+        "autonomy_consent": 1.0426400899887085,
+        "legitimacy_trust": 0.8791199922561646,
+        "epistemic_quality": 1.0149599313735962,
+        "care_protection": 0.7989200353622437,
+        "vow_fidelity": 0.7846999764442444,
+        "third_party_externality": 0.8957600593566895,
+        "repair_residue": 0.9291200041770935
+      },
+      "per_dim_n_eval": {
+        "physical_harm": 155,
+        "rights_respect": 829,
+        "fairness_equity": 896,
+        "autonomy_consent": 975,
+        "legitimacy_trust": 725,
+        "epistemic_quality": 493,
+        "care_protection": 1057,
+        "vow_fidelity": 897,
+        "third_party_externality": 596,
+        "repair_residue": 314
+      },
+      "included": {
+        "physical_harm": false,
+        "rights_respect": false,
+        "fairness_equity": true,
+        "autonomy_consent": false,
+        "legitimacy_trust": true,
+        "epistemic_quality": false,
+        "care_protection": true,
+        "vow_fidelity": true,
+        "third_party_externality": true,
+        "repair_residue": true
+      }
+    }
+  ],
+  "table": [
+    {
+      "dimension": "physical_harm",
+      "teacher": "qwen3+glm-5 signed consensus",
+      "best_layer": 24,
+      "held_out_signacc": 0.71,
+      "n_eval": 155,
+      "included": true
+    },
+    {
+      "dimension": "rights_respect",
+      "teacher": "qwen3+glm-5 signed consensus",
+      "best_layer": 24,
+      "held_out_signacc": 0.679,
+      "n_eval": 829,
+      "included": false
+    },
+    {
+      "dimension": "fairness_equity",
+      "teacher": "qwen3+glm-5 signed consensus",
+      "best_layer": 0,
+      "held_out_signacc": 0.714,
+      "n_eval": 896,
+      "included": true
+    },
+    {
+      "dimension": "autonomy_consent",
+      "teacher": "qwen3+glm-5 signed consensus",
+      "best_layer": 8,
+      "held_out_signacc": 0.714,
+      "n_eval": 975,
+      "included": true
+    },
+    {
+      "dimension": "legitimacy_trust",
+      "teacher": "qwen3+glm-5 signed consensus",
+      "best_layer": 4,
+      "held_out_signacc": 0.792,
+      "n_eval": 725,
+      "included": true
+    },
+    {
+      "dimension": "epistemic_quality",
+      "teacher": "qwen3+glm-5 signed consensus",
+      "best_layer": 0,
+      "held_out_signacc": 0.68,
+      "n_eval": 493,
+      "included": false
+    },
+    {
+      "dimension": "care_protection",
+      "teacher": "qwen3+glm-5 signed consensus",
+      "best_layer": 4,
+      "held_out_signacc": 0.769,
+      "n_eval": 1057,
+      "included": true
+    },
+    {
+      "dimension": "vow_fidelity",
+      "teacher": "qwen3+glm-5 signed consensus",
+      "best_layer": 4,
+      "held_out_signacc": 0.862,
+      "n_eval": 897,
+      "included": true
+    },
+    {
+      "dimension": "third_party_externality",
+      "teacher": "qwen3+glm-5 signed consensus",
+      "best_layer": 4,
+      "held_out_signacc": 0.881,
+      "n_eval": 596,
+      "included": true
+    },
+    {
+      "dimension": "repair_residue",
+      "teacher": "qwen3+glm-5 signed consensus",
+      "best_layer": 4,
+      "held_out_signacc": 0.838,
+      "n_eval": 314,
+      "included": true
+    }
+  ]
+}

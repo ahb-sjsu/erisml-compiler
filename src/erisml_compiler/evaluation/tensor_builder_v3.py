@@ -11,7 +11,7 @@ outputs and the IR's stakeholder list. Rank semantics:
                               evaluation)
   rank 3 (k, n, τ)          — per-stakeholder × per-time (Phase 5)
   rank 4 (k, n, a, c)       — coalition actions (Phase 5)
-  rank 5 (k, n, τ, s)       — temporal × uncertainty samples (Phase 5)
+  rank 5 (k, n, τ, a, c)    — coalition decisions over time (Phase 5)
   rank 6 (k, n, τ, a, c, s) — full multi-agent context (Phase 5)
 
 This file currently only supports ranks 1 and 2. Higher ranks raise

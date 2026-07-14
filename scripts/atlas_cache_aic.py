@@ -11,9 +11,9 @@ import base64
 
 import paramiko
 
-ATLAS_HOST = "100.68.134.21"
-ATLAS_USER = "claude"
-ATLAS_PASS = "roZes9090!~"
+from erisml_compiler.atlas_creds import atlas_credentials
+
+ATLAS_HOST, ATLAS_USER, ATLAS_PASS = atlas_credentials()  # env or ~/.atlas_creds; never hardcoded
 
 BASH_SCRIPT = r"""#!/usr/bin/env bash
 set -euo pipefail

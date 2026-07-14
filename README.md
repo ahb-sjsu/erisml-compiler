@@ -294,6 +294,11 @@ erisml-compiler/
 
 ## DEME V3 alignment
 
+> **Canonical MoralVector spec:** dimensions + xBSE feeders + tensor mapping + evidence in
+> `erisml-lib/docs/moralvector_reference.md`; standards architecture in
+> `erisml-lib/docs/moralvector_v2_architecture.md`. The V2→V3 (10→9) migration is in
+> `ir/v3/migration.py`, guarded by `tests/test_dimension_consistency.py`.
+
 The original V2 IR carries 10 moral dimensions and a rank-2 per-stakeholder
 `MoralTensor`. **DEME V3** (`erisml-lib`) speaks a different shape:
 9 dimensions derived from the *Nine Dimensions of Ethical Assessment* 3×3

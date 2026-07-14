@@ -1,0 +1,29 @@
+% LOCAL-PREVIEW wrapper for the REVISED keystone (review-10 pass).
+% Mirrors keystone.tex but \input{body_revised} + keystone_revised.bib, and loads
+% xcolor so the \rev{...} revision marking (teal) renders. To read a clean copy
+% with revision marks hidden, add \renewcommand{\rev}[1]{#1} after \begin{document}.
+
+\documentclass[11pt,letterpaper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{xcolor}   % \rev{...} teal revision marking (body_revised defines \rev)
+% Paragraph-safe \rev: a \color group (not \textcolor) so a \rev{...} block may
+% span multiple paragraphs. Defined here in the preamble so body_revised's
+% \providecommand{\rev} no-ops. To hide marks: \long\def\rev#1{#1}.
+\long\def\rev#1{{\color{teal}#1}}
+\usepackage{hyperref}
+\usepackage{natbib}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\title{ErisML and DEME: A Structure-Preserving, Framework-Pluralist\\
+Pipeline for Auditable Machine Ethics}
+\author{Andrew H. Bond}
+\date{Draft (revised) --- \today}
+
+\begin{document}
+\maketitle
+\input{body_revised}
+\bibliographystyle{plainnat}
+\bibliography{keystone_revised}
+\end{document}

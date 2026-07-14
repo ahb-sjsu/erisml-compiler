@@ -1,0 +1,26 @@
+{
+  "prereg": "prereg-phase5-confirm-v1",
+  "frozen_before": "confirmatory 40-scenario run on scenarios_phase5_confirm.json",
+  "instrument": {
+    "readout_layer": 8,
+    "calibrated_dims": 7,
+    "equiv_exclude": [
+      27
+    ],
+    "divergence_threshold": 0.35,
+    "direction_break_max": 2
+  },
+  "files": {
+    "experiments/phase5_prereg.md": "366387aa3bb19069b5bb1f9601c3369ee9843da15fc62af55283bc948bc9f582",
+    "experiments/scenarios_phase5_confirm.json": "75404af95a04e17b9cf479be6aa4d3e81fb56f9fb2f559bd7bd7c8e2338dda5e",
+    "experiments/analyze_phase5.py": "1fca54075a131bac3ba00b0d778edf55bc997d7ffdef18ef3c419384ae4884ea",
+    "experiments/phase5_run.py": "b8ca9041defe5e12705478846c9fd49391088b5d818577ecb6c2459123f1f301",
+    "experiments/phase5_text_vectors.py": "546451826a0d48bd1c96480378a69725ec458fca5cf4ff36014d8ec435702385",
+    "experiments/calibration/atlas_phase5_extract.py": "426fcfb0def04be098ee06fdcbab3059fb74b5610c60898c7723229f18379031",
+    "src/erisml_compiler/delta/compare.py": "8175381d289ee70b4ecb9e0ee92549a6560b19a8c3e1d367a4d94570e5632f75",
+    "src/erisml_compiler/calibration/activation_calibration.py": "e7b775a22354783cb7e6eee698208b9b67ddc42e1ee3300cfa2938a821c6dd0d",
+    "experiments/calibration/out/checkpoints/layer_08.pt": "f9c734b61bfb3378a7c3dd9fbe1bb2986776f7b5205d3f5b2a113fcacaa3c3de",
+    "experiments/calibration/out/phase5_section6_table.md": "5c7b0d6aef4b1fd60564a06efa436acbc5bd647e3318cf1731b100d597d67469"
+  },
+  "combined_sha256": "0fc95bd9e88eae7dc39bcc549a6ca89203fb166873798cf22e22e98a9936a9a3"
+}

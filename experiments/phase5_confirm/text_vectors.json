@@ -1,0 +1,3328 @@
+{
+  "CB01": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No care-related facts detected."
+    },
+    "vow_fidelity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No commitments detected."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "CB02": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No care-related facts detected."
+    },
+    "vow_fidelity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No commitments detected."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "CB03": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No care-related facts detected."
+    },
+    "vow_fidelity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No commitments detected."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "CB04": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No care-related facts detected."
+    },
+    "vow_fidelity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No commitments detected."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "CB05": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No care-related facts detected."
+    },
+    "vow_fidelity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No commitments detected."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "CB06": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No care-related facts detected."
+    },
+    "vow_fidelity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No commitments detected."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "CB07": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No care-related facts detected."
+    },
+    "vow_fidelity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No commitments detected."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "CB08": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No care-related facts detected."
+    },
+    "vow_fidelity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No commitments detected."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "CB09": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No care-related facts detected."
+    },
+    "vow_fidelity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No commitments detected."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "CB10": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No care-related facts detected."
+    },
+    "vow_fidelity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No commitments detected."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "CB11": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No care-related facts detected."
+    },
+    "vow_fidelity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No commitments detected."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "CB12": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No care-related facts detected."
+    },
+    "vow_fidelity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No commitments detected."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "CB13": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No care-related facts detected."
+    },
+    "vow_fidelity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No commitments detected."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "CB14": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No care-related facts detected."
+    },
+    "vow_fidelity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No commitments detected."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "CB15": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No care-related facts detected."
+    },
+    "vow_fidelity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No commitments detected."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "CB16": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No care-related facts detected."
+    },
+    "vow_fidelity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No commitments detected."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "CB17": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No care-related facts detected."
+    },
+    "vow_fidelity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No commitments detected."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "CB18": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No care-related facts detected."
+    },
+    "vow_fidelity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No commitments detected."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "CB19": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No care-related facts detected."
+    },
+    "vow_fidelity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No commitments detected."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "CB20": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No care-related facts detected."
+    },
+    "vow_fidelity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No commitments detected."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "D01": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": -0.85,
+      "confidence": 0.7,
+      "uncertainty": 0.30000000000000004,
+      "direction": "negative",
+      "source_spans": [
+        "seg_002:0-77"
+      ],
+      "explanation": "Autonomy assessment: Coercive language detected: 'But I know that if they discover the lie, they will murder my entire village.'"
+    },
+    "legitimacy_trust": {
+      "value": -0.85,
+      "confidence": 0.7,
+      "uncertainty": 0.30000000000000004,
+      "direction": "negative",
+      "source_spans": [
+        "seg_002:0-77",
+        "seg_002:0-77"
+      ],
+      "explanation": "Legitimacy assessment: Authority issuing threats has defeasible or void legitimacy.; Coercive language detected: 'But I know that if they discover the lie, they will murder my entire village.'"
+    },
+    "epistemic_quality": {
+      "value": -0.5,
+      "confidence": 0.65,
+      "uncertainty": 0.35,
+      "direction": "negative",
+      "source_spans": [
+        "seg_002:0-77"
+      ],
+      "explanation": "Epistemic assessment: Deception or concealment language detected."
+    },
+    "care_protection": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No care-related facts detected."
+    },
+    "vow_fidelity": {
+      "value": 0.6,
+      "confidence": 0.85,
+      "uncertainty": 0.15,
+      "direction": "positive",
+      "source_spans": [
+        "seg_001:0-77"
+      ],
+      "explanation": "1 active commitment(s); some defeasible."
+    },
+    "third_party_externality": {
+      "value": -1.0,
+      "confidence": 0.75,
+      "uncertainty": 0.25,
+      "direction": "negative",
+      "source_spans": [
+        "seg_002:0-77"
+      ],
+      "explanation": "Third-party externality: Catastrophic non-consensual risk to village."
+    },
+    "repair_residue": {
+      "value": -1.0,
+      "confidence": 0.8,
+      "uncertainty": 0.2,
+      "direction": "negative",
+      "source_spans": [
+        "seg_002:0-77"
+      ],
+      "explanation": "Repair debt from: externality. Magnitude=1.00."
+    }
+  },
+  "D02": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": -0.85,
+      "confidence": 0.7,
+      "uncertainty": 0.30000000000000004,
+      "direction": "negative",
+      "source_spans": [
+        "seg_003:0-218"
+      ],
+      "explanation": "Autonomy assessment: Coercive language detected: 'Dr. M must decide whether the duty to warn the threatened party overrides the st...'"
+    },
+    "legitimacy_trust": {
+      "value": -0.85,
+      "confidence": 0.7,
+      "uncertainty": 0.30000000000000004,
+      "direction": "negative",
+      "source_spans": [
+        "seg_003:0-218",
+        "seg_003:0-218"
+      ],
+      "explanation": "Legitimacy assessment: Authority issuing threats has defeasible or void legitimacy.; Coercive language detected: 'Dr. M must decide whether the duty to warn the threatened party overrides the st...'"
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.85,
+      "confidence": 0.6999999999999998,
+      "uncertainty": 0.30000000000000016,
+      "direction": "positive",
+      "source_spans": [
+        "seg_001:0-136",
+        "seg_002:0-145",
+        "seg_003:0-218"
+      ],
+      "explanation": "Care assessment: Protective duty toward vulnerable parties detected.; Protective duty toward vulnerable parties detected.; Protective duty toward vulnerable parties detected."
+    },
+    "vow_fidelity": {
+      "value": 0.6,
+      "confidence": 0.85,
+      "uncertainty": 0.15,
+      "direction": "positive",
+      "source_spans": [
+        "seg_001:0-136"
+      ],
+      "explanation": "1 active commitment(s); some defeasible."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "D03": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No care-related facts detected."
+    },
+    "vow_fidelity": {
+      "value": 0.6,
+      "confidence": 0.85,
+      "uncertainty": 0.15,
+      "direction": "positive",
+      "source_spans": [
+        "seg_001:0-173"
+      ],
+      "explanation": "1 active commitment(s); some defeasible."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "D04": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No care-related facts detected."
+    },
+    "vow_fidelity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No commitments detected."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "D05": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.85,
+      "confidence": 0.7,
+      "uncertainty": 0.30000000000000004,
+      "direction": "positive",
+      "source_spans": [
+        "seg_001:0-292"
+      ],
+      "explanation": "Care assessment: Protective duty toward vulnerable parties detected."
+    },
+    "vow_fidelity": {
+      "value": 0.6,
+      "confidence": 0.85,
+      "uncertainty": 0.15,
+      "direction": "positive",
+      "source_spans": [
+        "seg_001:0-292",
+        "seg_001:0-292"
+      ],
+      "explanation": "2 active commitment(s); some defeasible."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "D06": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.85,
+      "confidence": 0.7,
+      "uncertainty": 0.30000000000000004,
+      "direction": "positive",
+      "source_spans": [
+        "seg_001:0-296"
+      ],
+      "explanation": "Care assessment: Protective duty toward vulnerable parties detected."
+    },
+    "vow_fidelity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No commitments detected."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "D07": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No care-related facts detected."
+    },
+    "vow_fidelity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No commitments detected."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "D08": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No care-related facts detected."
+    },
+    "vow_fidelity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No commitments detected."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "D09": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No care-related facts detected."
+    },
+    "vow_fidelity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No commitments detected."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "D10": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": -0.85,
+      "confidence": 0.7,
+      "uncertainty": 0.30000000000000004,
+      "direction": "negative",
+      "source_spans": [
+        "seg_001:0-286"
+      ],
+      "explanation": "Autonomy assessment: Coercive language detected: 'The town can dam the river to secure drinking water through the drought, but doi...'"
+    },
+    "legitimacy_trust": {
+      "value": -0.85,
+      "confidence": 0.7,
+      "uncertainty": 0.30000000000000004,
+      "direction": "negative",
+      "source_spans": [
+        "seg_001:0-286",
+        "seg_001:0-286"
+      ],
+      "explanation": "Legitimacy assessment: Authority issuing threats has defeasible or void legitimacy.; Coercive language detected: 'The town can dam the river to secure drinking water through the drought, but doi...'"
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No care-related facts detected."
+    },
+    "vow_fidelity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No commitments detected."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "CE01": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.85,
+      "confidence": 0.7,
+      "uncertainty": 0.30000000000000004,
+      "direction": "positive",
+      "source_spans": [
+        "seg_001:0-198"
+      ],
+      "explanation": "Care assessment: Protective duty toward vulnerable parties detected."
+    },
+    "vow_fidelity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No commitments detected."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "CE02": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.85,
+      "confidence": 0.7,
+      "uncertainty": 0.30000000000000004,
+      "direction": "positive",
+      "source_spans": [
+        "seg_001:0-208"
+      ],
+      "explanation": "Care assessment: Protective duty toward vulnerable parties detected."
+    },
+    "vow_fidelity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No commitments detected."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "CE03": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No care-related facts detected."
+    },
+    "vow_fidelity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No commitments detected."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "CE04": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No care-related facts detected."
+    },
+    "vow_fidelity": {
+      "value": 0.6,
+      "confidence": 0.85,
+      "uncertainty": 0.15,
+      "direction": "positive",
+      "source_spans": [
+        "seg_001:0-210"
+      ],
+      "explanation": "1 active commitment(s); some defeasible."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "CE05": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No care-related facts detected."
+    },
+    "vow_fidelity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No commitments detected."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "CE06": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No care-related facts detected."
+    },
+    "vow_fidelity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No commitments detected."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "CE07": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No care-related facts detected."
+    },
+    "vow_fidelity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No commitments detected."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "CE08": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.85,
+      "confidence": 0.7,
+      "uncertainty": 0.30000000000000004,
+      "direction": "positive",
+      "source_spans": [
+        "seg_001:0-220"
+      ],
+      "explanation": "Care assessment: Protective duty toward vulnerable parties detected."
+    },
+    "vow_fidelity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No commitments detected."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "CE09": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No care-related facts detected."
+    },
+    "vow_fidelity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No commitments detected."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  },
+  "CE10": {
+    "physical_harm": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Harm assessment: No relevant facts detected."
+    },
+    "rights_respect": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Rights assessment: No relevant facts detected."
+    },
+    "fairness_equity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Fairness assessment: No relevant facts detected."
+    },
+    "autonomy_consent": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Autonomy assessment: No relevant facts detected."
+    },
+    "legitimacy_trust": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Legitimacy assessment: No relevant facts detected."
+    },
+    "epistemic_quality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Epistemic assessment: No relevant facts detected."
+    },
+    "care_protection": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No care-related facts detected."
+    },
+    "vow_fidelity": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No commitments detected."
+    },
+    "third_party_externality": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "Third-party externality: No relevant facts detected."
+    },
+    "repair_residue": {
+      "value": 0.0,
+      "confidence": 1.0,
+      "uncertainty": 0.0,
+      "direction": "neutral",
+      "source_spans": [],
+      "explanation": "No repair debt detected."
+    }
+  }
+}

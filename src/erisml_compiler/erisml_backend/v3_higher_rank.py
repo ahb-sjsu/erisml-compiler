@@ -114,7 +114,7 @@ def build_moral_tensor_v3_rank3plus(
     # Decide which axes the requested rank includes, in canonical order:
     #   3: (k, n, τ)
     #   4: (k, n, a, c)         — drops τ
-    #   5: (k, n, τ, s)
+    #   5: (k, n, τ, a, c)
     #   6: (k, n, τ, a, c, s)
     if rank == 3:
         axis_layout = ("k", "n", "tau")

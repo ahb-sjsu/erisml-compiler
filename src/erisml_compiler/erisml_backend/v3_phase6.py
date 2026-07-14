@@ -209,11 +209,29 @@ def build_decision_proof(
     import time
     import uuid
 
-    # Hash the V3 tensor's values + metadata for the moral_vector_summary.
+    # Hash the V3 tensor's values + the moral-relevant metadata for the
+    # moral_vector_summary. This MUST include the extension channels (purity,
+    # loyalty) and repair_residue: they carry moral signal that lives in
+    # metadata rather than the frozen k-axis, so hashing only values/shape/axes
+    # would leave two decisions differing solely in those channels with an
+    # identical tensor_hash — an unauditable gap. Only the moral-bearing keys
+    # are bound (not free-form metadata like timestamps/build_strategy) so the
+    # hash stays stable across incidental metadata churn.
+    bound_metadata = {
+        k: tensor.metadata[k]
+        for k in ("extension_channels", "repair_residue", "repair_residue_per_stakeholder")
+        if tensor.metadata and k in tensor.metadata
+    }
     tensor_blob = json.dumps(
-        {"values": tensor.values, "shape": list(tensor.shape), "axes": list(tensor.axis_names)},
+        {
+            "values": tensor.values,
+            "shape": list(tensor.shape),
+            "axes": list(tensor.axis_names),
+            "metadata": bound_metadata,
+        },
         sort_keys=True,
         separators=(",", ":"),
+        default=str,
     )
     tensor_hash = hashlib.sha256(tensor_blob.encode("utf-8")).hexdigest()
 

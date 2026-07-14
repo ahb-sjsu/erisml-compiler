@@ -10,6 +10,18 @@ spec see `ErisML-Compiler.md`. For per-component delivery status see
 v0.8.0 refactor see
 `docs/plans/release-planning-06-framework-pluralist-architecture.md`.
 
+> **Canonical MoralVector / dimension spec.** The moral dimensions,
+> xBSE feeders, and tensor mapping are specified in
+> `erisml-lib/docs/moralvector_reference.md` (standards architecture in
+> `erisml-lib/docs/moralvector_v2_architecture.md`). This compiler
+> carries both the legacy **V2 10-dimension** `MoralVector`
+> (`ir/schemas.py`, `MORAL_DIMENSIONS`) and the canonical **DEME-9**
+> dimensions (`ir/v3/dimensions.py`, `MORAL_DIMENSIONS_V3` — the 3×3
+> "Nine Dimensions of Ethical Assessment"). The V2→V3 migration lives
+> in `ir/v3/migration.py`, guarded by
+> `tests/test_dimension_consistency.py`. See the "DEME V3 alignment"
+> section of `README.md`.
+
 ## One-paragraph summary
 
 Text compiles into a typed `MoralGraph` (the descriptive substrate)

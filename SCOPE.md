@@ -43,6 +43,14 @@ so a maintainer can compare the running code against the 30-section design spec
 | Web app / FastAPI surface                | not shipped                 | deferred                      |
 | Silicon emit (Vitis HLS C++)             | shipped                     | no FPGA bring-up yet          |
 
+> **MoralVector / dimensions.** "DEME V2 (10-dim MoralVector)" above is
+> the legacy V2 view (`ir/schemas.py`, `MORAL_DIMENSIONS`), retained
+> for backward compatibility. The canonical target is the **DEME-9**
+> dimensions (`ir/v3/dimensions.py`, `MORAL_DIMENSIONS_V3`); the V2→V3
+> migration lives in `ir/v3/migration.py`. The canonical MoralVector
+> spec (dimensions + xBSE feeders + tensor mapping) is in
+> `erisml-lib/docs/moralvector_reference.md`.
+
 ## v0.8.0 — Framework-pluralist + DAG-native
 
 This is the largest architectural release since the DEME V3 alignment.

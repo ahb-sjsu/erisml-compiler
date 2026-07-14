@@ -1,0 +1,60 @@
+{
+  "features": "polar_angle_vector(7)+loading",
+  "w": [
+    -0.25002687490373887,
+    1.0655419743755097,
+    -0.3593865453840192,
+    -0.03931122916193813,
+    0.7564412086777463,
+    0.4680945816199137,
+    -0.09370235745567047,
+    -0.119685694514952,
+    -0.5000000653483677
+  ],
+  "mu": [
+    -1.173173189163208,
+    -2.0836288928985596,
+    -2.5800130367279053,
+    3.0630502700805664,
+    0.8100778460502625,
+    0.26904794573783875,
+    0.6221699118614197,
+    0.5214424729347229
+  ],
+  "sd": [
+    2.190523624420166,
+    0.11125421524047852,
+    0.12633086740970612,
+    0.4904809594154358,
+    0.1875021606683731,
+    0.14009340107440948,
+    0.07868128269910812,
+    0.3426089286804199
+  ],
+  "tau": -0.3944546632478315,
+  "union_text_conflict": true,
+  "cal_dims": [
+    "fairness_equity",
+    "autonomy_consent",
+    "legitimacy_trust",
+    "care_protection",
+    "vow_fidelity",
+    "third_party_externality",
+    "repair_residue"
+  ],
+  "all_dims": [
+    "physical_harm",
+    "rights_respect",
+    "fairness_equity",
+    "autonomy_consent",
+    "legitimacy_trust",
+    "epistemic_quality",
+    "care_protection",
+    "vow_fidelity",
+    "third_party_externality",
+    "repair_residue"
+  ],
+  "readout_layer": 8,
+  "dev": "original+confirm",
+  "fit": "lstsq D-vs-rest"
+}
