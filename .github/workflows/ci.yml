@@ -70,6 +70,8 @@ jobs:
                  tests/test_silicon.py \
                  tests/test_v3_schema.py \
                  tests/test_v3_pipeline.py \
+                 tests/test_dimension_consistency.py \
+                 tests/test_extension_channels.py \
                  -v --tb=short
 
   # -----------------------------------------------------------------
