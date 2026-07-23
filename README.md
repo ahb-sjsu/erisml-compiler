@@ -319,7 +319,8 @@ The `scoring/` backend (`XBSEDimensionScorer`) consumes two review-driven artifa
   `privacy_protection`, `autonomy_respect`, `societal_environmental`; **DEMOTE-to-G**:
   `virtue_care`, `fairness_equity`, `legitimacy_trust`, `epistemic_quality` — and every demoted
   `DimensionScore.explanation` states that the score reads general moral valence, not its named
-  axis. `rights_respect` still has no validated feeder (hypothesized corpus-choice failure; open).
+  axis. `rights_respect` still has no validated feeder: the discriminating CourtListener run
+  (2026-07-23) failed, refuting the corpus-choice hypothesis — it stays a hard channel.
 
 The original V2 IR carries 10 moral dimensions and a rank-2 per-stakeholder
 `MoralTensor`. **DEME V3** (`erisml-lib`) speaks a different shape:

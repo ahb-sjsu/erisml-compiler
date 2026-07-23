@@ -67,7 +67,8 @@ SPECIFICITY_DISPOSITIONS: dict[str, str] = {
     "fairness_equity": "DEMOTE-to-G",
     "legitimacy_trust": "DEMOTE-to-G",
     "epistemic_quality": "DEMOTE-to-G",
-    # rights_respect: no validated feeder (hypothesized corpus-choice failure; status open)
+    # rights_respect: no validated feeder. The discriminating CourtListener run (2026-07-23)
+    # FAILED — corpus-choice hypothesis refuted, method-failure branch open (xbse README).
 }
 
 
