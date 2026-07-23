@@ -235,6 +235,7 @@ diagram, and the precise semantics of each failure mode.
 | `em_dag/` | 10 ethical modules + topological DAG evaluator |
 | `fsm/` | Commitment / Legitimacy / Consent finite-state machines |
 | `evaluation/` | MoralVector / MoralTensor construction; conflict detection |
+| `scoring/` | Pluggable dimension-scoring backends: validated `xbse` feeders, gate-enforced, reliability-weighted, specificity-labeled |
 | `calibration/` | Probe training: losses, adversarial heads, VIB, bond index |
 | `correction/` | IR diff + apply-corrections (RLEF feedback loop) |
 | `erisml_backend/` | ErisML codegen and DEME bridge |
@@ -298,6 +299,27 @@ erisml-compiler/
 > `erisml-lib/docs/moralvector_reference.md`; standards architecture in
 > `erisml-lib/docs/moralvector_v2_architecture.md`. The V2→V3 (10→9) migration is in
 > `ir/v3/migration.py`, guarded by `tests/test_dimension_consistency.py`.
+
+### Calibrated, specificity-labeled xbse scoring (2026-07-23)
+
+The `scoring/` backend (`XBSEDimensionScorer`) consumes two review-driven artifacts from the
+`xbse` production reports (xbse `XBSE_REVIEW_1`, R1/R2):
+
+- **Reliability weighting.** Each report now carries a calibration block (isotonic map fit on
+  held-out pairs, **split-honest ECE** measured on an unseen half, and the registered
+  `reliability_weight = max(0, 2·AUROC − 1)`). The scorer multiplies each feeder's confidence by
+  its weight before it reaches `MoralVector` per-dimension uncertainty — `physical_harm` enters at
+  weight 0.26, `privacy_protection` at 0.71 — so unequal feeder reliabilities are no longer
+  laundered into equal authority by the binary PASS bit. `reliability_records()` exposes the block
+  to the audit artifact; pre-calibration reports load and score unweighted, exactly as before.
+- **Specificity dispositions.** The registered 12×12 specificity gate (xbse
+  `experiments/specificity_verdicts.json`, margin 0.05) demotes feeders that cannot beat their
+  trained siblings or the validated general-valence channel **G** on their own held-out pairs.
+  `SPECIFICITY_DISPOSITIONS` records the verdicts — own-axis: `physical_harm`,
+  `privacy_protection`, `autonomy_respect`, `societal_environmental`; **DEMOTE-to-G**:
+  `virtue_care`, `fairness_equity`, `legitimacy_trust`, `epistemic_quality` — and every demoted
+  `DimensionScore.explanation` states that the score reads general moral valence, not its named
+  axis. `rights_respect` still has no validated feeder (hypothesized corpus-choice failure; open).
 
 The original V2 IR carries 10 moral dimensions and a rank-2 per-stakeholder
 `MoralTensor`. **DEME V3** (`erisml-lib`) speaks a different shape:

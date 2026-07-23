@@ -98,3 +98,85 @@ def test_valence_conversion_clamps_and_sets_uncertainty():
     ds = valence_to_dimension_score(v, "physical_harm")
     assert ds.value == 1.0
     assert abs(ds.uncertainty - 0.1) < 1e-6
+
+
+def _calibrated_report(instance="care_joint", weight=0.625):
+    from xbse.report import Report
+
+    return Report(
+        instance=instance,
+        checkpoint_hash="deadbeef",
+        thresholds={"auroc>": 0.79},
+        metrics={"structure_auroc": 0.813, "bow_auroc": 0.527, "lexical_margin": 0.284},
+        passed=True,
+        bar_registered="2026-07-10",
+        calibration={
+            "calibration_method": "isotonic",
+            "calibration_ece": 0.057,
+            "raw_ece": 0.168,
+            "reliability_weight": weight,
+            "n_calibration_pairs": 1200,
+        },
+    )
+
+
+def test_reliability_weight_scales_confidence_and_uncertainty():
+    """R2 closure: the report's reliability_weight must reach MoralVector uncertainty — a weighted
+    feeder's confidence is its raw confidence times the weight, never equal authority."""
+    backend = XBSEDimensionScorer(
+        {"virtue_care": _feeder()}, {"virtue_care": _calibrated_report(weight=0.5)}
+    )
+    unweighted = XBSEDimensionScorer({"virtue_care": _feeder()})
+    ds = backend.score("good good good", "virtue_care")
+    ds0 = unweighted.score("good good good", "virtue_care")
+    assert abs(ds.confidence - 0.5 * ds0.confidence) < 1e-9
+    assert abs(ds.uncertainty - (1.0 - ds.confidence)) < 1e-9
+    assert "reliability_weight=0.500" in ds.explanation
+
+
+def test_uncalibrated_report_scores_unweighted():
+    """Pre-calibration reports (no block) must behave exactly as before — no silent zero-weight."""
+    from xbse.report import Report
+
+    legacy = Report(
+        instance="care_joint", checkpoint_hash="deadbeef", thresholds={}, metrics={}, passed=True
+    )
+    backend = XBSEDimensionScorer({"virtue_care": _feeder()}, {"virtue_care": legacy})
+    ds = backend.score("good good good", "virtue_care")
+    ds0 = XBSEDimensionScorer({"virtue_care": _feeder()}).score("good good good", "virtue_care")
+    assert abs(ds.confidence - ds0.confidence) < 1e-9
+    assert "reliability_weight" not in ds.explanation
+
+
+def test_demoted_dimension_carries_disposition():
+    """A DEMOTE-to-G feeder's score must say it reads general valence, not its named axis."""
+    from erisml_compiler.scoring import SPECIFICITY_DISPOSITIONS
+
+    assert SPECIFICITY_DISPOSITIONS["virtue_care"] == "DEMOTE-to-G"
+    assert SPECIFICITY_DISPOSITIONS["privacy_protection"] == "own-axis"
+    backend = XBSEDimensionScorer({"virtue_care": _feeder()})
+    ds = backend.score("good good good", "virtue_care")
+    assert "DEMOTE-to-G" in ds.explanation
+    # an own-axis dimension is never flagged
+    backend2 = XBSEDimensionScorer({"privacy_protection": _feeder("privacy")})
+    assert "DEMOTE-to-G" not in backend2.score("good", "privacy_protection").explanation
+
+
+def test_reliability_records_expose_calibration_block():
+    backend = XBSEDimensionScorer({"virtue_care": _feeder()}, {"virtue_care": _calibrated_report()})
+    recs = backend.reliability_records()
+    assert len(recs) == 1
+    r = recs[0]
+    assert r["dimension"] == "virtue_care"
+    assert r["reliability_weight"] == 0.625
+    assert r["calibration_ece"] == 0.057 and r["raw_ece"] == 0.168
+    assert r["calibration_method"] == "isotonic"
+    assert r["specificity_disposition"] == "DEMOTE-to-G"
+
+
+def test_validation_records_schema_is_unchanged_by_calibration():
+    """validation_records is pinned to FeederValidationRecord (erisml-lib) — the calibration wiring
+    must not leak new fields into it."""
+    backend = XBSEDimensionScorer({"virtue_care": _feeder()}, {"virtue_care": _calibrated_report()})
+    r = backend.validation_records()[0]
+    assert "reliability_weight" not in r and "calibration_ece" not in r

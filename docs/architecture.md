@@ -21,6 +21,16 @@ v0.8.0 refactor see
 > in `ir/v3/migration.py`, guarded by
 > `tests/test_dimension_consistency.py`. See the "DEME V3 alignment"
 > section of `README.md`.
+>
+> The optional `scoring/` backend (`XBSEDimensionScorer`) scores
+> DEME-9 dimensions from gate-validated xbse encoders and, as of
+> 2026-07-23, consumes each report's **calibration block** — confidence
+> is multiplied by the registered
+> `reliability_weight = max(0, 2·AUROC − 1)` before reaching
+> `MoralVector` uncertainty — and labels **DEMOTE-to-G** dimensions
+> (care / fairness / legitimacy / epistemic read general moral valence,
+> per the registered 12×12 specificity matrix). See the
+> "Calibrated, specificity-labeled xbse scoring" section of `README.md`.
 
 ## One-paragraph summary
 

@@ -8,6 +8,7 @@ default; the xbse backend is opt-in via the `scorers` extra.
 
 from .xbse_scorer import (
     DEME9_REGISTRY,
+    SPECIFICITY_DISPOSITIONS,
     DimensionScoringBackend,
     XBSEDimensionScorer,
     valence_to_dimension_score,
@@ -17,5 +18,6 @@ __all__ = [
     "DimensionScoringBackend",
     "XBSEDimensionScorer",
     "DEME9_REGISTRY",
+    "SPECIFICITY_DISPOSITIONS",
     "valence_to_dimension_score",
 ]
