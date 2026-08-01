@@ -25,7 +25,13 @@ jobs:
       - name: Install ruff + black
         run: |
           python -m pip install --upgrade pip
-          pip install 'ruff>=0.5' 'black==26.1.0'
+          # ruff pinned for the same reason black already is. `ruff>=0.5`
+          # resolved to whatever was newest, so a ruff release could turn a
+          # green main red with no repo change. That is what happened: 0.16.x
+          # promoted additional rules (RUF012, RUF100, BLE001, TRY004, RUF034,
+          # RUF046) and main has been failing since 2026-07-23 on untouched
+          # code. Bump this deliberately, fixing the findings in the same commit.
+          pip install 'ruff==0.14.8' 'black==26.1.0'
       - name: Ruff check
         run: ruff check src tests
       - name: Black check
