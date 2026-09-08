@@ -152,3 +152,20 @@ def test_real_ed25519_roundtrip():
     ev.attestation.counter = 11
     ok2, _ = check_attestation(ev, verify_sig=verify_sig, max_age_s=60)
     assert not ok2
+
+
+def test_fall_transition_observable():
+    # upright early -> horizontal late produces a high fall_transition
+    track = [
+        {"score": 0.95, "x0": 220, "y0": 90, "x1": 290, "y1": 320},
+        {"score": 0.93, "x0": 210, "y0": 120, "x1": 305, "y1": 330},
+        {"score": 0.90, "x0": 175, "y0": 190, "x1": 345, "y1": 330},
+        {"score": 0.85, "x0": 150, "y0": 260, "x1": 375, "y1": 360},
+    ]
+    ev = encode_video("clip://fall", backend="stub", stub_track=track)
+    assert ev.reads("fall_transition", min_conf=0.4, min_value=0.5)
+    # a static horizontal body (already down) has no transition
+    static = [{"score": 0.9, "x0": 150, "y0": 300, "x1": 360, "y1": 380} for _ in range(6)]
+    ev2 = encode_video("clip://static", backend="stub", stub_track=static)
+    ft = ev2.get("fall_transition")
+    assert ft is not None and ft.value < 0.3

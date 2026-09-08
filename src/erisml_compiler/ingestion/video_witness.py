@@ -65,6 +65,21 @@ def _observables_from_track(track: list[dict], img_h: int) -> list[PhysicalObser
     track_frac = len(seen) / max(1, len(track))
     onset_conf = round(present_conf * track_frac, 4)
 
+    # fall_transition: the person was upright EARLY and horizontal LATE -- a fall
+    # event, not a static posture. This is what separates a collapse from lying
+    # down on purpose (yoga, sleeping): both end horizontal, only a fall began
+    # upright. Robust to the descent underreading when a fall is mostly sideways.
+    fall_transition = 0.0
+    trans_conf = 0.0
+    if len(seen) >= 3:
+        k = max(1, len(seen) // 3)
+        early = sum(aspect(t) for t in seen[:k]) / k
+        late = sum(aspect(t) for t in seen[-k:]) / k
+        upright_early = max(0.0, min(1.0, (0.95 - early) / 0.45))   # early < ~0.95 => upright
+        horizontal_late = max(0.0, min(1.0, (late - 1.10) / 0.6))   # late > ~1.10 => horizontal
+        fall_transition = round(upright_early * horizontal_late, 4)
+        trans_conf = round(present_conf * track_frac, 4)
+
     return [
         PhysicalObservable(name="person_present", value=1.0, confidence=round(present_conf, 4),
                            note=f"detected in {len(seen)}/{len(track)} frames"),
@@ -77,6 +92,8 @@ def _observables_from_track(track: list[dict], img_h: int) -> list[PhysicalObser
         PhysicalObservable(name="rapid_descent", value=round(max(descent, widen), 4),
                            confidence=onset_conf,
                            note="y_center drop + aspect widening over the tracked span"),
+        PhysicalObservable(name="fall_transition", value=fall_transition, confidence=trans_conf,
+                           note="upright early AND horizontal late -- a fall event, not a static posture"),
     ]
 
 
