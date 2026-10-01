@@ -15,6 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   overridden when one of its defeasibility conditions holds and is restored only by an oversight
   event declared in the scene. Scene-specific links (named conditions, capabilities, oversight
   events) live in the IR's `extra`, not in code.
+- **Scene agent** (`runtime/agent.py`). One decision cycle: an LLM classifies perception facts
+  into the scene's declared event vocabulary (`extra["event_types"]`; undeclared types and
+  contents are rejected, never stepped), the runtime steps, and an LLM chooses one action from
+  the allowed set (a choice outside it falls back to the obligation in force or
+  `extra["default_action"]`). Offline-tested with the mock adapter.
 - **`Norm.conditions`** (FR-19 `condition=`): tokens `event:`, `latest:`, `cond:`, `state:`,
   `not:`. An empty list is left out of the norm's graph payload, so canonical hashes of existing
   IRs are unchanged.
