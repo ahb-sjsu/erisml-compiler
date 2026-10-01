@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+
+- **Scene runtime** (`runtime/scene.py`). Steps a compiled scene's Commitment, Consent and
+  Legitimacy state machines on a live event stream and returns, after every event, the norms in
+  force and the agent's prohibited, obliged and allowed actions. A defeasible commitment is
+  overridden when one of its defeasibility conditions holds and is restored only by an oversight
+  event declared in the scene. Scene-specific links (named conditions, capabilities, oversight
+  events) live in the IR's `extra`, not in code.
+- **`Norm.conditions`** (FR-19 `condition=`): tokens `event:`, `latest:`, `cond:`, `state:`,
+  `not:`. An empty list is left out of the norm's graph payload, so canonical hashes of existing
+  IRs are unchanged.
+- **ErisML source as Tier-1 input.** `.erisml`, `.yaml` and `.yml` files load through the
+  structured loader (and auto-detect as Tier 1), which now also reads `norms`, `relations` and
+  `extra`, and accepts the IR's `stakeholders` key beside the original `agents`.
+
 ## v0.9.0 — 2026-06-13 — Production-grade Kantian + virtue analysers
 
 The four v0.8.0-disclosed "v0 heuristic" limitations on the deontic +

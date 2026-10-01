@@ -40,14 +40,14 @@ class CompilerTier(str, Enum):
     def auto_detect(cls, input_path: Path) -> "CompilerTier":
         """Pick a sensible default tier based on the input file extension.
 
-        - .json -> structured-input -> GEOMETRIC (Tier 1)
+        - .json, .erisml, .yaml, .yml -> structured input or ErisML source -> GEOMETRIC (Tier 1)
         - .txt / .md -> natural-language text -> RULES (Tier 2)
         - everything else: raise.
 
         LLM (Tier 3) is never auto-selected; it must be explicitly requested.
         """
         suffix = input_path.suffix.lower()
-        if suffix == ".json":
+        if suffix in {".json", ".erisml", ".yaml", ".yml"}:
             return cls.GEOMETRIC
         if suffix in {".txt", ".md"}:
             return cls.RULES

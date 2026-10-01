@@ -178,6 +178,15 @@ class Norm(BaseModel):
         str  # "statutory", "constitutional", "customary", "inferred_human_rights_baseline", etc.
     )
     source_spans: list[str] = Field(default_factory=list)
+    # When the norm is in force (spec FR-19 `condition=`). Empty: always in force. Each entry is
+    # a condition token read by erisml_compiler.runtime.scene, all of which must hold:
+    #   event:<type>            an event of that type occurred since the norm was last discharged
+    #   event:<type>=<content>  the same, with that content
+    #   latest:<type>=<content> the most recent event of that type has that content
+    #   cond:<name>             a named condition defined in the IR's extra["conditions"]
+    #   state:<fsm id>=<state>  a commitment, consent or legitimacy machine is in that state
+    #   not:<token>             the negation of any of the above
+    conditions: list[str] = Field(default_factory=list)
 
 
 # =============================================================================
