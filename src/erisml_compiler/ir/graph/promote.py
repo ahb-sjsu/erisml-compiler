@@ -133,7 +133,13 @@ def graph_from_flat(ir) -> MoralGraph:
             MoralNode(
                 id=nid,
                 kind=NodeKind.NORM,
-                payload=n.model_dump() if hasattr(n, "model_dump") else dict(n),
+                # an empty `conditions` is left out, so graphs (and their canonical hashes)
+                # of norms written before the field existed are unchanged
+                payload=(
+                    n.model_dump(exclude=None if getattr(n, "conditions", None) else {"conditions"})
+                    if hasattr(n, "model_dump")
+                    else dict(n)
+                ),
             )
         )
 
