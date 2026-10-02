@@ -16,6 +16,10 @@ Both speak to a model through `annotation.llm_extractor.ModelAdapter`, so the mo
 them offline and the NRP adapter runs them for real. Neither can change the norms, the machines
 or the allowed set; they only read them. Authority for elevated actions stays with whatever gate
 the caller applies (in the home-care twin, the governor).
+
+The agent's role (`extra["role"]`, e.g. "a monitoring-centre operator") names who is deciding in
+both prompts, so one runtime serves every agent of a multi-agent scene; it defaults to the care
+robot.
 """
 
 from __future__ import annotations
@@ -28,7 +32,7 @@ from erisml_compiler.annotation.llm_extractor import ModelAdapter, _extract_firs
 from erisml_compiler.runtime.scene import SceneRuntime, Snapshot
 
 _CLASSIFY_SYSTEM = (
-    "You turn a robot's perception facts into events of a declared vocabulary. Use only the "
+    "You turn the observations of {role} into events of a declared vocabulary. Use only the "
     "declared event types and, where a type lists contents, only those contents. Report what the "
     "facts show, not what might follow, and only what is new since the recent events (do not "
     "repeat an event that is already there and unchanged). Answer with a JSON array of objects "
@@ -36,13 +40,20 @@ _CLASSIFY_SYSTEM = (
     "actor, target, content, conditions (list of strings). An empty array is a valid answer."
 )
 _CHOOSE_SYSTEM = (
-    "You choose the next action of a care robot. You may choose only from the allowed actions. "
+    "You choose the next action of {role}. You may choose only from the allowed actions. "
     "Obligations in force come first unless an allowed action better protects the person. Without "
     "an obligation in force or a sign in the facts that someone needs something, choose the "
     "default action and do not intrude. Answer "
     "with one JSON object with keys action, args (object; for speak, args.text), reason (one "
     "sentence)."
 )
+# who the agent is, from the scene's `extra["role"]`; a scene without one is the care robot the
+# runtime was first written for
+_DEFAULT_ROLE = "a care robot"
+
+
+def _role(runtime: SceneRuntime) -> str:
+    return str((runtime.ir.extra or {}).get("role") or _DEFAULT_ROLE)
 
 
 @dataclass
@@ -105,7 +116,11 @@ class ObservationClassifier:
             ensure_ascii=False,
         )
         raw = (
-            _extract_first_json(self.adapter.call(_CLASSIFY_SYSTEM, user), expect_array=True) or []
+            _extract_first_json(
+                self.adapter.call(_CLASSIFY_SYSTEM.format(role=_role(self.rt)), user),
+                expect_array=True,
+            )
+            or []
         )
         ok, bad = [], []
         for e in raw:
@@ -145,7 +160,13 @@ class ActionChooser:
             },
             ensure_ascii=False,
         )
-        out = _extract_first_json(self.adapter.call(_CHOOSE_SYSTEM, user), expect_array=False) or {}
+        out = (
+            _extract_first_json(
+                self.adapter.call(_CHOOSE_SYSTEM.format(role=_role(self.rt)), user),
+                expect_array=False,
+            )
+            or {}
+        )
         act = out.get("action") if isinstance(out, dict) else None
         if act in allowed:
             return act, dict(out.get("args") or {}), str(out.get("reason", ""))[:400], None, False

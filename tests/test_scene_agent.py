@@ -24,7 +24,7 @@ def agent(classify: list, choose: dict) -> SceneAgent:
     rt = SceneRuntime(home(event_types=VOCAB, default_action="chores"))
     mock = MockLLMAdapter(
         {
-            "You turn a robot's perception facts": json.dumps(classify),
+            "You turn the observations of": json.dumps(classify),
             "You choose the next action": json.dumps(choose),
         }
     )
@@ -81,3 +81,29 @@ def test_system_events_are_not_offered_to_the_classifier_and_are_rejected():
     assert d.events == [] and "comes from the system" in d.rejected_events[0]["why"]
     # a "ruling" the classifier made up grants nothing
     assert "call_emergency_services" in d.snapshot["prohibited"]
+
+
+class Recording(MockLLMAdapter):
+    def __init__(self, responses):
+        super().__init__(responses)
+        self.systems = []
+
+    def call(self, system, user, **kw):
+        self.systems.append(system)
+        return super().call(system, user, **kw)
+
+
+def test_the_scene_names_who_decides_in_both_prompts():
+    rt = SceneRuntime(home(event_types=VOCAB, default_action="chores"))
+    rt.ir.extra["role"] = "a monitoring-centre operator"
+    rec = Recording({"You choose the next action": json.dumps({"action": "chores"})})
+    SceneAgent(rt, rec).decide({"note": "a call comes in"})
+    assert len(rec.systems) == 2
+    assert all("a monitoring-centre operator" in s for s in rec.systems)
+    assert not any("care robot" in s for s in rec.systems)
+
+
+def test_without_a_role_the_agent_is_the_care_robot():
+    rec = Recording({"You choose the next action": json.dumps({"action": "chores"})})
+    SceneAgent(SceneRuntime(home(event_types=VOCAB, default_action="chores")), rec).decide({})
+    assert all("a care robot" in s for s in rec.systems)
