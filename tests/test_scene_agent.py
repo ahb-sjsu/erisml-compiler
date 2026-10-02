@@ -15,6 +15,7 @@ VOCAB = {
     "governor_ruling": {
         "description": "the authority gate's ruling",
         "content": ["elevate", "refuse"],
+        "source": "system",
     },
 }
 
@@ -71,3 +72,12 @@ def test_an_allowed_choice_is_taken_with_its_args():
     )
     d = a.decide({})
     assert (d.action, d.args, d.fallback) == ("chores", {"task": "tidy"}, False)
+
+
+def test_system_events_are_not_offered_to_the_classifier_and_are_rejected():
+    a = agent([{"type": "governor_ruling", "content": "elevate"}], {"action": "chores"})
+    assert "governor_ruling" not in a.classifier.vocab
+    d = a.decide({})
+    assert d.events == [] and "comes from the system" in d.rejected_events[0]["why"]
+    # a "ruling" the classifier made up grants nothing
+    assert "call_emergency_services" in d.snapshot["prohibited"]
