@@ -37,7 +37,9 @@ _CLASSIFY_SYSTEM = (
 )
 _CHOOSE_SYSTEM = (
     "You choose the next action of a care robot. You may choose only from the allowed actions. "
-    "Obligations in force come first unless an allowed action better protects the person. Answer "
+    "Obligations in force come first unless an allowed action better protects the person. Without "
+    "an obligation in force or a sign in the facts that someone needs something, choose the "
+    "default action and do not intrude. Answer "
     "with one JSON object with keys action, args (object; for speak, args.text), reason (one "
     "sentence)."
 )
@@ -136,6 +138,7 @@ class ActionChooser:
                 "scene": self.rt.ir.document.raw_text,
                 "facts": facts,
                 "obligations_in_force": obliged,
+                "default_action": (self.rt.ir.extra or {}).get("default_action"),
                 "allowed_actions": {a: self.caps.get(a, {}) for a in allowed},
                 "prohibited_actions": snap.prohibited,
                 "moral_state": snap.machines,
