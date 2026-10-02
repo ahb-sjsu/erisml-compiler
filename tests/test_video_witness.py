@@ -19,17 +19,19 @@ def _upright_then_fall_track(img_h=512):
     """A person tracked upright, then descending as they fall (y_center rising,
     aspect widening), then lost once fully prone."""
     return [
-        {"score": 0.98, "x0": 200, "y0": 90, "x1": 280, "y1": 300},   # upright, tall
+        {"score": 0.98, "x0": 200, "y0": 90, "x1": 280, "y1": 300},  # upright, tall
         {"score": 0.95, "x0": 195, "y0": 110, "x1": 285, "y1": 320},
         {"score": 0.90, "x0": 185, "y0": 160, "x1": 300, "y1": 360},  # tipping, widening
         {"score": 0.70, "x0": 170, "y0": 230, "x1": 330, "y1": 400},  # low, wide
-        None, None,                                                    # prone: detector loses it
+        None,
+        None,  # prone: detector loses it
     ]
 
 
 def test_stub_fall_produces_descent_evidence():
-    ev = encode_video("clip://fall", backend="stub",
-                      stub_track=_upright_then_fall_track(), img_h=512)
+    ev = encode_video(
+        "clip://fall", backend="stub", stub_track=_upright_then_fall_track(), img_h=512
+    )
     assert isinstance(ev, EvidenceModel)
     assert ev.modality == "vision" and ev.detector == "stub"
     assert ev.reads("person_present", min_conf=0.9)
@@ -52,7 +54,8 @@ def test_commitment_hash_roundtrips():
     assert ev.commitment_hash and ev.verify()
     # tampering with an observable value breaks verification
     ev.observables = list(ev.observables) + [
-        PhysicalObservable(name="person_present", value=1.0, confidence=1.0)]
+        PhysicalObservable(name="person_present", value=1.0, confidence=1.0)
+    ]
     assert not ev.verify()
 
 
@@ -81,21 +84,26 @@ def test_stream_catches_fall_in_rolling_window():
 def _attested(counter=5, age_s=2, payload="deadbeef"):
     now = datetime.now(timezone.utc)
     att = SensorAttestation(
-        device_id="cam-robot-01", key_id="k1", counter=counter,
+        device_id="cam-robot-01",
+        key_id="k1",
+        counter=counter,
         signed_at=(now - timedelta(seconds=age_s)).isoformat(),
-        payload_sha256=payload, signature="sig",
+        payload_sha256=payload,
+        signature="sig",
     )
     return EvidenceModel(
-        evidence_id="e1", modality="vision", source="camera://robot",
-        source_sha256=payload, attestation=att,
+        evidence_id="e1",
+        modality="vision",
+        source="camera://robot",
+        source_sha256=payload,
+        attestation=att,
         observables=[PhysicalObservable(name="person_present", value=1.0, confidence=0.95)],
     ).finalize()
 
 
 def test_attestation_fresh_and_advancing_is_trusted():
     ev = _attested(counter=5, age_s=2)
-    ok, why = check_attestation(ev, verify_sig=lambda *_: True,
-                                max_age_s=30, min_counter=4)
+    ok, why = check_attestation(ev, verify_sig=lambda *_: True, max_age_s=30, min_counter=4)
     assert ok, why
 
 
@@ -125,7 +133,7 @@ def test_missing_attestation_abstains_when_required():
 
 
 def test_real_ed25519_roundtrip():
-    crypto = pytest.importorskip("cryptography")
+    pytest.importorskip("cryptography")
     from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
     from cryptography.exceptions import InvalidSignature
 
@@ -133,11 +141,21 @@ def test_real_ed25519_roundtrip():
     pk = sk.public_key()
     now = datetime.now(timezone.utc)
     payload_hash = hashlib.sha256(b"frames").hexdigest()
-    att = SensorAttestation(device_id="cam", key_id="k", counter=10,
-                            signed_at=now.isoformat(), payload_sha256=payload_hash)
+    att = SensorAttestation(
+        device_id="cam",
+        key_id="k",
+        counter=10,
+        signed_at=now.isoformat(),
+        payload_sha256=payload_hash,
+    )
     att.signature = sk.sign(att.signing_payload()).hex()
-    ev = EvidenceModel(evidence_id="e", modality="vision", source="cam",
-                       source_sha256=payload_hash, attestation=att).finalize()
+    ev = EvidenceModel(
+        evidence_id="e",
+        modality="vision",
+        source="cam",
+        source_sha256=payload_hash,
+        attestation=att,
+    ).finalize()
 
     def verify_sig(payload, sig_hex, key_id):
         try:

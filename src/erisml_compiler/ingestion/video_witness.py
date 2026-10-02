@@ -20,7 +20,6 @@ here across the frames where the person is still detected.
 from __future__ import annotations
 
 import hashlib
-from typing import Sequence
 
 from erisml_compiler.ir.evidence import EvidenceModel, PhysicalObservable
 
@@ -32,14 +31,19 @@ def _observables_from_track(track: list[dict], img_h: int) -> list[PhysicalObser
     (no detection) are simply absent. img_h normalizes vertical position."""
     seen = [t for t in track if t is not None]
     if not seen:
-        return [PhysicalObservable(name="person_present", value=0.0, confidence=0.0,
-                                   note="no detection in any frame")]
+        return [
+            PhysicalObservable(
+                name="person_present", value=0.0, confidence=0.0, note="no detection in any frame"
+            )
+        ]
 
     scores = [t["score"] for t in seen]
     present_conf = max(scores)
+
     # aspect (w/h): > 1 means wider than tall -> body horizontal
     def aspect(t):
         return (t["x1"] - t["x0"]) / max(1.0, (t["y1"] - t["y0"]))
+
     def ycenter(t):
         return (t["y1"] + t["y0"]) / 2.0
 
@@ -75,25 +79,42 @@ def _observables_from_track(track: list[dict], img_h: int) -> list[PhysicalObser
         k = max(1, len(seen) // 3)
         early = sum(aspect(t) for t in seen[:k]) / k
         late = sum(aspect(t) for t in seen[-k:]) / k
-        upright_early = max(0.0, min(1.0, (0.95 - early) / 0.45))   # early < ~0.95 => upright
-        horizontal_late = max(0.0, min(1.0, (late - 1.10) / 0.6))   # late > ~1.10 => horizontal
+        upright_early = max(0.0, min(1.0, (0.95 - early) / 0.45))  # early < ~0.95 => upright
+        horizontal_late = max(0.0, min(1.0, (late - 1.10) / 0.6))  # late > ~1.10 => horizontal
         fall_transition = round(upright_early * horizontal_late, 4)
         trans_conf = round(present_conf * track_frac, 4)
 
     return [
-        PhysicalObservable(name="person_present", value=1.0, confidence=round(present_conf, 4),
-                           note=f"detected in {len(seen)}/{len(track)} frames"),
-        PhysicalObservable(name="body_horizontal", value=round(horiz_val, 4),
-                           confidence=round(last["score"], 4),
-                           note=f"bbox aspect w/h={horiz:.2f} on last detected frame"),
-        PhysicalObservable(name="on_floor", value=round(low_val, 4),
-                           confidence=round(last["score"], 4),
-                           note=f"bbox y_center={yv:.2f} of frame height"),
-        PhysicalObservable(name="rapid_descent", value=round(max(descent, widen), 4),
-                           confidence=onset_conf,
-                           note="y_center drop + aspect widening over the tracked span"),
-        PhysicalObservable(name="fall_transition", value=fall_transition, confidence=trans_conf,
-                           note="upright early AND horizontal late -- a fall event, not a static posture"),
+        PhysicalObservable(
+            name="person_present",
+            value=1.0,
+            confidence=round(present_conf, 4),
+            note=f"detected in {len(seen)}/{len(track)} frames",
+        ),
+        PhysicalObservable(
+            name="body_horizontal",
+            value=round(horiz_val, 4),
+            confidence=round(last["score"], 4),
+            note=f"bbox aspect w/h={horiz:.2f} on last detected frame",
+        ),
+        PhysicalObservable(
+            name="on_floor",
+            value=round(low_val, 4),
+            confidence=round(last["score"], 4),
+            note=f"bbox y_center={yv:.2f} of frame height",
+        ),
+        PhysicalObservable(
+            name="rapid_descent",
+            value=round(max(descent, widen), 4),
+            confidence=onset_conf,
+            note="y_center drop + aspect widening over the tracked span",
+        ),
+        PhysicalObservable(
+            name="fall_transition",
+            value=fall_transition,
+            confidence=trans_conf,
+            note="upright early AND horizontal late -- a fall event, not a static posture",
+        ),
     ]
 
 
@@ -119,8 +140,8 @@ def _geometry_track(frames, min_score: float = 0.5) -> tuple[list[dict], int, st
         with torch.no_grad():
             o = net([x])[0]
         best = None
-        for s, l, b in zip(o["scores"], o["labels"], o["boxes"]):
-            if int(l) == 1 and float(s) >= min_score:  # COCO person == 1
+        for s, lab, b in zip(o["scores"], o["labels"], o["boxes"]):
+            if int(lab) == 1 and float(s) >= min_score:  # COCO person == 1
                 bx = b.tolist()
                 best = {"score": float(s), "x0": bx[0], "y0": bx[1], "x1": bx[2], "y1": bx[3]}
                 break
@@ -149,14 +170,19 @@ def encode_video(
         track = stub_track or []
         obs = _observables_from_track(track, img_h)
         return EvidenceModel(
-            evidence_id=eid, modality="vision", source=str(src_repr),
-            n_frames=len(track), observables=obs, detector="stub",
+            evidence_id=eid,
+            modality="vision",
+            source=str(src_repr),
+            n_frames=len(track),
+            observables=obs,
+            detector="stub",
             source_sha256=hashlib.sha256(str(src_repr).encode()).hexdigest(),
         ).finalize()
 
     # geometry backend: load frames
     if isinstance(source, str):
         import imageio.v2 as iio
+
         rdr = iio.get_reader(source)
         frames = [f for f in rdr]
         raw = open(source, "rb").read()
@@ -168,8 +194,12 @@ def encode_video(
     track, ih, detector = _geometry_track(frames, min_score=min_score)
     obs = _observables_from_track(track, ih or img_h)
     return EvidenceModel(
-        evidence_id=eid, modality="vision", source=str(src_repr),
-        n_frames=len(frames), observables=obs, detector=detector,
+        evidence_id=eid,
+        modality="vision",
+        source=str(src_repr),
+        n_frames=len(frames),
+        observables=obs,
+        detector=detector,
         source_sha256=src_sha,
     ).finalize()
 
@@ -188,8 +218,14 @@ class VideoWitnessStream:
     stream runs without torch.
     """
 
-    def __init__(self, window: int = 16, min_score: float = 0.5, detect_fn=None,
-                 source: str = "camera://robot", img_h: int = 512):
+    def __init__(
+        self,
+        window: int = 16,
+        min_score: float = 0.5,
+        detect_fn=None,
+        source: str = "camera://robot",
+        img_h: int = 512,
+    ):
         self.window = window
         self.min_score = min_score
         self.source = source
@@ -212,6 +248,7 @@ class VideoWitnessStream:
                     fasterrcnn_resnet50_fpn_v2,
                     FasterRCNN_ResNet50_FPN_V2_Weights,
                 )
+
                 w = FasterRCNN_ResNet50_FPN_V2_Weights.DEFAULT
                 state["torch"] = torch
                 state["net"] = fasterrcnn_resnet50_fpn_v2(weights=w).eval()
@@ -221,8 +258,8 @@ class VideoWitnessStream:
             x = state["tf"](torch.from_numpy(frame[:, :, :3]).permute(2, 0, 1))
             with torch.no_grad():
                 o = state["net"]([x])[0]
-            for s, l, b in zip(o["scores"], o["labels"], o["boxes"]):
-                if int(l) == 1 and float(s) >= self.min_score:
+            for s, lab, b in zip(o["scores"], o["labels"], o["boxes"]):
+                if int(lab) == 1 and float(s) >= self.min_score:
                     bx = b.tolist()
                     return {"score": float(s), "x0": bx[0], "y0": bx[1], "x1": bx[2], "y1": bx[3]}
             return None
@@ -238,13 +275,17 @@ class VideoWitnessStream:
         self._track.append(self._detect(frame))
         self._n += 1
         if len(self._track) > self.window:
-            self._track = self._track[-self.window:]
+            self._track = self._track[-self.window :]
 
     def evidence(self) -> EvidenceModel:
         """The EvidenceModel over the current rolling window."""
         obs = _observables_from_track(self._track, self.img_h)
         return EvidenceModel(
-            evidence_id=f"{self.source}@{self._n}", modality="vision", source=self.source,
-            n_frames=len(self._track), observables=obs, detector=self._detector,
+            evidence_id=f"{self.source}@{self._n}",
+            modality="vision",
+            source=self.source,
+            n_frames=len(self._track),
+            observables=obs,
+            detector=self._detector,
             source_sha256=hashlib.sha256(f"{self.source}@{self._n}".encode()).hexdigest(),
         ).finalize()
