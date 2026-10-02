@@ -81,15 +81,36 @@ class Decision:
 
 
 class ObservationClassifier:
-    def __init__(self, adapter: ModelAdapter, runtime: SceneRuntime):
+    """The canonicalizer: perception facts in, events of the scene's vocabulary out.
+
+    Isolated (``free_text=False``), it is also the boundary of mandatory canonicalization: an
+    event's actor must be one the scene declares (``extra["actors"]``, id to description), snapped
+    there by ``canonicalizer`` (erisml_compiler.canonicalizer) or else ``"unknown"``; and free-text
+    content (an event type with no declared content list) is never stepped, only reported in
+    ``last_quarantined``. What is stepped, and so what any later reader of the moral state sees, is
+    then canonical: declared types, declared contents, declared actors.
+    """
+
+    def __init__(
+        self,
+        adapter: ModelAdapter,
+        runtime: SceneRuntime,
+        canonicalizer: Any = None,
+        free_text: bool = True,
+    ):
         self.adapter, self.rt = adapter, runtime
-        declared = dict((runtime.ir.extra or {}).get("event_types", {}))
+        extra = runtime.ir.extra or {}
+        declared = dict(extra.get("event_types", {}))
         self.system = {
             k for k, v in declared.items() if isinstance(v, dict) and v.get("source") == "system"
         }
         self.vocab: dict[str, dict[str, Any]] = {
             k: v for k, v in declared.items() if k not in self.system
         }
+        self.actors: dict[str, str] = dict(extra.get("actors") or {})
+        self.canonicalizer, self.free_text = canonicalizer, free_text
+        self.last_snapped: list[dict[str, Any]] = []
+        self.last_quarantined: list[dict[str, Any]] = []
 
     def _check(self, e: Any) -> str | None:
         if not isinstance(e, dict) or "type" not in e:
@@ -104,7 +125,19 @@ class ObservationClassifier:
             return f"content {e.get('content')!r} not among {allowed}"
         return None
 
+    def _canonical_actor(self, actor: Any) -> str:
+        a = str(actor or "")
+        if not self.actors or a in self.actors:
+            return a
+        tag = None
+        if self.canonicalizer is not None and a:
+            tag = self.canonicalizer.canonicalize(a, self.actors).tag
+        tag = tag if tag in self.actors else "unknown"
+        self.last_snapped.append({"from": a, "to": tag})
+        return tag
+
     def classify(self, facts: Any) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+        self.last_snapped, self.last_quarantined = [], []
         recent = [e.model_dump(exclude_none=True) for e in self.rt.events[-8:]]
         user = json.dumps(
             {
@@ -127,21 +160,59 @@ class ObservationClassifier:
             why = self._check(e)
             if why:
                 bad.append({"event": e, "why": why})
-            else:
-                ok.append(
-                    {
-                        k: e[k]
-                        for k in ("type", "actor", "target", "content", "conditions")
-                        if e.get(k) not in (None, "")
-                    }
-                )
+                continue
+            ev = {
+                k: e[k]
+                for k in ("type", "actor", "target", "content", "conditions")
+                if e.get(k) not in (None, "")
+            }
+            if not self.free_text:
+                if "actor" in ev:
+                    ev["actor"] = self._canonical_actor(ev["actor"])
+                if "target" in ev:
+                    ev["target"] = self._canonical_actor(ev["target"])
+                ev.pop("conditions", None)
+                if "content" in ev and not self.vocab[ev["type"]].get("content"):
+                    self.last_quarantined.append({"type": ev["type"], "content": ev.pop("content")})
+            ok.append(ev)
         return ok, bad
 
 
+# what an isolated chooser may still read from the caller's context, besides the moral state
+_CANONICAL_CONTEXT = ("governor_ruling", "requested")
+
+
 class ActionChooser:
-    def __init__(self, adapter: ModelAdapter, runtime: SceneRuntime):
-        self.adapter, self.rt = adapter, runtime
+    """Chooses one action from the allowed set.
+
+    With ``view="canonical"`` it never sees the perception facts: only the canonical event history
+    the runtime has stepped, the moral state, and the allowed, obliged and prohibited actions (the
+    No Escape theorem's mandatory canonicalization; erisml-lib
+    docs/papers/foundations/no_escape.tex). Raw text in the world (a television, a message, a
+    stranger's words) then cannot reach the model that picks the action.
+    """
+
+    def __init__(self, adapter: ModelAdapter, runtime: SceneRuntime, view: str = "facts"):
+        if view not in ("facts", "canonical"):
+            raise ValueError(f"view must be 'facts' or 'canonical', not {view!r}")
+        self.adapter, self.rt, self.view = adapter, runtime, view
         self.caps = {c["action"]: c for c in (runtime.ir.extra or {}).get("capabilities", [])}
+
+    def _situation(self, facts: Any) -> dict[str, Any]:
+        if self.view == "facts":
+            return {"facts": facts}
+        recent = [
+            {
+                k: v
+                for k, v in e.model_dump(exclude_none=True).items()
+                if k in ("type", "actor", "target", "content")
+            }
+            for e in self.rt.events[-16:]
+        ]
+        context = {
+            k: facts[k] for k in _CANONICAL_CONTEXT if isinstance(facts, dict) and k in facts
+        }
+        return {"recent_events": recent, **({"context": context} if context else {})}
 
     def choose(
         self, snap: Snapshot, facts: Any
@@ -151,7 +222,7 @@ class ActionChooser:
         user = json.dumps(
             {
                 "scene": self.rt.ir.document.raw_text,
-                "facts": facts,
+                **self._situation(facts),
                 "obligations_in_force": obliged,
                 "default_action": (self.rt.ir.extra or {}).get("default_action"),
                 "allowed_actions": {a: self.caps.get(a, {}) for a in allowed},
@@ -180,12 +251,25 @@ class ActionChooser:
 
 
 class SceneAgent:
-    """One decision cycle: facts in, a checked action out, the moral state stepped in between."""
+    """One decision cycle: facts in, a checked action out, the moral state stepped in between.
 
-    def __init__(self, runtime: SceneRuntime, adapter: ModelAdapter):
+    ``isolated=True`` separates the two models: the classifier (the canonicalizer) reads the facts
+    and writes canonical events only; the chooser reads only the canonical state.
+    """
+
+    def __init__(
+        self,
+        runtime: SceneRuntime,
+        adapter: ModelAdapter,
+        isolated: bool = False,
+        canonicalizer: Any = None,
+    ):
         self.rt = runtime
-        self.classifier = ObservationClassifier(adapter, runtime)
-        self.chooser = ActionChooser(adapter, runtime)
+        self.isolated = isolated
+        self.classifier = ObservationClassifier(
+            adapter, runtime, canonicalizer=canonicalizer, free_text=not isolated
+        )
+        self.chooser = ActionChooser(adapter, runtime, view="canonical" if isolated else "facts")
 
     def decide(self, facts: Any) -> Decision:
         events, rejected = self.classifier.classify(facts)
