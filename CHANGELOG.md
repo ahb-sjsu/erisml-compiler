@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   overridden when one of its defeasibility conditions holds and is restored only by an oversight
   event declared in the scene. Scene-specific links (named conditions, capabilities, oversight
   events) live in the IR's `extra`, not in code.
+- **Chooser restraint**: without an obligation in force or a sign in the facts that someone needs something, the chooser is told to take the scene's `default_action` (now passed to it) and not intrude.
 - **System event types** (`source: system` in `extra["event_types"]`): a ruling, a performed action or an authenticated oversight message is never offered to the perception classifier, and is rejected if it proposes one; the classifier is asked for new events only.
 - **Scene agent** (`runtime/agent.py`). One decision cycle: an LLM classifies perception facts
   into the scene's declared event vocabulary (`extra["event_types"]`; undeclared types and
