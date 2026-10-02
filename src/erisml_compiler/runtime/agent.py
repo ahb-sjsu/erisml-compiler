@@ -3,9 +3,11 @@
 The two learned steps are deliberately narrow and checked:
 
 - ObservationClassifier turns perception facts (any JSON) into events of the scene's declared
-  vocabulary, `extra["event_types"]` (`{type: {"description": ..., "content": [...] optional}}`).
-  A proposed event of an undeclared type, or with a content outside a declared list, is rejected
-  and reported, never stepped.
+  vocabulary, `extra["event_types"]` (`{type: {"description": ..., "content": [...] optional,
+  "source": "system" optional}}`). Types marked `source: system` (a ruling, an action the agent
+  performed, an authenticated oversight message) are never offered to it and are rejected if it
+  proposes one. A proposed event of an undeclared type, or with a content outside a declared list,
+  is rejected and reported, never stepped.
 - ActionChooser picks one action from the runtime's *allowed* set for the current snapshot, with
   the obligations in force listed first. A choice outside the allowed set is rejected; the agent
   then falls back to the first allowed obligation, or to `extra["default_action"]`.
@@ -28,7 +30,9 @@ from erisml_compiler.runtime.scene import SceneRuntime, Snapshot
 _CLASSIFY_SYSTEM = (
     "You turn a robot's perception facts into events of a declared vocabulary. Use only the "
     "declared event types and, where a type lists contents, only those contents. Report what the "
-    "facts show, not what might follow. Answer with a JSON array of objects with keys type, "
+    "facts show, not what might follow, and only what is new since the recent events (do not "
+    "repeat an event that is already there and unchanged). Answer with a JSON array of objects "
+    "with keys type, "
     "actor, target, content, conditions (list of strings). An empty array is a valid answer."
 )
 _CHOOSE_SYSTEM = (
@@ -66,13 +70,19 @@ class Decision:
 class ObservationClassifier:
     def __init__(self, adapter: ModelAdapter, runtime: SceneRuntime):
         self.adapter, self.rt = adapter, runtime
-        self.vocab: dict[str, dict[str, Any]] = dict(
-            (runtime.ir.extra or {}).get("event_types", {})
-        )
+        declared = dict((runtime.ir.extra or {}).get("event_types", {}))
+        self.system = {
+            k for k, v in declared.items() if isinstance(v, dict) and v.get("source") == "system"
+        }
+        self.vocab: dict[str, dict[str, Any]] = {
+            k: v for k, v in declared.items() if k not in self.system
+        }
 
     def _check(self, e: Any) -> str | None:
         if not isinstance(e, dict) or "type" not in e:
             return "not an event object"
+        if e["type"] in self.system:
+            return f"{e['type']!r} comes from the system, not from perception"
         spec = self.vocab.get(e["type"])
         if spec is None:
             return f"undeclared event type {e['type']!r}"
