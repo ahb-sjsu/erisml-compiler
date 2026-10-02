@@ -63,4 +63,16 @@ __all__ = [
     "MoralTensorV3",
     "migrate_v2_tensor_to_v3",
     "migrate_v2_vector_to_v3",
+    # Evidence (physical ground-truth witness)
+    "EvidenceModel",
+    "PhysicalObservable",
+    "SensorAttestation",
+    "check_attestation",
 ]
+
+from erisml_compiler.ir.evidence import (  # noqa: E402
+    EvidenceModel,
+    PhysicalObservable,
+    SensorAttestation,
+    check_attestation,
+)
