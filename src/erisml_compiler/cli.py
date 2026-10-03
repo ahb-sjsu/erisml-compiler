@@ -310,6 +310,47 @@ def cmd_bpmn(scene: Path, process_id: str | None, out_dir: Path) -> None:
         click.echo(f"[+] {path} ({len(proc.nodes)} nodes, {len(proc.flows)} flows)")
 
 
+@cli.command("bpmn-import")
+@click.argument("bpmn_file", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option(
+    "--scene",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+    help="The scene the process must be checked against.",
+)
+@click.option("--process", "process_id", default=None, help="Which process in the document.")
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(dir_okay=False, path_type=Path),
+    default=None,
+    help="Write the declaration (YAML) here instead of printing it.",
+)
+def cmd_bpmn_import(
+    bpmn_file: Path, scene: Path, process_id: str | None, out_path: Path | None
+) -> None:
+    """Import a BPMN 2.0 process, check it against a scene, and emit its ErisML declaration.
+
+    The declaration goes under the scene's ``processes:``; the scene stays the source of truth."""
+    import yaml
+
+    from erisml_compiler.ingestion.structured_loader import load_structured_input
+    from erisml_compiler.process import import_bpmn
+
+    ir = load_structured_input(scene)
+    try:
+        proc, decl = import_bpmn(bpmn_file.read_bytes(), ir.extra or {}, process_id)
+    except ValueError as exc:
+        click.echo(f"[-] {exc}", err=True)
+        raise SystemExit(1)
+    text = yaml.safe_dump({proc.id: decl}, sort_keys=False, allow_unicode=True, width=100)
+    if out_path:
+        out_path.write_text(text, encoding="utf-8")
+        click.echo(f"[+] {out_path} ({len(proc.nodes)} nodes, {len(proc.flows)} flows; checked)")
+    else:
+        click.echo(text, nl=False)
+
+
 # ----------------------------------------------------------------- rlef
 
 

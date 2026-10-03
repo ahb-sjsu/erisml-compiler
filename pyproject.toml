@@ -113,7 +113,7 @@ eris-compile = "erisml_compiler.cli:cli"
 where = ["src"]
 
 [tool.setuptools.package-data]
-erisml_compiler = ["ontology/*.yaml", "annotation/prompts/*.txt"]
+erisml_compiler = ["ontology/*.yaml", "annotation/prompts/*.txt", "process/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

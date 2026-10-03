@@ -53,6 +53,7 @@ class Node:
     external: bool = False  # task: another party's
     trigger: str = ""  # start, message: "type" or "type=content"
     after: str = ""  # timer: a dotted path into extra
+    unit: str = ""  # timer: the unit of the value at `after` (seconds, minutes, hours)
     seconds: float = 0.0  # timer: the resolved interval
     system: bool = False  # start, message: the trigger is a system event (an authenticated channel)
 
@@ -181,7 +182,10 @@ def load(pid: str, decl: dict[str, Any], extra: dict[str, Any]) -> Process:
                 raise ValueError(
                     f"{where}: after {n.get('after')!r} is not an interval the scene declares"
                 ) from None
-            seconds = value * {"seconds": 1, "minutes": 60, "hours": 3600}[n.get("unit", "seconds")]
+            unit = str(n.get("unit") or "seconds")
+            if unit not in ("seconds", "minutes", "hours"):
+                raise ValueError(f"{where}: unit {unit!r} is not seconds, minutes or hours")
+            seconds = value * {"seconds": 1, "minutes": 60, "hours": 3600}[unit]
         nodes[nid] = Node(
             id=nid,
             kind=kind,
@@ -191,6 +195,7 @@ def load(pid: str, decl: dict[str, Any], extra: dict[str, Any]) -> Process:
             external=bool(n.get("external")),
             trigger=str(n.get("trigger", "")),
             after=str(n.get("after", "")),
+            unit=str(n.get("unit") or "seconds") if kind == "timer" else "",
             seconds=seconds,
             system=kind in ("start", "message")
             and (types.get(str(n.get("trigger", "")).partition("=")[0]) or {}).get("source")
