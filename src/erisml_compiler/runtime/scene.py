@@ -19,6 +19,10 @@ Everything scene-specific lives in the scene, not here:
   A norm whose action is `elevated_action` applies to every elevated capability.
 - `extra["oversight"]` lists event types that resolve defeasibility in favour of a commitment
   (human oversight restoring it); nothing else restores an overridden commitment.
+- `extra["strata"]` declares the scene's stratifications: regions of the moral space within
+  which the allowed, obliged and prohibited sets are constant, and the semantic gates between
+  them (Geometric Ethics chapter 8; see runtime/strata.py). Norms read the current stratum as
+  `stratum:<name>=<state>`, and each snapshot carries the boundaries the event crossed.
 
 Event types that drive the machines directly (all optional, generic):
 
@@ -38,6 +42,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from erisml_compiler.fsm import CommitmentFSM, ConsentFSM, LegitimacyFSM
+from erisml_compiler.runtime import strata
 from erisml_compiler.ir.schemas import CompilerIR, Event, Norm
 
 _CONSENT_INITIAL = {"obtained": "obtained", "coerced": "coerced", "withdrawn": "withdrawn"}
@@ -74,6 +79,8 @@ class Snapshot:
     obliged: list[str]
     allowed: list[str]
     reasons: dict[str, list[str]] = field(default_factory=dict)
+    # boundary crossing data (Geometric Ethics Def. 8.11) for the strata this event moved
+    crossings: list[dict[str, Any]] = field(default_factory=list)
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -85,6 +92,7 @@ class Snapshot:
             "obliged": self.obliged,
             "allowed": self.allowed,
             "reasons": self.reasons,
+            "crossings": self.crossings,
         }
 
 
@@ -111,6 +119,7 @@ class SceneRuntime:
             for s in ir.stakeholders
             if {"authority", "protector"} & set(s.roles)
         }
+        self.strata = strata.load(extra)
         self.events: list[Event] = []
         self.discharged_at: dict[str, int] = {}  # norm id -> event count when last discharged
         self.restored_at: dict[str, int] = {}  # commitment id -> event count when last restored
@@ -123,6 +132,7 @@ class SceneRuntime:
         out = {f"commitment:{k}": f.state for k, (_, f) in self.commitments.items()}
         out.update({f"consent:{k}": f.state for k, f in self.consent.items()})
         out.update({f"legitimacy:{k}": f.state for k, f in self.legitimacy.items()})
+        out.update({f"stratum:{k}": s.state for k, s in self.strata.items()})
         return out
 
     def _event_seen(self, typ: str, content: str | None, since: int) -> bool:
@@ -154,6 +164,13 @@ class SceneRuntime:
         if kind == "state":
             mid, _, want = rest.partition("=")
             return self.machine_states().get(mid) == want
+        if kind == "stratum":
+            name, _, want = rest.partition("=")
+            if name not in self.strata:
+                raise KeyError(f"stratum {name!r} is not declared in extra['strata']")
+            if want not in self.strata[name].states:
+                raise KeyError(f"stratum {name!r} has no state {want!r}")
+            return self.strata[name].state == want
         raise ValueError(f"unknown condition token {token!r}")
 
     # ------------------------------------------------------------------ stepping
@@ -165,6 +182,8 @@ class SceneRuntime:
         self.time_index = max(self.time_index, event.time_index)
         self.events.append(event)
         t = event.time_index
+
+        crossings = [c for st in self.strata.values() if (c := st.cross(event.type, event.content))]
 
         if event.type in _CONSENT_EVENTS and event.actor in self.consent:
             self.consent[event.actor].step(_CONSENT_EVENTS[event.type], t)
@@ -195,7 +214,9 @@ class SceneRuntime:
             for n in self.ir.norms:
                 if n.modality == "obligation" and n.action == event.content:
                     self.discharged_at[n.id] = len(self.events)
-        return self.snapshot(event)
+        snap = self.snapshot(event)
+        snap.crossings = crossings
+        return snap
 
     # ------------------------------------------------------------------ norms and actions
     def in_force(self, n: Norm) -> bool:
