@@ -31,22 +31,22 @@ STANDING = {
     "authority": ["arranged"],
     "absorbing": ["hostile"],
     "gates": [
-        {"id": "g_attack", "on": "attack_by_person", "to": "hostile", "boundary": "phase"},
+        {"id": "g_attack", "trigger": "attack_by_person", "to": "hostile", "boundary": "phase"},
         {
             "id": "g_arranged",
-            "on": "visit_arranged",
+            "trigger": "visit_arranged",
             "from": ["none", "stranger", "welcomed"],
             "to": "arranged",
         },
-        {"id": "g_enter", "on": "person_entered", "from": ["none"], "to": "stranger"},
-        {"id": "g_welcome", "on": "visitor_welcomed", "from": ["stranger"], "to": "welcomed"},
+        {"id": "g_enter", "trigger": "person_entered", "from": ["none"], "to": "stranger"},
+        {"id": "g_welcome", "trigger": "visitor_welcomed", "from": ["stranger"], "to": "welcomed"},
         {
             "id": "g_left",
-            "on": "person_left",
+            "trigger": "person_left",
             "from": ["stranger", "welcomed", "arranged"],
             "to": "none",
         },
-        {"id": "g_cleared", "on": "oversight_restored", "from": ["hostile"], "to": "none"},
+        {"id": "g_cleared", "trigger": "oversight_restored", "from": ["hostile"], "to": "none"},
     ],
 }
 
@@ -115,7 +115,9 @@ def test_an_absorbing_stratum_ignores_everything_but_oversight():
 
 
 def test_a_model_classified_event_can_never_lead_into_an_authority_state():
-    bad = dict(STANDING, gates=[*STANDING["gates"], {"on": "visitor_welcomed", "to": "arranged"}])
+    bad = dict(
+        STANDING, gates=[*STANDING["gates"], {"trigger": "visitor_welcomed", "to": "arranged"}]
+    )
     with pytest.raises(ValueError, match="not a system event"):
         runtime(strata=bad)
 
@@ -123,12 +125,12 @@ def test_a_model_classified_event_can_never_lead_into_an_authority_state():
 def test_an_absorbing_state_cannot_be_left_except_by_oversight():
     bad = dict(
         STANDING,
-        gates=[*STANDING["gates"], {"on": "person_left", "from": ["hostile"], "to": "none"}],
+        gates=[*STANDING["gates"], {"trigger": "person_left", "from": ["hostile"], "to": "none"}],
     )
     with pytest.raises(ValueError, match="absorbing"):
         runtime(strata=bad)
     unscoped = dict(
-        STANDING, gates=[{"on": "person_left", "to": "none"}]
+        STANDING, gates=[{"trigger": "person_left", "to": "none"}]
     )  # from any state, hostile too
     with pytest.raises(ValueError, match="absorbing"):
         runtime(strata=unscoped)
@@ -141,9 +143,12 @@ def test_an_absorbing_state_cannot_be_left_except_by_oversight():
         ({"initial": "elsewhere"}, "initial state"),
         ({"authority": ["royalty"]}, "undeclared"),
         ({"absorbing": ["limbo"]}, "undeclared"),
-        ({"gates": [{"on": "person_entered", "to": "nowhere"}]}, "undeclared state"),
-        ({"gates": [{"on": "teleported", "to": "stranger"}]}, "undeclared event type"),
-        ({"gates": [{"on": "person_entered", "to": "stranger", "boundary": "vibe"}]}, "boundary"),
+        ({"gates": [{"trigger": "person_entered", "to": "nowhere"}]}, "undeclared state"),
+        ({"gates": [{"trigger": "teleported", "to": "stranger"}]}, "undeclared event type"),
+        (
+            {"gates": [{"trigger": "person_entered", "to": "stranger", "boundary": "vibe"}]},
+            "boundary",
+        ),
     ],
 )
 def test_a_malformed_stratification_is_refused_when_the_scene_loads(change, match):
@@ -157,3 +162,12 @@ def test_reading_an_undeclared_stratum_or_state_is_an_error():
         rt.holds("stratum:animal=wild")
     with pytest.raises(KeyError):
         rt.holds("stratum:visitor=royalty")
+
+
+def test_a_gate_without_a_trigger_is_refused_naming_the_yaml_trap():
+    import yaml
+
+    gates = yaml.safe_load("- {id: g, on: person_entered, to: stranger}")
+    assert True in gates[0]  # YAML 1.1: `on` is the boolean True
+    with pytest.raises(ValueError, match="no trigger"):
+        runtime(strata=dict(STANDING, gates=gates))

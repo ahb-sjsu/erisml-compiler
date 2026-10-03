@@ -12,11 +12,12 @@ what an animal is to it, ...) in ``extra["strata"]``:
       authority: [arranged]          # states that grant something
       absorbing: [hostile]           # Type III (Def. 8.6): left only by human oversight
       gates:                         # semantic gates (Def. 8.8), first match wins
-        - {id: g1, on: person_entered, from: [none], to: stranger, boundary: threshold}
-        - {id: g2, on: attack_by_person, to: hostile, boundary: phase}
+        - {id: g1, trigger: person_entered, from: [none], to: stranger, boundary: threshold}
+        - {id: g2, trigger: attack_by_person, to: hostile, boundary: phase}
 
 A gate G: F x S_alpha -> S_beta fires discretely when its triggering feature is the event just
-stepped (`on`: "type" or "type=content"; edge-triggered, so history never re-fires it) and the
+stepped (`trigger`: "type" or "type=content"; the key is not `on`, which
+YAML 1.1 reads as the boolean True; edge-triggered, so history never re-fires it) and the
 stratification is in one of its source strata (`from`; any stratum when omitted). Its boundary
 is Type I (`threshold`, a measured quantity crossing a value) or Type II (`phase`, a change of
 regime); Type IV constraint surfaces are not states but the scene's non-defeasible prohibitions.
@@ -83,7 +84,11 @@ class Stratification:
             raise ValueError(f"stratum {name!r}: an authority state cannot be where it starts")
         self.gates: list[Gate] = []
         for i, g in enumerate(decl.get("gates") or []):
-            typ, _, content = str(g.get("on", "")).partition("=")
+            if "trigger" not in g:
+                raise ValueError(
+                    f"stratum {name!r}: gate {g.get('id', i)!r} has no trigger (a YAML key `on:` is read as True)"
+                )
+            typ, _, content = str(g["trigger"]).partition("=")
             gate = Gate(
                 id=str(g.get("id") or f"{name}.{i}"),
                 on_type=typ,
