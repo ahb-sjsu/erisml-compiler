@@ -214,3 +214,18 @@ def test_a_governed_task_may_follow_a_system_triggered_event_directly():
     p["nodes"][0]["trigger"] = "help_requested"  # a perceived start: no longer enough
     with pytest.raises(ValueError, match="governed"):
         load("fast", p, extra())
+
+
+def test_the_trace_passes_through_another_partys_task():
+    """The operator's call is the centre's, never in the robot's records; the trace still joins
+    the robot's referral to the centre's reply through it."""
+    proc = load_all(extra())["ladder"]
+    run = [
+        {"type": "fall"},
+        {"type": "action_performed", "content": "check_in"},
+        {"type": "check_in_unanswered"},
+        {"type": "action_performed", "content": "contact_monitoring_center"},
+        {"type": "monitoring_center_reply", "content": "ems_sent"},
+    ]
+    steps = [s.element for s in trace(proc, run)]
+    assert steps[-3:] == ["t_op", "ladder_f7", "m_centre"]
