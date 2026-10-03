@@ -272,6 +272,44 @@ def cmd_validate(ir_file: Path) -> None:
     )
 
 
+# ----------------------------------------------------------------- bpmn
+
+
+@cli.command("bpmn")
+@click.argument("scene", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option(
+    "--process", "process_id", default=None, help="Which declared process (default: each one)."
+)
+@click.option(
+    "--out",
+    "out_dir",
+    type=click.Path(file_okay=False, path_type=Path),
+    default=Path("."),
+    help="Directory for <process>.bpmn files.",
+)
+def cmd_bpmn(scene: Path, process_id: str | None, out_dir: Path) -> None:
+    """Export a scene's declared processes (extra.processes) as BPMN 2.0, checked against the scene."""
+    from erisml_compiler.ingestion.structured_loader import load_structured_input
+    from erisml_compiler.process import load_all, to_bpmn
+
+    ir = load_structured_input(scene)
+    try:
+        procs = load_all(ir.extra or {})
+    except ValueError as exc:
+        click.echo(f"[-] {exc}", err=True)
+        raise SystemExit(1)
+    if process_id:
+        if process_id not in procs:
+            click.echo(f"[-] no process {process_id!r}; declared: {sorted(procs)}", err=True)
+            raise SystemExit(1)
+        procs = {process_id: procs[process_id]}
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for pid, proc in procs.items():
+        path = out_dir / f"{pid}.bpmn"
+        path.write_text(to_bpmn(proc, scene_name=scene.stem), encoding="utf-8")
+        click.echo(f"[+] {path} ({len(proc.nodes)} nodes, {len(proc.flows)} flows)")
+
+
 # ----------------------------------------------------------------- rlef
 
 
