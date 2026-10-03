@@ -93,6 +93,14 @@ class HuggingFaceActivationSource(ActivationSource):
         layers: which layer indices to capture. If None, every 4th + final.
         max_tokens: truncate inputs above this length.
         trust_remote_code: passed through; default False.
+        model: an already-loaded model to capture from instead of loading
+            ``model_id`` (for example ``AutoModelForCausalLM(...).model``,
+            the base model inside a causal LM, so one copy of the weights
+            serves both capture and generation). It is used as given: it is
+            not moved to ``device`` or put in eval mode, and ``close()``
+            removes the hooks but leaves the model to its owner.
+        tokenizer: the tokenizer to use with ``model``; loaded from
+            ``model_id`` when omitted.
     """
 
     name = "huggingface"
@@ -105,6 +113,8 @@ class HuggingFaceActivationSource(ActivationSource):
         layers: Sequence[int] | None = None,
         max_tokens: int = 512,
         trust_remote_code: bool = False,
+        model=None,
+        tokenizer=None,
     ):
         import torch
         from transformers import AutoModel, AutoTokenizer
@@ -116,15 +126,18 @@ class HuggingFaceActivationSource(ActivationSource):
 
         torch_dtype = getattr(torch, dtype) if dtype != "auto" else "auto"
 
-        self._tokenizer = AutoTokenizer.from_pretrained(
+        self._tokenizer = tokenizer or AutoTokenizer.from_pretrained(
             model_id, trust_remote_code=trust_remote_code
         )
-        self._model = AutoModel.from_pretrained(
-            model_id,
-            dtype=torch_dtype,
-            trust_remote_code=trust_remote_code,
-        ).to(device)
-        self._model.eval()
+        self._owns_model = model is None
+        if model is None:
+            model = AutoModel.from_pretrained(
+                model_id,
+                dtype=torch_dtype,
+                trust_remote_code=trust_remote_code,
+            ).to(device)
+            model.eval()
+        self._model = model
 
         cfg = self._model.config
         model_type = getattr(cfg, "model_type", "").lower()
@@ -229,8 +242,9 @@ class HuggingFaceActivationSource(ActivationSource):
         for h in self._hook_handles:
             h.remove()
         self._hook_handles.clear()
-        # Drop the model + tokenizer references to free GPU memory.
+        # Drop the model + tokenizer references; a model this source loaded
+        # is then freed, a wrapped one stays with its owner.
         del self._model
         del self._tokenizer
-        if self._torch.cuda.is_available():
+        if self._owns_model and self._torch.cuda.is_available():
             self._torch.cuda.empty_cache()
