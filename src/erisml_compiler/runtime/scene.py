@@ -141,12 +141,18 @@ class SceneRuntime:
                 return True
         return False
 
-    def holds(self, token: str, since: int = 0, _depth: int = 0) -> bool:
-        """Whether one condition token holds now, counting events from index `since`."""
+    def holds(self, token: str, since: int = 0, _depth: int = 0, _negated: bool = False) -> bool:
+        """Whether one condition token holds now, counting events from index `since`.
+
+        `since` is where an obligation was last discharged. Event tokens count only events from
+        there. A stratum is a state, so a positive stratum token counts only if the stratum was
+        established from there (a gate fired into it), or the obligation could never be
+        discharged while the stratum lasted; under a negation it is read as it stands now, so
+        `not:` still means "not in that stratum now"."""
         if _depth > 16:
             raise ValueError(f"condition definitions recurse too deeply at {token!r}")
         if token.startswith("not:"):
-            return not self.holds(token[4:], since, _depth + 1)
+            return not self.holds(token[4:], since, _depth + 1, not _negated)
         kind, _, rest = token.partition(":")
         if kind == "event":
             typ, _, content = rest.partition("=")
@@ -160,7 +166,7 @@ class SceneRuntime:
         if kind == "cond":
             if rest not in self.conditions:
                 raise KeyError(f"condition {rest!r} is not defined in extra['conditions']")
-            return all(self.holds(t, since, _depth + 1) for t in self.conditions[rest])
+            return all(self.holds(t, since, _depth + 1, _negated) for t in self.conditions[rest])
         if kind == "state":
             mid, _, want = rest.partition("=")
             return self.machine_states().get(mid) == want
@@ -170,7 +176,9 @@ class SceneRuntime:
                 raise KeyError(f"stratum {name!r} is not declared in extra['strata']")
             if want not in self.strata[name].states:
                 raise KeyError(f"stratum {name!r} has no state {want!r}")
-            return self.strata[name].state == want
+            st = self.strata[name]
+            fresh = _negated or since == 0 or st.entered_at > since  # set by an event after it
+            return st.state == want and fresh
         raise ValueError(f"unknown condition token {token!r}")
 
     # ------------------------------------------------------------------ stepping
@@ -183,7 +191,11 @@ class SceneRuntime:
         self.events.append(event)
         t = event.time_index
 
-        crossings = [c for st in self.strata.values() if (c := st.cross(event.type, event.content))]
+        crossings = [
+            c
+            for st in self.strata.values()
+            if (c := st.cross(event.type, event.content, len(self.events)))
+        ]
 
         if event.type in _CONSENT_EVENTS and event.actor in self.consent:
             self.consent[event.actor].step(_CONSENT_EVENTS[event.type], t)

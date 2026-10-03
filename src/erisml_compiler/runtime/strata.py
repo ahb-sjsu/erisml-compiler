@@ -71,6 +71,7 @@ class Stratification:
         self.initial: str = decl.get("initial", self.states[0] if self.states else "")
         self.authority = set(decl.get("authority") or [])
         self.absorbing = set(decl.get("absorbing") or [])
+        self.entered_at = 0  # the run index of the event that last established the stratum
         if not self.states or self.initial not in self.states:
             raise ValueError(
                 f"stratum {name!r}: initial state {self.initial!r} not among {self.states}"
@@ -120,10 +121,15 @@ class Stratification:
                 "which is not a human-oversight event"
             )
 
-    def cross(self, event_type: str, content: str | None) -> dict[str, Any] | None:
-        """Step one event; the boundary crossing data if a gate fired and moved the stratum."""
+    def cross(self, event_type: str, content: str | None, index: int = 0) -> dict[str, Any] | None:
+        """Step one event; the boundary crossing data if a gate fired and moved the stratum.
+
+        `index` is the event's position in the run: a gate that fires records it as the moment the
+        stratum was (re-)established, even when it leaves the stratum where it was (fresh evidence
+        for the same stratum), so an obligation discharged earlier is owed again."""
         for g in self.gates:
             if g.fires(event_type, content, self.state):
+                self.entered_at = index
                 if g.to == self.state:
                     return None
                 crossing = {
