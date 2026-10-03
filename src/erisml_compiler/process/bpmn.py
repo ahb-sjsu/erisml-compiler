@@ -64,6 +64,9 @@ def _duration(seconds: float) -> str:
 
 
 def _layers(proc: Process) -> dict[str, int]:
+    """Each node's column. In an acyclic process, the longest path from a start (so every flow
+    runs left to right), with each start placed just before its first node; a process with a loop
+    falls back to breadth-first columns, and its loop is drawn as a back edge."""
     layer: dict[str, int] = {}
     q = deque()
     for n in proc.nodes.values():
@@ -76,7 +79,23 @@ def _layers(proc: Process) -> dict[str, int]:
             if f.target not in layer:
                 layer[f.target] = layer[x] + 1
                 q.append(f.target)
-    return layer
+    indeg = {nid: len(proc.incoming(nid)) for nid in proc.nodes}
+    order = [nid for nid, d in indeg.items() if d == 0]
+    for x in order:
+        for f in proc.outgoing(x):
+            indeg[f.target] -= 1
+            if indeg[f.target] == 0:
+                order.append(f.target)
+    if len(order) < len(proc.nodes):
+        return layer
+    longest = dict.fromkeys(proc.nodes, 0)
+    for x in order:
+        for f in proc.outgoing(x):
+            longest[f.target] = max(longest[f.target], longest[x] + 1)
+    for n in proc.nodes.values():
+        if n.kind == "start" and proc.outgoing(n.id):
+            longest[n.id] = min(longest[f.target] for f in proc.outgoing(n.id)) - 1
+    return longest
 
 
 def _layout(
@@ -86,7 +105,11 @@ def _layout(
     layer = _layers(proc)
     stack: dict[tuple[str, int], int] = {}
     slot: dict[str, int] = {}
-    for nid in sorted(proc.nodes, key=lambda i: (layer[i], list(proc.nodes).index(i))):
+    # a start pulled into a later column takes that column's last row, half a column to the left,
+    # clear of the gateway or task already there
+    late = {i for i, n in proc.nodes.items() if n.kind == "start" and layer[i] > 0}
+    order = list(proc.nodes)
+    for nid in sorted(proc.nodes, key=lambda i: (layer[i], i in late, order.index(i))):
         key = (proc.nodes[nid].lane, layer[nid])
         slot[nid] = stack.get(key, 0)
         stack[key] = slot[nid] + 1
@@ -99,14 +122,14 @@ def _layout(
     bounds = {}
     for nid, n in proc.nodes.items():
         w, h = SIZE[n.kind]
-        cx = POOL_X + LABEL_W + PAD + layer[nid] * COL_W + 60
+        cx = POOL_X + LABEL_W + PAD + layer[nid] * COL_W + 60 - (COL_W / 2 if nid in late else 0)
         cy = lanes[n.lane][0] + PAD / 2 + slot[nid] * ROW_H + ROW_H / 2
         bounds[nid] = (cx - w / 2, cy - h / 2, w, h)
     width = LABEL_W + PAD + (max(layer.values()) + 1) * COL_W + PAD
     return bounds, lanes, (POOL_X, POOL_Y, width, y - POOL_Y)
 
 
-def _waypoints(b: dict, f, back: bool) -> list[tuple[float, float]]:
+def _waypoints(b: dict, f, back: bool, gateway: bool = False) -> list[tuple[float, float]]:
     sx, sy, sw, sh = b[f.source]
     tx, ty, tw, th = b[f.target]
     if back:
@@ -116,8 +139,24 @@ def _waypoints(b: dict, f, back: bool) -> list[tuple[float, float]]:
     t = (tx, ty + th / 2)
     if abs(s[1] - t[1]) < 0.5:
         return [s, t]
+    if gateway:
+        # a branch leaves its gateway from the top or bottom corner, so branches never share a
+        # vertical run and each one's label sits on its own horizontal
+        cx = sx + sw / 2
+        return [(cx, sy if t[1] < s[1] else sy + sh), (cx, t[1]), t]
     mid = (s[0] + t[0]) / 2
     return [s, (mid, s[1]), (mid, t[1]), t]
+
+
+def _label_bounds(
+    points: list[tuple[float, float]], text: str
+) -> tuple[float, float, float, float]:
+    """A flow's label: above the last horizontal run into the target, starting at its corner."""
+    w = min(150.0, 6.0 * len(text) + 8)
+    (x0, y0), (x1, y1) = points[-2], points[-1]
+    if abs(y0 - y1) < 0.5:
+        return (min(x0, x1) + 6, y1 - 18, w, 14)
+    return (x1 + 6, (y0 + y1) / 2 - 7, w, 14)
 
 
 def to_bpmn(proc: Process, scene_name: str = "") -> str:
@@ -205,7 +244,7 @@ def to_bpmn(proc: Process, scene_name: str = "") -> str:
                 "id": f.id,
                 "sourceRef": f.source,
                 "targetRef": f.target,
-                **({"name": f.when} if f.when else {}),
+                **({"name": f.name or f.when} if f.name or f.when else {}),
             },
         )
         if f.when:
@@ -243,11 +282,31 @@ def to_bpmn(proc: Process, scene_name: str = "") -> str:
         shape(f"{proc.id}_lane_{lane}", pool[0] + LABEL_W, y, pool[2] - LABEL_W, h, horizontal=True)
     for nid, bb in bounds.items():
         shape(nid, *bb)
+        if proc.nodes[nid].kind == "xor" and proc.nodes[nid].name:
+            # a gateway's question sits above-left of the diamond, where no branch leaves
+            x, y, _, _ = bb
+            label = ET.SubElement(plane[-1], _q("bpmndi", "BPMNLabel"))
+            ET.SubElement(
+                label,
+                _q("dc", "Bounds"),
+                {"x": f"{x - 84:g}", "y": f"{y - 30:g}", "width": "90", "height": "27"},
+            )
     for f in proc.flows:
         edge = ET.SubElement(
             plane, _q("bpmndi", "BPMNEdge"), {"id": f"{f.id}_di", "bpmnElement": f.id}
         )
-        for x, y in _waypoints(bounds, f, layer[f.target] <= layer[f.source]):
+        points = _waypoints(
+            bounds, f, layer[f.target] <= layer[f.source], proc.nodes[f.source].kind == "xor"
+        )
+        for x, y in points:
             ET.SubElement(edge, _q("di", "waypoint"), {"x": f"{x:g}", "y": f"{y:g}"})
+        if f.name or f.when:
+            x, y, w, h = _label_bounds(points, f.name or f.when)
+            label = ET.SubElement(edge, _q("bpmndi", "BPMNLabel"))
+            ET.SubElement(
+                label,
+                _q("dc", "Bounds"),
+                {"x": f"{x:g}", "y": f"{y:g}", "width": f"{w:g}", "height": f"{h:g}"},
+            )
     ET.indent(b)
     return '<?xml version="1.0" encoding="UTF-8"?>\n' + ET.tostring(b, encoding="unicode")
