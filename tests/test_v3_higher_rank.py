@@ -92,7 +92,9 @@ def test_higher_rank_build_strategy_marker(r3_ir):
 
 
 def test_rank4_stub_axes_recorded():
-    ir = _compile(4, tensor_n_actions=2, tensor_n_coalitions=2)
+    # the coalition axis is a stub only with coalition_mode="grand_only" since phase 6 made the
+    # default (all_subsets) real; that case is tested in test_v3_phase6.py
+    ir = _compile(4, tensor_n_actions=2, tensor_n_coalitions=2, coalition_mode="grand_only")
     md = ir.moral_tensor_v3.metadata
     assert "a" in md["stub_axes"]
     assert "c" in md["stub_axes"]
@@ -132,10 +134,18 @@ def test_mc_axis_varies_at_rank6(r6_ir):
     assert s_std.max() > 0.0, "rank-6 MC axis has no variation — sampling broken"
 
 
-def test_stub_axes_constant_at_rank6(r6_ir):
-    """a and c are stub axes today — same rank-2 result replicated
-    across them. Phase 6 will inject genuine coalition variation."""
-    arr = np.array(r6_ir.moral_tensor_v3.values)
+def test_stub_axes_constant_at_rank6():
+    """a is a stub axis, and c is one with coalition_mode="grand_only": the same rank-2 result
+    replicated across them. Phase 6 made coalitions real in the default mode (all_subsets), which
+    test_v3_phase6.py tests."""
+    ir = _compile(
+        6,
+        tensor_n_actions=2,
+        tensor_n_coalitions=3,
+        tensor_n_samples=4,
+        coalition_mode="grand_only",
+    )
+    arr = np.array(ir.moral_tensor_v3.values)
     a_std = arr.std(axis=3)
     c_std = arr.std(axis=4)
     # Allow numpy float-broadcast noise (< 1e-9).

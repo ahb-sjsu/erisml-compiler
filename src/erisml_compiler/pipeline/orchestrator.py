@@ -403,8 +403,11 @@ def compile_document(
             ir.moral_vectors = [fs["moral_vector"]] if "moral_vector" in fs else []
             ir.deme_verdict = fs.get("deme_verdict")
             ir.moral_tensor_v3 = fs.get("moral_tensor_v3")
-            ir.per_party_verdicts = fs.get("per_party_verdicts") or None
-            ir.fairness_metrics = fs.get("fairness_metrics") or None
+            # the V3 bridge (_produce_v3_tensor, above) has already set these from the per-party
+            # facts; the projection's own come from the V2 verdict and are empty on that path, so
+            # they replace the bridge's only when the projection has some
+            ir.per_party_verdicts = fs.get("per_party_verdicts") or ir.per_party_verdicts or None
+            ir.fairness_metrics = fs.get("fairness_metrics") or ir.fairness_metrics or None
 
         if "deontic_kantian" in options.projections:
             dp = DeonticProjection()
