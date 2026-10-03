@@ -79,6 +79,10 @@ jobs:
                  tests/test_v3_pipeline.py \
                  tests/test_dimension_consistency.py \
                  tests/test_extension_channels.py \
+                 tests/test_scene_runtime.py \
+                 tests/test_scene_agent.py \
+                 tests/test_scene_strata.py \
+                 tests/test_process_bpmn.py \
                  -v --tb=short
 
   # -----------------------------------------------------------------
@@ -111,6 +115,7 @@ jobs:
                  tests/test_monitor.py \
                  tests/test_delta.py \
                  tests/test_cli_monitor.py \
+                 tests/test_monitor_wrap.py \
                  -v --tb=short
 
   # -----------------------------------------------------------------
