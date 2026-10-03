@@ -63,6 +63,7 @@ class Flow:
     source: str
     target: str
     when: str = ""
+    name: str = ""  # the label a reader sees; ``when`` stays the condition
 
 
 @dataclass
@@ -212,7 +213,9 @@ def load(pid: str, decl: dict[str, Any], extra: dict[str, Any]) -> Process:
                     f"{where}: {tgt.action!r} is governed, so the flow into it must rest only on system "
                     f"events (when: {when!r})"
                 )
-        flows.append(Flow(id=f"{pid}_f{i}", source=src, target=dst, when=when))
+        flows.append(
+            Flow(id=f"{pid}_f{i}", source=src, target=dst, when=when, name=str(f.get("name", "")))
+        )
     proc = Process(id=pid, name=str(decl.get("name", pid)), lanes=lanes, nodes=nodes, flows=flows)
     for f in flows:
         if nodes[f.target].kind == "start":

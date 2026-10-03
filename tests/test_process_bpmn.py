@@ -229,3 +229,21 @@ def test_the_trace_passes_through_another_partys_task():
     ]
     steps = [s.element for s in trace(proc, run)]
     assert steps[-3:] == ["t_op", "ladder_f7", "m_centre"]
+
+
+def test_a_flow_reads_by_its_name_and_keeps_its_condition():
+    p = copy.deepcopy(LADDER)
+    p["flows"][3]["name"] = "she answered"
+    xml = to_bpmn(load("ladder", p, extra()))
+    root = ET.fromstring(xml)
+    flow = next(e for e in root.iter() if e.get("id") == "ladder_f3")
+    assert flow.get("name") == "she answered"
+    assert next(iter(flow)).text == "event:check_in_answered"
+    edge = next(e for e in root.iter() if e.get("bpmnElement") == "ladder_f3")
+    assert any(c.tag.endswith("BPMNLabel") for c in edge)
+    # branches leave a gateway from its own centre line, not a shared mid-column
+    x_ans = next(e for e in root.iter() if e.get("bpmnElement") == "x_ans")
+    b = next(iter(x_ans))
+    cx = float(b.get("x")) + float(b.get("width")) / 2
+    first = [float(w.get("x")) for w in edge if w.tag.endswith("waypoint")][0]
+    assert first == cx
