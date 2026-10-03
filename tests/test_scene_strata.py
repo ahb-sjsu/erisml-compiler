@@ -171,3 +171,57 @@ def test_a_gate_without_a_trigger_is_refused_naming_the_yaml_trap():
     assert True in gates[0]  # YAML 1.1: `on` is the boolean True
     with pytest.raises(ValueError, match="no trigger"):
         runtime(strata=dict(STANDING, gates=gates))
+
+
+def test_an_obligation_in_a_stratum_is_discharged_until_the_stratum_is_entered_again():
+    """A stratum is a state, not an event: without the discharge point an obligation resting on it
+    would be owed again on every step while the stratum lasted (the robot re-admitting responders
+    already let in, re-warning about the same snake)."""
+    rt = runtime()
+    assert "check_in" in rt.step({"type": "person_entered"}).obliged
+    snap = rt.step({"type": "action_performed", "content": "check_in"})
+    assert "check_in" not in snap.obliged and snap.machines["stratum:visitor"] == "stranger"
+    assert "check_in" not in rt.step({"type": "visitor_welcomed"}).obliged
+    rt.step({"type": "person_left"})
+    assert "check_in" in rt.step({"type": "person_entered"}).obliged  # a new visitor: owed again
+
+
+def test_a_negated_stratum_reads_the_stratum_now_after_a_discharge():
+    """`not:` keeps meaning "not in that stratum now": a stratum entered before the discharge
+    still counts against the obligation."""
+    rt = runtime()
+    rt.ir.norms.append(
+        Norm(
+            id="s2",
+            modality="obligation",
+            actor="robot",
+            action="chores",
+            target="margaret",
+            priority_tier=2,
+            defeasible=False,
+            source="scene",
+            conditions=["event:person_left", "not:stratum:visitor=hostile"],
+        )
+    )
+    rt.step({"type": "person_entered"})
+    rt.step({"type": "attack_by_person"})
+    rt.step({"type": "action_performed", "content": "chores"})
+    snap = rt.step({"type": "person_left"})  # absorbing: he is still hostile
+    assert snap.machines["stratum:visitor"] == "hostile" and "chores" not in snap.obliged
+
+
+def test_fresh_evidence_for_the_same_stratum_owes_the_obligation_again():
+    rt = runtime()
+    rt.step({"type": "person_entered"})
+    rt.step({"type": "action_performed", "content": "check_in"})
+    stay = {
+        **STANDING,
+        "gates": STANDING["gates"]
+        + [{"id": "g_again", "trigger": "person_entered", "from": ["stranger"], "to": "stranger"}],
+    }
+    rt2 = runtime(stay)
+    rt2.step({"type": "person_entered"})
+    rt2.step({"type": "action_performed", "content": "check_in"})
+    snap = rt2.step({"type": "person_entered"})  # the gate fires again: no crossing, but fresh
+    assert snap.crossings == [] and "check_in" in snap.obliged
+    assert "check_in" not in rt.step({"type": "person_entered"}).obliged  # no gate fired
