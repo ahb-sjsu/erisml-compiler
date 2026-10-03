@@ -113,8 +113,19 @@ class ObservationClassifier:
         self.last_quarantined: list[dict[str, Any]] = []
 
     def _check(self, e: Any) -> str | None:
-        if not isinstance(e, dict) or "type" not in e:
+        if not isinstance(e, dict) or not isinstance(e.get("type"), str):
             return "not an event object"
+        # the fields' types, checked here so a malformed event is rejected and reported like any
+        # other, rather than raising when the runtime builds it (a model once returned content
+        # ['fallen', 'unconscious'] for a free-content type, and the whole decision failed)
+        for k in ("actor", "target", "content"):
+            if e.get(k) is not None and not isinstance(e[k], str):
+                return f"{k} must be a string, not {type(e[k]).__name__}"
+        conds = e.get("conditions")
+        if conds is not None and not (
+            isinstance(conds, list) and all(isinstance(c, str) for c in conds)
+        ):
+            return "conditions must be a list of strings"
         if e["type"] in self.system:
             return f"{e['type']!r} comes from the system, not from perception"
         spec = self.vocab.get(e["type"])

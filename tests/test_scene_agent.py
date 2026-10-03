@@ -170,3 +170,33 @@ def test_isolated_chooser_reads_only_the_named_context():
     agent = SceneAgent(rt, rec, isolated=True)
     agent.chooser.choose(rt.snapshot(), {"governor_ruling": "refuse", "television": MARKER})
     assert "refuse" in rec.users[-1] and MARKER not in rec.users[-1]
+
+
+def test_a_wrongly_typed_field_is_rejected_not_raised():
+    """A model once returned content ['fallen', 'unconscious'] for a free-content type; building
+    the event raised and the whole decision failed. It is a rejected event like any other."""
+    vocab = {
+        **VOCAB,
+        "medical_distress": {"description": "signs of distress; content names the sign"},
+    }
+    rt = SceneRuntime(home(event_types=vocab, default_action="chores"))
+    mock = MockLLMAdapter(
+        {
+            "You turn the observations of": json.dumps(
+                [
+                    {"type": "medical_distress", "content": ["fallen", "unconscious"]},
+                    {"type": "medical_distress", "actor": {"name": "margaret"}},
+                    {"type": "medical_distress", "conditions": "urgent"},
+                    {"type": "medical_distress", "content": "fainting"},
+                ]
+            ),
+            "You choose the next action": json.dumps({"action": "chores", "reason": "x"}),
+        }
+    )
+    d = SceneAgent(rt, mock).decide({"margaret": {"pose": "lying_on_floor"}})
+    assert [e.get("content") for e in d.events] == ["fainting"]
+    assert [r["why"] for r in d.rejected_events] == [
+        "content must be a string, not list",
+        "actor must be a string, not dict",
+        "conditions must be a list of strings",
+    ]
