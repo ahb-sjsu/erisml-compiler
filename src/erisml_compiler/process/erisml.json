@@ -1,0 +1,20 @@
+{
+  "name": "ErisML",
+  "uri": "https://erisml.org/schema/bpmn/1.0",
+  "prefix": "erisml",
+  "xml": { "tagAlias": "lowerCase" },
+  "associations": [],
+  "types": [
+    {
+      "name": "Binding",
+      "superClass": ["Element"],
+      "properties": [
+        { "name": "action", "isAttr": true, "type": "String" },
+        { "name": "trigger", "isAttr": true, "type": "String" },
+        { "name": "after", "isAttr": true, "type": "String" },
+        { "name": "unit", "isAttr": true, "type": "String" },
+        { "name": "external", "isAttr": true, "type": "Boolean" }
+      ]
+    }
+  ]
+}

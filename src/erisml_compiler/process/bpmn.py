@@ -13,8 +13,9 @@ standard places:
 - an exclusive gateway's outgoing flows carry the ErisML condition tokens as formal expressions
   (language ``https://erisml.org/condition-token``).
 
-Layout is layered: a node's column is its breadth-first distance from a start event, its row is its
-lane; edges into an earlier column (loops) are routed over the top.
+Layout is layered: a node's column is its longest distance from a start event (breadth-first when the
+process has a loop), its row is its lane; edges into an earlier column (loops) are routed over the
+top. ``process.importer`` reads such a document back, under the same checks.
 """
 
 from __future__ import annotations
@@ -204,7 +205,14 @@ def to_bpmn(proc: Process, scene_name: str = "") -> str:
             p, _q("bpmn", tag), {"id": n.id, "name": n.name or n.action or n.trigger or n.kind}
         )
         binding = {
-            k: v for k, v in (("action", n.action), ("trigger", n.trigger), ("after", n.after)) if v
+            k: v
+            for k, v in (
+                ("action", n.action),
+                ("trigger", n.trigger),
+                ("after", n.after),
+                ("unit", n.unit),
+            )
+            if v
         }
         if n.external:
             binding["external"] = "true"

@@ -82,7 +82,7 @@ jobs:
                  tests/test_scene_runtime.py \
                  tests/test_scene_agent.py \
                  tests/test_scene_strata.py \
-                 tests/test_process_bpmn.py \
+                 tests/test_process_bpmn.py                  tests/test_process_import.py \
                  -v --tb=short
 
   # -----------------------------------------------------------------
