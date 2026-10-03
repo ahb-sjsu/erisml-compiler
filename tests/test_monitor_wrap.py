@@ -30,7 +30,10 @@ def tiny(tmp_path_factory):
     words = ["[UNK]", "the", "robot", "sees", "margaret", "fall", "smoke", "dog"]
     tok = Tokenizer(models.WordLevel({w: i for i, w in enumerate(words)}, unk_token="[UNK]"))
     tok.pre_tokenizer = pre_tokenizers.Whitespace()
-    PreTrainedTokenizerFast(tokenizer_object=tok, unk_token="[UNK]").save_pretrained(d)
+    # the tokenizer is kept out of the model's directory and passed explicitly: there, transformers
+    # 5.x would load Qwen2's own tokenizer class (from config.json's model_type) over this vocabulary,
+    # and it encodes these words as nothing
+    tokenizer = PreTrainedTokenizerFast(tokenizer_object=tok, unk_token="[UNK]")
     torch.manual_seed(0)
     cfg = Qwen2Config(
         vocab_size=len(words),
@@ -42,17 +45,20 @@ def tiny(tmp_path_factory):
         max_position_embeddings=64,
     )
     AutoModelForCausalLM.from_config(cfg).save_pretrained(d)
-    return str(d)
+    return str(d), tokenizer
 
 
 def test_a_wrapped_model_captures_what_a_loaded_one_does(tiny):
     from transformers import AutoModelForCausalLM
 
+    path, tok = tiny
     text = "the robot sees margaret fall"
-    loaded = HuggingFaceActivationSource(tiny, device="cpu", dtype="float32", layers=[1, 3])
-    lm = AutoModelForCausalLM.from_pretrained(tiny, dtype=torch.float32).eval()
+    loaded = HuggingFaceActivationSource(
+        path, device="cpu", dtype="float32", layers=[1, 3], tokenizer=tok
+    )
+    lm = AutoModelForCausalLM.from_pretrained(path, dtype=torch.float32).eval()
     wrapped = HuggingFaceActivationSource(
-        tiny, device="cpu", layers=[1, 3], model=lm.model, tokenizer=loaded._tokenizer
+        path, device="cpu", layers=[1, 3], model=lm.model, tokenizer=tok
     )
     a, b = loaded.capture(text), wrapped.capture(text)
     assert a.layer_indices() == b.layer_indices() == [1, 3]
@@ -61,11 +67,11 @@ def test_a_wrapped_model_captures_what_a_loaded_one_does(tiny):
 
 
 def test_closing_a_wrapper_leaves_the_model_usable_and_hook_free(tiny):
-    from transformers import AutoModelForCausalLM, AutoTokenizer
+    from transformers import AutoModelForCausalLM
 
-    tok = AutoTokenizer.from_pretrained(tiny)
-    lm = AutoModelForCausalLM.from_pretrained(tiny, dtype=torch.float32).eval()
-    src = HuggingFaceActivationSource(tiny, device="cpu", layers=[0], model=lm.model, tokenizer=tok)
+    path, tok = tiny
+    lm = AutoModelForCausalLM.from_pretrained(path, dtype=torch.float32).eval()
+    src = HuggingFaceActivationSource(path, device="cpu", layers=[0], model=lm.model, tokenizer=tok)
     src.capture("smoke dog")
     src.close()
     assert all(not m._forward_hooks for m in lm.model.layers)
