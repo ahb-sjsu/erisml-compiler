@@ -28,7 +28,8 @@ when the process loads, and a process that fails one is refused:
 - a flow's `when` is a condition token the scene can evaluate (event:, latest:, cond:, state:,
   stratum:, with not:);
 - containment: a flow into a task whose action is governed (elevated or governed) rests only on
-  structural tokens, those no model's reading can make true;
+  structural tokens, those no model's reading can make true, or leaves a start or message event
+  that a system event triggers (the authenticated evidence is the trigger itself);
 - every node is reachable from a start event, and every node but an end event has a way on.
 """
 
@@ -201,6 +202,8 @@ def load(pid: str, decl: dict[str, Any], extra: dict[str, Any]) -> Process:
         if src not in nodes or dst not in nodes:
             raise ValueError(f"{where}: names an undeclared node")
         structural = all(tokens.check(t) for t in when.split() if t) if when else False
+        if not when and nodes[src].kind in ("start", "message") and nodes[src].system:
+            structural = True  # leaving a system-triggered event: the trigger is the evidence
         tgt = nodes[dst]
         cap = caps.get(tgt.action, {})
         if tgt.kind == "task" and not tgt.external and (cap.get("elevated") or cap.get("governed")):

@@ -191,3 +191,26 @@ def test_the_trace_shows_only_what_was_performed():
     proc = load_all(extra())["ladder"]
     steps = [s.element for s in trace(proc, [{"type": "fall"}, {"type": "help_requested"}])]
     assert steps == ["s_fall"] and "t_ems" not in steps
+
+
+def test_a_governed_task_may_follow_a_system_triggered_event_directly():
+    """The corroborated-emergency path: the governor's ruling (a system event) starts the process
+    and leads straight to emergency services; the trigger is the authenticated evidence."""
+    p = {
+        "lanes": ["robot"],
+        "nodes": [
+            {
+                "id": "s_elev",
+                "kind": "start",
+                "lane": "robot",
+                "trigger": "governor_ruling=elevate",
+            },
+            {"id": "t_ems", "kind": "task", "lane": "robot", "action": "call_emergency_services"},
+            {"id": "e", "kind": "end", "lane": "robot"},
+        ],
+        "flows": [{"from": "s_elev", "to": "t_ems"}, {"from": "t_ems", "to": "e"}],
+    }
+    assert load("fast", p, extra()).nodes["s_elev"].system
+    p["nodes"][0]["trigger"] = "help_requested"  # a perceived start: no longer enough
+    with pytest.raises(ValueError, match="governed"):
+        load("fast", p, extra())
