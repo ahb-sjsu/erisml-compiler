@@ -119,6 +119,27 @@ def test_attestation_stale_capture_rejected():
     assert not ok and "stale" in why
 
 
+def test_attestation_from_the_future_is_rejected_beyond_clock_skew():
+    """A reading signed ahead of the verifier's clock would otherwise stay fresh until then."""
+    ev = _attested(age_s=-600)
+    ok, why = check_attestation(ev, verify_sig=lambda *_: True, max_age_s=30)
+    assert not ok and "future" in why
+    ok, why = check_attestation(_attested(age_s=-1), verify_sig=lambda *_: True, max_age_s=30)
+    assert ok, why  # within the 2 s skew bound
+
+
+def test_reuse_of_the_latest_measurement_is_not_replay():
+    """The caller passes min_counter = last - 1: the same counter is accepted, an older one not."""
+    last = 7
+    assert check_attestation(
+        _attested(counter=7), verify_sig=lambda *_: True, min_counter=last - 1
+    )[0]
+    ok, why = check_attestation(
+        _attested(counter=6), verify_sig=lambda *_: True, min_counter=last - 1
+    )
+    assert not ok and "counter" in why
+
+
 def test_attestation_payload_mismatch_rejected():
     ev = _attested(payload="aaaa")
     ev.source_sha256 = "bbbb"  # signed hash no longer matches the evidence source
