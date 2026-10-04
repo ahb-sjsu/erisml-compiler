@@ -41,7 +41,8 @@ _CLASSIFY_SYSTEM = (
 )
 _CHOOSE_SYSTEM = (
     "You choose the next action of {role}. You may choose only from the allowed actions. "
-    "Obligations in force come first unless an allowed action better protects the person. Without "
+    "Obligations in force come first, the most urgent first (they are listed in order, tier 0 the "
+    "most urgent), unless an allowed action better protects the person. Without "
     "an obligation in force or a sign in the facts that someone needs something, choose the "
     "default action and do not intrude. Answer "
     "with one JSON object with keys action, args (object; for speak, args.text), reason (one "
@@ -240,12 +241,14 @@ class ActionChooser:
         self, snap: Snapshot, facts: Any
     ) -> tuple[str, dict[str, Any], str, dict[str, Any] | None, bool]:
         allowed = snap.allowed
-        obliged = [a for a in snap.obliged if a in allowed]
+        obliged = [a for a in snap.obliged_by_priority() if a in allowed]
         user = json.dumps(
             {
                 "scene": self.rt.ir.document.raw_text,
                 **self._situation(facts),
-                "obligations_in_force": obliged,
+                "obligations_in_force": [
+                    {"action": a, "tier": snap.obliged_tiers.get(a)} for a in obliged
+                ],
                 "default_action": (self.rt.ir.extra or {}).get("default_action"),
                 "allowed_actions": {a: self.caps.get(a, {}) for a in allowed},
                 "prohibited_actions": snap.prohibited,
