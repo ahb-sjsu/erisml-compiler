@@ -81,6 +81,12 @@ class Snapshot:
     reasons: dict[str, list[str]] = field(default_factory=dict)
     # boundary crossing data (Geometric Ethics Def. 8.11) for the strata this event moved
     crossings: list[dict[str, Any]] = field(default_factory=list)
+    # each obliged action's most urgent tier (0 first), from the obligations in force
+    obliged_tiers: dict[str, int] = field(default_factory=dict)
+
+    def obliged_by_priority(self) -> list[str]:
+        """The obliged actions, most urgent tier first, then by name."""
+        return sorted(self.obliged, key=lambda a: (self.obliged_tiers.get(a, 99), a))
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -93,6 +99,7 @@ class Snapshot:
             "allowed": self.allowed,
             "reasons": self.reasons,
             "crossings": self.crossings,
+            "obliged_tiers": self.obliged_tiers,
         }
 
 
@@ -272,10 +279,12 @@ class SceneRuntime:
             ):
                 prohibited.append(a)
                 reasons[a] = [n.id for n in pro]
+        tiers: dict[str, int] = {}
         for n in active:
             if n.modality == "obligation" and (not self.agent or n.actor == self.agent):
                 obliged.append(n.action)
                 reasons.setdefault(n.action, []).append(n.id)
+                tiers[n.action] = min(tiers.get(n.action, n.priority_tier), n.priority_tier)
         allowed = [a for a in names if a not in prohibited]
         return Snapshot(
             time_index=self.time_index,
@@ -286,4 +295,5 @@ class SceneRuntime:
             obliged=sorted(set(obliged)),
             allowed=allowed,
             reasons=reasons,
+            obliged_tiers=tiers,
         )

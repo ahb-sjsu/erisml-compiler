@@ -243,3 +243,33 @@ def test_a_wrongly_typed_field_is_rejected_not_raised():
         "actor must be a string, not dict",
         "conditions must be a list of strings",
     ]
+
+
+def test_the_chooser_sees_obligations_most_urgent_first_and_falls_back_to_the_most_urgent():
+    """gtc twin dev12b d24: obligations reached the chooser in alphabetical order, so a tier-0
+    duty to report a fraud to the centre sat behind check-ins and lost the run's time."""
+    from erisml_compiler.ir.schemas import Norm
+
+    rt = SceneRuntime(home(event_types=VOCAB, default_action="chores"))
+    for nid, action, tier in (("o1", "check_in", 2), ("o2", "chores", 0)):
+        rt.ir.norms.append(
+            Norm(
+                id=nid,
+                modality="obligation",
+                actor="robot",
+                action=action,
+                target="margaret",
+                priority_tier=tier,
+                defeasible=False,
+                source="scene",
+            )
+        )
+    snap = rt.snapshot()
+    assert snap.obliged == ["check_in", "chores"]  # the list itself stays sorted by name
+    assert snap.obliged_by_priority() == ["chores", "check_in"]
+    rec = Recording({"You choose the next action": json.dumps({"action": "teleport"})})
+    agent = SceneAgent(rt, rec)
+    action, _, _, rejected, fell_back = agent.chooser.choose(snap, {})
+    assert fell_back and action == "chores"
+    payload = json.loads(rec.users[-1])
+    assert payload["obligations_in_force"][0] == {"action": "chores", "tier": 0}
