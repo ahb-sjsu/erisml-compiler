@@ -131,6 +131,7 @@ def check_attestation(
     max_age_s: float | None = None,
     min_counter: int | None = None,
     require: bool = True,
+    max_future_s: float = 2.0,
 ) -> tuple[bool, str]:
     """Decide whether an EvidenceModel's stream may be TRUSTED as a witness.
 
@@ -138,9 +139,17 @@ def check_attestation(
     verifies (via `verify_sig(payload_bytes, signature, key_id) -> bool`, so the
     crypto backend is pluggable — supply an ed25519 verifier in production);
     the signed payload hash matches this evidence's source; the capture is fresh
-    (`max_age_s`, anti-replay); and the monotonic counter has advanced
-    (`min_counter`). Returns (ok, reason). A stream that fails any check is NOT
-    trusted — the witness abstains; it never becomes a veto.
+    (`max_age_s`, anti-replay) and not from the future (`max_future_s`, a bound on
+    clock skew: a reading signed ahead of the verifier's clock would otherwise stay
+    "fresh" until that time arrives); and the counter exceeds `min_counter`.
+    Returns (ok, reason). A stream that fails any check is NOT trusted — the
+    witness abstains; it never becomes a veto.
+
+    Replay and reuse are distinct. The counter check rejects a counter at or below
+    `min_counter`. A caller that re-presents the latest signed measurement (the
+    same counter) on each request passes `min_counter = last - 1`, which accepts
+    that measurement again but never an older one; the freshness bound then limits
+    how long a reused measurement can count.
     """
     a = ev.attestation
     if a is None:
@@ -164,6 +173,8 @@ def check_attestation(
             if ts.tzinfo is None:
                 ts = ts.replace(tzinfo=timezone.utc)
             age = (ref - ts).total_seconds()
+            if age < -max_future_s:
+                return False, f"capture from the future ({-age:.0f}s ahead > {max_future_s}s)"
             if age > max_age_s:
                 return False, f"stale capture ({age:.0f}s > {max_age_s}s)"
         except ValueError:
