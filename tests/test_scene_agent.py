@@ -164,6 +164,49 @@ def test_isolation_quarantines_free_text_and_canonicalizes_actors():
     assert all(MARKER not in json.dumps(e.model_dump()) for e in rt.events)
 
 
+def test_an_event_type_that_names_its_actors_keeps_a_reading_from_becoming_a_person():
+    """gtc twin dev11b: the classifier tagged 30 sensor readings `unknown_person`, and the chooser
+    read a stream of unknown people as an intruder and called the centre."""
+    from erisml_compiler.canonicalizer.registry import RegistryCanonicalizer
+
+    vocab = dict(
+        VOCAB,
+        sensor_reading={
+            "description": "a sensor reports; content is the sensor",
+            "actors": ["device"],
+        },
+    )
+    rt = SceneRuntime(
+        home(
+            event_types=vocab,
+            default_action="chores",
+            actors={
+                "margaret": "Margaret, who lives here",
+                "unknown_person": "an unknown adult person",
+                "device": "a sensor or other device in the home",
+            },
+        )
+    )
+    events = [
+        {"type": "sensor_reading", "actor": "unknown_person"},
+        {"type": "sensor_reading", "actor": "the wearable"},
+        {"type": "inactivity_exceeded", "actor": "unknown_person", "content": "seated"},
+    ]
+    rec = Recording(
+        {
+            "You turn the observations of": json.dumps(events),
+            "You choose the next action": json.dumps({"action": "chores"}),
+        }
+    )
+    agent = SceneAgent(rt, rec, isolated=True, canonicalizer=RegistryCanonicalizer())
+    d = agent.decide({})
+    assert [e["actor"] for e in d.events] == ["device", "device", "unknown_person"]
+    assert {"from": "unknown_person", "to": "device", "by": "event type"} in (
+        agent.classifier.last_snapped
+    )
+    assert '"actors": ["device"]' in rec.users[0]  # the model is told the constraint too
+
+
 def test_isolated_chooser_reads_only_the_named_context():
     rt = SceneRuntime(home(event_types=VOCAB, default_action="chores"))
     rec = Recording({"You choose the next action": json.dumps({"action": "chores"})})

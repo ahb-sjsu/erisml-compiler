@@ -85,7 +85,9 @@ class ObservationClassifier:
 
     Isolated (``free_text=False``), it is also the boundary of mandatory canonicalization: an
     event's actor must be one the scene declares (``extra["actors"]``, id to description), snapped
-    there by ``canonicalizer`` (erisml_compiler.canonicalizer) or else ``"unknown"``; and free-text
+    there by ``canonicalizer`` (erisml_compiler.canonicalizer) or else ``"unknown"``, and one its
+    event type allows when the type lists them (``actors: [device]``: else the first listed); and
+    free-text
     content (an event type with no declared content list) is never stepped, only reported in
     ``last_quarantined``. What is stepped, and so what any later reader of the moral state sees, is
     then canonical: declared types, declared contents, declared actors.
@@ -180,6 +182,15 @@ class ObservationClassifier:
             if not self.free_text:
                 if "actor" in ev:
                     ev["actor"] = self._canonical_actor(ev["actor"])
+                # an event type may name the only actors it can have (`actors: [device]` for a
+                # sensor reading): a reading is never a person, whatever the model guessed (gtc twin
+                # dev11b: 30 sensor readings tagged unknown_person read as an intruder downstream)
+                kinds = self.vocab[ev["type"]].get("actors")
+                if kinds and ev.get("actor") not in kinds:
+                    self.last_snapped.append(
+                        {"from": ev.get("actor", ""), "to": kinds[0], "by": "event type"}
+                    )
+                    ev["actor"] = kinds[0]
                 if "target" in ev:
                     ev["target"] = self._canonical_actor(ev["target"])
                 ev.pop("conditions", None)
