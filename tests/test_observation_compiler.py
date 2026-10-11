@@ -251,3 +251,26 @@ def test_a_system_event_enters_history_through_the_ir_and_a_live_step_outside_it
     )  # stepped live, never recorded in the IR
     with pytest.raises(SceneHistoryError):
         rebuild_runtime(rt, ruled)
+
+
+def test_the_prompt_lists_every_allowed_value_from_the_schema_itself():
+    """A real model, given field names only, invented types ('person', 'animal'), roles ('resident')
+    and confidences ('high'); the prompt now carries the schema's own enumerations and the rule that
+    a consent names an act."""
+    from erisml_compiler.observation.compiler import _prompt
+
+    p = json.loads(_prompt(scene(), SAID, ACTS))
+    fields = p["element_fields"]["stakeholders"]
+    assert "individual" in fields["type"] and "person" not in fields["type"]
+    assert "patient" in fields["roles"] and "high" in fields["vulnerability"]
+    assert any("type consent" in r and "acts" in r for r in p["rules"])
+
+
+def test_a_vulnerability_outside_the_scale_is_rejected():
+    bad = {
+        "stakeholders": [
+            {"id": "x", "label": "X", "type": "individual", "vulnerability": "high (age 84)"}
+        ]
+    }
+    patch = compiler(bad).compile(scene(), SAID, ACTS)
+    assert patch.ops == [] and "vulnerability" in patch.rejected[0]["reason"]

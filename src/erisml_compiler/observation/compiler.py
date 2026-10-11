@@ -64,6 +64,20 @@ OBSERVATION_EVENTS: Dict[str, Dict[str, Any]] = {
     },
 }
 SEVERITIES = ("minor", "moderate", "grave", "catastrophic")
+VULNERABILITY = ("low", "moderate", "high", "extreme")
+
+
+def _choices(model: Any, name: str) -> List[str]:
+    """The allowed values of a Literal field (or of a list of Literals), read from the schema, so the
+    prompt can never drift from what validation accepts."""
+    import typing
+
+    ann = model.model_fields[name].annotation
+    while typing.get_origin(ann) in (list, List):
+        ann = typing.get_args(ann)[0]
+    return list(typing.get_args(ann))
+
+
 STAKEHOLDER_FIELDS_SETTABLE = ("label", "vulnerability", "agency")
 
 _SYSTEM = (
@@ -131,12 +145,40 @@ def _prompt(ir: CompilerIR, observations: Sequence[Observation], acts: Mapping[s
             "ethical_fact_kinds": list(EthicalFact.model_fields["kind"].annotation.__args__),
             "severities": list(SEVERITIES),
             "element_fields": {
-                "stakeholders": "id (snake_case, new only), label, type, roles, vulnerability",
-                "events": "type, actor (a stakeholder id), target (a stakeholder id, or an act name for consent "
-                "and request), content",
-                "ethical_facts": "kind, subjects (stakeholder ids), description, severity, confidence",
-                "relations": "type, source, target, description",
+                "stakeholders": {
+                    "id": "snake_case, new only (reuse the scene's ids for anyone already in it)",
+                    "label": "short name",
+                    "type": _choices(Stakeholder, "type"),
+                    "roles": _choices(Stakeholder, "roles"),
+                    "vulnerability": list(VULNERABILITY),
+                },
+                "events": {
+                    "type": "one of event_types",
+                    "actor": "a stakeholder id",
+                    "target": "a stakeholder id, or for consent and request an act from acts",
+                    "content": "as the event type says",
+                },
+                "ethical_facts": {
+                    "kind": "one of ethical_fact_kinds",
+                    "subjects": "stakeholder ids",
+                    "description": "one sentence",
+                    "severity": "one of severities",
+                    "confidence": "a number from 0 to 1",
+                },
+                "relations": {
+                    "type": "snake_case",
+                    "source": "a stakeholder id",
+                    "target": "a stakeholder id",
+                    "description": "one sentence",
+                },
             },
+            "rules": [
+                "A consent to, or refusal of, something the agent can do is an event of type consent "
+                "whose target is that act's name from acts; never an ethical fact or a relation.",
+                "A standing agreement, a person's stated wishes, or a request each give consent or "
+                "request events naming acts.",
+                "Use only the listed values; omit a field you cannot fill from the observations.",
+            ],
             "observations": [
                 {"kind": o.kind, "source": o.source, "content": o.content} for o in observations
             ],
@@ -204,6 +246,13 @@ class ObservationCompiler:
                 continue
             if model.id in taken:
                 reject("stakeholder", s, f"id {model.id!r} exists")
+                continue
+            if model.vulnerability is not None and model.vulnerability not in VULNERABILITY:
+                reject(
+                    "stakeholder",
+                    s,
+                    f"vulnerability {model.vulnerability!r} is not one of {VULNERABILITY}",
+                )
                 continue
             taken.add(model.id)
             known.add(model.id)
