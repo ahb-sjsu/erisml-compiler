@@ -290,6 +290,21 @@ def _kind_str(fact) -> str:
     return (k.value if hasattr(k, "value") else str(k)).lower()
 
 
+def false_commitment_overlay(maxim: Maxim, ir) -> Maxim:
+    """A commitment the facts call deceptive is a false commitment, and a false vow is a form of
+    deceit (Constant, Kant), so the universalizability gate tests the deceit. Shared by the
+    substrate and the graph pass (ir/graph/promote.py), which read the maxim the same way."""
+    if maxim.action_kind == "make_or_keep_commitment" and any(
+        _kind_str(f) in _DECEIT_KINDS for f in ir.ethical_facts
+    ):
+        return dataclasses.replace(
+            maxim,
+            action_kind="deceive",
+            description=f"{maxim.description} (false commitment → deceit overlay)",
+        )
+    return maxim
+
+
 def _heuristic_action_kind(ir) -> str | None:
     """Pre-v1 rule-list: dominant ethical_fact.kind → action_kind.
     Used as fallback when the prose extractor finds no verb pattern."""
@@ -326,6 +341,7 @@ def _derive_maxim(ir) -> Maxim | None:
         )
         if maxim is None:
             return None
+        maxim = false_commitment_overlay(maxim, ir)
         if maxim is not None:
             # Augment treats_persons_as with kind-derived signals the
             # prose extractor may have missed (instrumental facts on

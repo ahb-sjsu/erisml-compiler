@@ -1,6 +1,6 @@
 {
   "medical_confidentiality": {
-    "deme_verdict": "permitted",
+    "deme_verdict": "requires_human_review",
     "em_outputs": {
       "autonomy": {
         "confidence": 0.7,
@@ -55,7 +55,7 @@
     }
   },
   "nazi_attic": {
-    "deme_verdict": "tragic_conflict_escalate",
+    "deme_verdict": "prohibited",
     "em_outputs": {
       "autonomy": {
         "confidence": 0.7,
@@ -110,7 +110,7 @@
     }
   },
   "whistleblower": {
-    "deme_verdict": "permitted",
+    "deme_verdict": "indeterminate",
     "em_outputs": {
       "autonomy": {
         "confidence": 1.0,

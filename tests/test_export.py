@@ -37,7 +37,8 @@ def test_rlef_export(tmp_path, compiled_ir):
     assert record["schema"] == "rlef_v0.2"
     assert record["source_text"]
     assert record["canonical_form"] == "coercive_murderous_interrogation_with_collective_reprisal"
-    assert record["deme_verdict"]["verdict"] == "tragic_conflict_escalate"
+    # DEME's verdict on the example's false vow, which states no purpose (see test_pipeline)
+    assert record["deme_verdict"]["verdict"] == "prohibited"
 
 
 def test_rlef_with_corrections(compiled_ir):
