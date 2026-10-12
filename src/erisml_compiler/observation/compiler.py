@@ -27,13 +27,14 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 from pydantic import ValidationError
 
 from erisml_compiler.annotation.llm_extractor import ModelAdapter, _extract_first_json
 from erisml_compiler.ir.schemas import CompilerIR, EthicalFact, Event, Relation, Stakeholder
+from erisml_compiler.observation import clock as vc
 
 OBSERVATION_EVENTS: Dict[str, Dict[str, Any]] = {
     "utterance": {
@@ -105,6 +106,9 @@ class ObservationPatch:
     agreement: Optional[float]
     ir_hash_before: str
     observations_hash: str
+    base_clock: Dict[str, int] = field(
+        default_factory=dict
+    )  # the snapshot's clock: what the observer had seen
 
 
 def _hash(obj: Any) -> str:
@@ -219,6 +223,7 @@ class ObservationCompiler:
             agreement,
             _hash(ir.model_dump(mode="json")),
             _hash([o.__dict__ for o in observations]),
+            base_clock=history_clock(ir),
         )
 
     def _validate(self, ir: CompilerIR, raw: Mapping[str, Any], acts: Mapping[str, str]):
@@ -375,12 +380,21 @@ def check_allowed(ops: Sequence[Mapping[str, Any]]) -> None:
             raise PatchNotAllowed(f"{kind} {path} is outside the observation allow-list")
 
 
-def _rebased(ir: CompilerIR, ops: Sequence[Mapping[str, Any]]) -> List[Dict[str, Any]]:
+def history_clock(ir: CompilerIR) -> Dict[str, int]:
+    """The clock that has seen every event of the IR."""
+    return vc.frontier(e.clock for e in ir.events)
+
+
+def _rebased(
+    ir: CompilerIR, ops: Sequence[Mapping[str, Any]], base_clock: Mapping[str, int]
+) -> List[Dict[str, Any]]:
     """The patch's events stamped against the IR it is applied to, not the snapshot it was compiled
     from. A patch compiled while other events were appended (a caller compiles outside its lock)
     would otherwise sort its events before the newer ones and rewrite the order a running scene had
     already stepped. Observed events take the next time index of this IR; ids that this IR already
-    uses are renamed."""
+    uses are renamed. Each takes the observer's next tick on the snapshot's clock, so it comes after
+    what the observer saw and after the observer's own earlier events, and is concurrent with what
+    was appended since the snapshot (erisml_compiler.observation.clock)."""
     t = max((e.time_index for e in ir.events), default=-1) + 1
     taken = (
         {e.id for e in ir.events}
@@ -388,11 +402,15 @@ def _rebased(ir: CompilerIR, ops: Sequence[Mapping[str, Any]]) -> List[Dict[str,
         | {r.id for r in ir.relations}
         | {s.id for s in ir.stakeholders}
     )
+    if not vc.leq(base_clock, history_clock(ir)):
+        raise PatchNotAllowed("the patch was compiled against a history this IR has not seen")
+    seen = vc.merge(base_clock, {"observer": history_clock(ir).get("observer", 0)})
     out = []
     for op in ops:
         op = dict(op)
         if op.get("op") == "add" and str(op.get("path", "")).startswith("events."):
-            value = dict(op["value"], time_index=t)
+            seen = vc.tick(seen, "observer")
+            value = dict(op["value"], time_index=t, clock=dict(seen))
             eid = value["id"]
             while eid in taken:
                 eid += "_"
@@ -408,7 +426,7 @@ def apply_observation_patch(ir: CompilerIR, patch: ObservationPatch) -> Compiler
     from erisml_compiler.correction.corrector import apply_corrections
 
     check_allowed(patch.ops)
-    ops = _rebased(ir, patch.ops)
+    ops = _rebased(ir, patch.ops, patch.base_clock)
     new_ir, record, summaries = apply_corrections(
         ir,
         {

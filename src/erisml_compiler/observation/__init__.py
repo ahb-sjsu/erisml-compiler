@@ -10,7 +10,12 @@ from erisml_compiler.observation.compiler import (
     apply_observation_patch,
     check_allowed,
 )
-from erisml_compiler.observation.rebuild import SceneHistoryError, append_event, rebuild_runtime
+from erisml_compiler.observation.rebuild import (
+    SceneHistoryError,
+    append_event,
+    merge_ledger,
+    rebuild_runtime,
+)
 
 __all__ = [
     "ALLOWED_OP_PREFIXES",
@@ -21,6 +26,7 @@ __all__ = [
     "PatchNotAllowed",
     "SceneHistoryError",
     "append_event",
+    "merge_ledger",
     "apply_observation_patch",
     "check_allowed",
     "rebuild_runtime",
