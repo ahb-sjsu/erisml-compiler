@@ -12,8 +12,9 @@ ids, and rejects with a reason what fails. The model writes facts, never verdict
 
 - the scene's facts that describe outcomes (``OUTCOME_KINDS``: harm, benefit, externality) are
   the present state, the same for every act, so they are replaced by the act's projected
-  outcome facts; facts of the other kinds (vulnerability, role duties, legitimacy, ...) stand
-  for every act and are kept;
+  outcome facts, except that a present harm persists for an act whose projection reports neither
+  harm nor benefit for the person it falls on (silence about a harm is not its cure); facts of
+  the other kinds (vulnerability, role duties, legitimacy, ...) stand for every act and are kept;
 - the situation's urgency is added to every act alike;
 - consent is read from the record, not from the model: the latest consent event naming the act,
   by a stakeholder, gives a consent fact (a refusal grave, so the bridge marks consent invalid;
@@ -88,6 +89,8 @@ def _prompt(
                 "For harm, severity is how grave the harm would be. For benefit, severity is how grave "
                 "the harm averted or the good secured. For urgency, severity is how grave what follows "
                 "if nothing effective is done in time.",
+                "A benefit must answer a harm or a need the scene or the attested states show. Do not "
+                "assume a threat, an attacker or an emergency the scene does not show.",
                 "Report a missing consent (kind consent, severity grave) only for an act done to or for "
                 "a person who has not agreed to it; consents and refusals already on record are known.",
                 "Attested states are what the agent's own sensors and verified credentials have "
@@ -209,6 +212,22 @@ def option_ir(
     """The scene as it would be judged for one act (see the module docstring)."""
     out = ir.model_copy(deep=True)
     standing = [f for f in ir.ethical_facts if f.kind not in OUTCOME_KINDS]
+    # a harm the scene shows persists for an act whose projection says nothing about the person it
+    # falls on: silence is not a cure (rehearse-deme2 d02: an act the model gave no consequences
+    # looked harmless during a dog attack, so the safety module took it for a safer alternative
+    # to driving the dog off)
+    outcome = ("harm", "non_maleficence", "benefit")
+    projected = projection.facts.get(act, [])
+    addressed = {s for f in projected if f.kind in outcome for s in f.subjects}
+    general = any(f.kind in outcome and not f.subjects for f in projected)
+    persisting = [
+        f
+        for f in ir.ethical_facts
+        if f.kind in ("harm", "non_maleficence")
+        and not general
+        and ((set(f.subjects) - addressed) if f.subjects else not addressed)
+    ]
+    standing = standing + persisting
     on_record = consents_on_record(ir, {act: description}).get(act, {})
     # the record decides consent for anyone on it; the model's consent facts stand only for others
     extra: List[EthicalFact] = [

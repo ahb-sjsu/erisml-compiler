@@ -181,3 +181,48 @@ def test_an_answer_cut_off_at_the_length_limit_projects_nothing_and_says_why():
     )
     assert set(p.unprojected) == set(ACTS)
     assert any(r["reason"].startswith("unparseable") for r in p.rejected)
+
+
+def test_a_present_harm_persists_for_an_act_whose_projection_is_silent_about_it():
+    """rehearse-deme2 d02: an act given no consequences looked harmless during a dog attack and
+    became the safety module's 'safer alternative'. Silence about a harm is not its cure."""
+    answer = {
+        "urgency": None,
+        "options": {
+            "wait": [
+                {
+                    "kind": "vulnerability",
+                    "subjects": ["margaret"],
+                    "description": "x",
+                    "severity": "moderate",
+                }
+            ],
+            "call_centre": [
+                {
+                    "kind": "benefit",
+                    "subjects": ["margaret"],
+                    "description": "x",
+                    "severity": "grave",
+                }
+            ],
+        },
+    }
+    p = projector(answer).project(scene(), ACTS)
+    silent = option_ir(scene(), p, "wait", ACTS["wait"])
+    assert any(f.kind == "harm" and f.severity == "grave" for f in silent.ethical_facts)
+    addressed = option_ir(scene(), p, "call_centre", ACTS["call_centre"])
+    assert not any(f.kind == "harm" for f in addressed.ethical_facts)
+
+
+def test_the_model_is_told_not_to_assume_threats():
+    seen = {}
+
+    class Spy(MockLLMAdapter):
+        def call(self, system, user, **kw):
+            seen["user"] = user
+            return super().call(system, user, **kw)
+
+    OptionProjector(Spy({"You project the consequences": json.dumps(ANSWER)})).project(
+        scene(), ACTS
+    )
+    assert any("Do not assume a threat" in r for r in json.loads(seen["user"])["rules"])
