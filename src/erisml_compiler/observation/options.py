@@ -121,7 +121,12 @@ class OptionProjector:
         self.adapter, self.critic = adapter, critic
 
     def _ask(self, adapter: ModelAdapter, user: str) -> Dict[str, Any]:
-        raw = _extract_first_json(adapter.call(_SYSTEM, user), expect_array=False)
+        """The model's answer as an object; an answer that cannot be parsed (cut off at the length
+        limit, not JSON) is recorded as such, and no act is projected from it."""
+        try:
+            raw = _extract_first_json(adapter.call(_SYSTEM, user), expect_array=False)
+        except ValueError as e:
+            return {"_unparseable": str(e)}
         return raw if isinstance(raw, dict) else {}
 
     def project(
@@ -148,6 +153,10 @@ class OptionProjector:
         rejected: List[Dict[str, Any]] = []
         signatures: set = set()
         facts: Dict[str, List[EthicalFact]] = {a: [] for a in acts}
+        if "_unparseable" in raw:
+            rejected.append(
+                {"act": None, "fact": None, "reason": f"unparseable: {raw['_unparseable']}"}
+            )
 
         urgency = None
         u = raw.get("urgency")
