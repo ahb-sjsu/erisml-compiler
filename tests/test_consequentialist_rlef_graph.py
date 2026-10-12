@@ -56,7 +56,7 @@ def test_consequentialist_graph_summary_distinguishes_scenarios() -> None:
 def test_rlef_record_schema_bumped_to_v02() -> None:
     ir = _compile("nazi_attic")
     rec = to_rlef_record(ir)
-    assert rec["schema"] == "rlef_v0.2"
+    assert rec["schema"] == "rlef_v0.3"
 
 
 def test_rlef_record_includes_moral_graph_block() -> None:
@@ -88,7 +88,7 @@ def test_rlef_record_serialisable_to_json() -> None:
     ir = _compile("nazi_attic")
     rec = to_rlef_record(ir)
     s = json.dumps(rec, default=str)
-    assert "rlef_v0.2" in s
+    assert "rlef_v0.3" in s
 
 
 def test_rlef_graph_hash_matches_audit_graph_hash() -> None:

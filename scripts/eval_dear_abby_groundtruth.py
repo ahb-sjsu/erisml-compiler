@@ -37,7 +37,7 @@ from erisml_compiler.tiers import CompilerTier
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-PROFILES_DIR = REPO_ROOT / "src" / "erisml_compiler" / "em_dag" / "profiles"
+PROFILES_DIR = REPO_ROOT / "src" / "erisml_compiler" / "profiles"
 
 DEFAULT_NDJSON = Path("C:/Users/abptl/Downloads/dear_abby_answers.ndjson")
 

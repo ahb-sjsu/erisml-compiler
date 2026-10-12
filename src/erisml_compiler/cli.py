@@ -64,20 +64,14 @@ def cli() -> None:
     help="Critic extractor for cross-extractor consensus. Default: none.",
 )
 @click.option(
-    "--em-profile",
-    type=click.Path(exists=True, dir_okay=False, path_type=Path),
-    default=None,
-    help="EM-DAG YAML profile. Default: bundled default profile.",
-)
-@click.option(
     "--ethos-profile",
     type=click.Path(exists=True, dir_okay=False, path_type=Path),
     default=None,
     help=(
         "Fitted ethos profile YAML (e.g. "
-        "src/erisml_compiler/em_dag/profiles/dear_abby_socialchem_v0.1.yaml). "
-        "Applies per-module weights at projection time. The profile's name "
-        "and YAML sha256 are recorded in ir.audit. Default: none (equal weights)."
+        "src/erisml_compiler/profiles/dear_abby_socialchem_v0.1.yaml). "
+        "Its channel weights become DEME's dimension weights. The profile's name "
+        "and YAML sha256 are recorded in ir.audit. Default: none (DEME's defaults)."
     ),
 )
 @click.option(
@@ -159,7 +153,6 @@ def cmd_compile(
     tier: str | None,
     extractor: str,
     critic: str | None,
-    em_profile: Path | None,
     ethos_profile: Path | None,
     projections_csv: str,
     canonicalizer: str,
@@ -208,7 +201,6 @@ def cmd_compile(
             tier=tier_enum,
             extractor=extractor,
             critic=critic,
-            em_profile=em_profile,
             ethos_profile=ethos_profile,
             projections=tuple(p.strip() for p in projections_csv.split(",") if p.strip()),
             canonicalizer=canon,
@@ -454,18 +446,13 @@ def cmd_correct(
         click.echo(line)
 
     if reevaluate:
-        from erisml_compiler.em_dag import load_profile
         from erisml_compiler.erisml_backend.deme_bridge import DEMEBridge
-        from erisml_compiler.evaluation.moral_vector import build_moral_vector_from_em_outputs
-        from erisml_compiler.evaluation.tensor_builder import build_timeline
+        from erisml_compiler.evaluation.deme_evaluation import build_timeline
 
-        bundled = Path(__file__).parent / "em_dag" / "profiles" / "default.yaml"
-        dag = load_profile(bundled)
-        new_ir.em_outputs = dag.evaluate(new_ir)
-        new_ir.timeline = build_timeline(new_ir, dag)
-        final_vector = build_moral_vector_from_em_outputs(new_ir.em_outputs, dag)
-        new_ir.moral_vectors = [final_vector]
-        new_ir.deme_verdict = DEMEBridge().evaluate(new_ir, final_vector)
+        bridge = DEMEBridge()
+        new_ir.deme_verdict, final_vector = bridge.judge(new_ir)
+        new_ir.moral_vectors = [final_vector] if final_vector is not None else []
+        new_ir.timeline = build_timeline(new_ir, bridge)
         click.echo(f"[+] Re-evaluated. New verdict: {new_ir.deme_verdict.verdict}")
 
     export_json(new_ir, out_path)
@@ -616,49 +603,19 @@ def cmd_calibrate(
     "out_dir",
     type=click.Path(file_okay=False, path_type=Path),
     required=True,
-    help="Output directory for the emitted C++ + Makefile.",
+    help="Output directory for the emitted C++.",
 )
-@click.option(
-    "--em-profile",
-    type=click.Path(exists=True, dir_okay=False, path_type=Path),
-    default=None,
-    help="EM-DAG YAML profile to compile. Default: bundled.",
-)
-@click.option("--fp-total-bits", type=int, default=16, help="Fixed-point total width.")
-@click.option("--fp-int-bits", type=int, default=4, help="Fixed-point integer bits.")
-def cmd_silicon_emit(
-    out_dir: Path,
-    em_profile: Path | None,
-    fp_total_bits: int,
-    fp_int_bits: int,
-) -> None:
-    """Emit synthesizable Vitis HLS C++ for the Tier-1 evaluator.
+def cmd_silicon_emit(out_dir: Path) -> None:
+    """Emit synthesizable Vitis HLS C++ for the Commitment, Legitimacy and Consent FSMs.
 
-    Produces:
-      erisml_fsm.cpp       Commitment / Legitimacy / Consent FSMs
-      erisml_em_dag.cpp    EM-DAG pipeline (skeleton)
-      erisml_top.cpp       Top-level kernel
-      Makefile             v++ build targeting U55C
+    Produces erisml_fsm.cpp. The EM-DAG pipeline, the evaluator kernel and its Makefile are
+    retired with the EM-DAG (0.10); a DEME evaluator target is future work.
     """
-    from erisml_compiler.silicon.hls_emit import (
-        emit_em_dag_pipeline,
-        emit_fsm_cpp,
-        emit_makefile,
-        emit_top_module,
-    )
+    from erisml_compiler.silicon.hls_emit import emit_fsm_cpp
 
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "erisml_fsm.cpp").write_text(emit_fsm_cpp(), encoding="utf-8")
-    (out_dir / "erisml_em_dag.cpp").write_text(
-        emit_em_dag_pipeline(em_profile, fp_total_bits, fp_int_bits),
-        encoding="utf-8",
-    )
-    (out_dir / "erisml_top.cpp").write_text(emit_top_module(), encoding="utf-8")
-    (out_dir / "Makefile").write_text(emit_makefile(), encoding="utf-8")
-    click.echo(f"[+] Emitted silicon-target sources to {out_dir}/")
-    click.echo("    erisml_fsm.cpp, erisml_em_dag.cpp, erisml_top.cpp, Makefile")
-    click.echo("[*] Next step: open an NRP Coder workspace with the U55C template")
-    click.echo("    (see docs/nrp_coder_deployment.md), copy these files in, and run 'make'.")
+    click.echo(f"[+] Emitted erisml_fsm.cpp to {out_dir}/")
 
 
 # ----------------------------------------------------------------- monitor
@@ -821,15 +778,30 @@ def cmd_delta(
                 "IR has none of: global_moral_vector, moral_vectors[0], timeline[0].vector."
             )
         text_mv_dict = timeline[0]["vector"]
-    text_mv = MoralVector.model_validate(text_mv_dict)
     activation_mv = MoralVector.model_validate(trace_dict["aggregated"])
+    if "autonomy_respect" in text_mv_dict:
+        # DEME's vector (0.10 on): compare in DEME's nine dimensions (delta.deme_space)
+        from erisml.ethics.moral_vector import MoralVector as DemeMoralVector
+        from pydantic import TypeAdapter
 
-    delta = compare_morals(
-        text_mv,
-        activation_mv,
-        divergence_threshold=divergence_threshold,
-        direction_break_max=direction_break_max,
-    )
+        from erisml_compiler.delta.deme_space import DEME_DIMENSIONS, activation_lens, text_lens
+
+        deme = TypeAdapter(DemeMoralVector).validate_python(text_mv_dict)
+        delta = compare_morals(
+            text_lens(deme),
+            activation_lens(activation_mv),
+            divergence_threshold=divergence_threshold,
+            direction_break_max=direction_break_max,
+            space=DEME_DIMENSIONS,
+        )
+    else:
+        # an IR written before 0.10: the EM-DAG's ten channels, as Phase 5 compared them
+        delta = compare_morals(
+            MoralVector.model_validate(text_mv_dict),
+            activation_mv,
+            divergence_threshold=divergence_threshold,
+            direction_break_max=direction_break_max,
+        )
 
     # Reconstruct a MonitorTrace just enough to pass to detect_failure_modes.
     # (failure_modes only reads MonitorTrace.per_layer and .trace_hash().)

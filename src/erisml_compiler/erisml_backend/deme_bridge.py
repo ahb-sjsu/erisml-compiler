@@ -31,9 +31,12 @@ DEME judges options; the compiler's verdict labels a situation. The mapping:
 
 from __future__ import annotations
 
+import dataclasses
 from typing import Any
 
+from erisml.ethics.governance.config_v2 import DimensionWeights
 from erisml.ethics.interop.profile_adapters import pipeline_from_profile
+from erisml.ethics.moral_vector import MoralVector
 from erisml.ethics.modules.base import V1ToV2Adapter
 from erisml.ethics.modules.greek_tragedy_tragic_conflict_em import TragicConflictEM
 from erisml.ethics.profile_v04 import DEMEProfileV04
@@ -53,8 +56,20 @@ PREFER = 0.6  # aggregation_v2.aggregate_judgements_v2: a scalar at or above thi
 class DEMEBridge:
     """Judge an IR's situation with erisml-lib's DEME under a profile."""
 
-    def __init__(self, profile_name: str | None = None, profile: DEMEProfileV04 | None = None):
+    def __init__(
+        self,
+        profile_name: str | None = None,
+        profile: DEMEProfileV04 | None = None,
+        dimension_weights: DimensionWeights | None = None,
+    ):
+        """``dimension_weights`` (a fitted ethos profile's, evaluation.ethos) replace the
+        profile's own."""
         self.profile = profile or DEFAULT_PROFILE
+        self.ethos_applied = dimension_weights is not None
+        if dimension_weights is not None:
+            self.profile = dataclasses.replace(
+                self.profile, moral_dimension_weights=dimension_weights
+            )
         self.profile_name = profile_name or self.profile.name
         self.pipeline = pipeline_from_profile(self.profile)
         self.tragic = V1ToV2Adapter(TragicConflictEM(), em_tier=3)
@@ -62,18 +77,34 @@ class DEMEBridge:
 
     def evaluate(self, ir: CompilerIR, vector: Any = None) -> DEMEVerdict:
         """``vector`` is accepted for the earlier signature and not read: DEME
-        judges the facts, not the compiler's vector."""
+        judges the facts, not a vector."""
+        return self.judge(ir)[0]
+
+    def judge(self, ir: CompilerIR) -> tuple[DEMEVerdict, MoralVector | None]:
+        """DEME's verdict on the IR's situation and its aggregated moral vector (erisml-lib's
+        nine dimensions), or no vector when there are no facts to judge."""
         from erisml_compiler.erisml_backend.v3_bridge import ir_to_v2_facts
 
         if not ir.ethical_facts:
-            return DEMEVerdict(
-                verdict="indeterminate",
-                confidence=0.5,
-                rationale="The IR has no ethical facts for DEME to judge.",
+            return (
+                DEMEVerdict(
+                    verdict="indeterminate",
+                    confidence=0.5,
+                    rationale="The IR has no ethical facts for DEME to judge.",
+                ),
+                None,
             )
         facts = ir_to_v2_facts(ir)
-        oid = facts.option_id
         result = self.pipeline.decide([facts])
+        # an option DEME vetoed before judging it (a reflex rule, the deontic gate) has no
+        # aggregated vector; its facts' own vector (the library's standard mapping) stands in
+        vector = result.moral_landscape.get(facts.option_id) or MoralVector.from_ethical_facts(
+            facts
+        )
+        return self._verdict(ir, facts, result), vector
+
+    def _verdict(self, ir: CompilerIR, facts, result) -> DEMEVerdict:
+        oid = facts.option_id
         vetoes, costs = self._reasons(result)
         es = facts.epistemic_status
         uncertainty = es.uncertainty_level if es is not None else 0.0

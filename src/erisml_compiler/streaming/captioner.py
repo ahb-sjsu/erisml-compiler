@@ -12,7 +12,6 @@ GLYPHS = {
     "pass_end": "[/]",
     "event_processed": "[t]",
     "fact_detected": " > ",
-    "em_output": " * ",
     "timeline_entry": " ~ ",
     "verdict": "[*]",
 }
@@ -43,21 +42,15 @@ class TerminalCaptioner:
                 line += f"  content={d['content']!r}"
         elif event.kind == "fact_detected":
             line = f" {glyph} fact {event.detail.get('id', '')}: {event.label}"
-        elif event.kind == "em_output":
-            line = (
-                f" {glyph} EM[{event.detail.get('module','?')}] "
-                f"value={event.detail.get('value', 0):+.3f} "
-                f"conf={event.detail.get('confidence', 0):.2f}"
-            )
         elif event.kind == "timeline_entry":
             d = event.detail
             line = (
                 f" {glyph} t={event.time_index} {event.label}  "
-                f"harm={d.get('physical_harm', 0):+.2f} "
-                f"ext={d.get('third_party_externality', 0):+.2f} "
-                f"fid={d.get('vow_fidelity', 0):+.2f} "
-                f"care={d.get('care_protection', 0):+.2f} "
-                f"legit={d.get('legitimacy_trust', 0):+.2f}"
+                f"harm={d.get('physical_harm', 0):.2f} "
+                f"rights={d.get('rights_respect', 0):.2f} "
+                f"autonomy={d.get('autonomy_respect', 0):.2f} "
+                f"care={d.get('virtue_care', 0):.2f} "
+                f"legit={d.get('legitimacy_trust', 0):.2f}"
             )
         elif event.kind == "verdict":
             d = event.detail

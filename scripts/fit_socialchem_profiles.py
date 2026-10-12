@@ -2,7 +2,7 @@
 Social Chem 101 corpus slices (cached locally under data/social-chem-101/).
 
 Run: python scripts/fit_socialchem_profiles.py
-Output: src/erisml_compiler/em_dag/profiles/*.yaml
+Output: src/erisml_compiler/profiles/*.yaml
 """
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ from erisml_compiler.social_chem import (
 DATA_DIR = Path(__file__).resolve().parent.parent / "data" / "social-chem-101"
 PROFILES_DIR = (
     Path(__file__).resolve().parent.parent
-    / "src" / "erisml_compiler" / "em_dag" / "profiles"
+    / "src" / "erisml_compiler" / "profiles"
 )
 
 

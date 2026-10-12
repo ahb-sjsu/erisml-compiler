@@ -10,6 +10,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_serializer
 
+from erisml.ethics.moral_vector import MoralVector as DemeMoralVector
+
 from erisml_compiler import __schema_version__
 from erisml_compiler.ir.v3 import MoralTensorV3  # noqa: F401  used as forward ref
 
@@ -288,8 +290,14 @@ class DimensionScore(BaseModel):
 
 
 class MoralVector(BaseModel):
-    """A 10-dimensional moral state at a single time index, indexed by
-    dimension name. Field names match `MORAL_DIMENSIONS`."""
+    """The ten-channel moral space of the I-EIP activation probes (monitor/, calibration/,
+    delta/), indexed by dimension name; field names match `MORAL_DIMENSIONS`.
+
+    Since 0.10 it is not the IR's evaluation vector: `CompilerIR.moral_vectors` and the timeline
+    hold erisml-lib's DEME vector (`DemeMoralVector`, nine dimensions), and the EM-DAG that
+    scored these ten channels is retired. The probes keep this space, because their calibration
+    (Phase-5 prereg C3) is defined on it; delta/compare maps it onto DEME's nine dimensions to
+    compare a probe reading with DEME's."""
 
     physical_harm: DimensionScore
     rights_respect: DimensionScore
@@ -316,22 +324,7 @@ class TimelineEntry(BaseModel):
     time_index: int = Field(ge=0)
     event_id: str | None = None
     event_label: str
-    vector: MoralVector
-
-
-# =============================================================================
-# EM-DAG evaluation outputs
-# =============================================================================
-
-
-class EMOutput(BaseModel):
-    """The output of a single Ethical Module evaluation."""
-
-    module_name: str
-    score: DimensionScore
-    contributing_facts: list[str] = Field(default_factory=list)  # ethical-fact ids
-    upstream_dependencies: list[str] = Field(default_factory=list)  # module names
-    notes: str | None = None
+    vector: DemeMoralVector
 
 
 # =============================================================================
@@ -409,8 +402,9 @@ class AuditRecord(BaseModel):
 class CompilerIR(BaseModel):
     """Top-level ErisML Compiler IR (spec section 13.1).
 
-    Adds `em_outputs` and `timeline` beyond the section 13.1 listing to capture
-    EM-DAG evaluation results and MoralVector trajectory.
+    Adds `timeline` beyond the section 13.1 listing: DEME's moral vector after each event.
+    `moral_vectors` and `timeline` hold erisml-lib's DEME vector since 0.10 (the EM-DAG and its
+    `em_outputs` are retired; an IR written before 0.10 loads with them ignored).
     """
 
     model_config = ConfigDict(validate_assignment=True)
@@ -425,7 +419,7 @@ class CompilerIR(BaseModel):
     norms: list[Norm] = Field(default_factory=list)
     ethical_facts: list[EthicalFact] = Field(default_factory=list)
     conflicts: list[Conflict] = Field(default_factory=list)
-    moral_vectors: list[MoralVector] = Field(default_factory=list)
+    moral_vectors: list[DemeMoralVector] = Field(default_factory=list)
     moral_tensors: list[MoralTensor] = Field(default_factory=list)
     # DEME V3 alignment (additive in Phase 2; will become canonical
     # in Phase 4). Stored alongside the V2 fields above; consumers may
@@ -443,7 +437,6 @@ class CompilerIR(BaseModel):
     strategic_analysis: dict[str, Any] | None = None
     decision_proof: dict[str, Any] | None = None
     timeline: list[TimelineEntry] = Field(default_factory=list)
-    em_outputs: dict[str, EMOutput] = Field(default_factory=dict)
     deme_verdict: DEMEVerdict | None = None
     canonical_form: str | None = None
     audit: AuditRecord | None = None

@@ -9,7 +9,7 @@ Pass map:
    5. Norm/commitment ext.   -> same
    6. Ethical-fact extract.  -> same
    7. Canonicalization       -> extractor sets ir.canonical_form
-   8. Tensorization          -> evaluation.tensor_builder.build_timeline (uses EM-DAG)
+   8. Tensorization          -> evaluation.deme_evaluation.build_timeline (erisml-lib's DEME)
    9. ErisML IR generation   -> codegen.render_erisml (on demand)
   10. DEME evaluation         -> erisml_backend.deme_bridge.DEMEBridge.evaluate
   11. Contraction & residue   -> embedded in DEMEVerdict
@@ -18,7 +18,6 @@ Pass map:
 
 from __future__ import annotations
 
-import hashlib
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -35,10 +34,9 @@ from erisml_compiler.annotation.rule_extractor import RuleExtractor
 from erisml_compiler.audit.hash_chain import finalize_audit
 from erisml_compiler.audit.provenance import record_pass
 from erisml_compiler.canonicalizer.base import Canonicalizer, auto_canonicalizer
-from erisml_compiler.em_dag import EMDAG, load_profile
-from erisml_compiler.em_dag.dag import load_ethos_profile
+from erisml_compiler.erisml_backend.deme_bridge import DEMEBridge
+from erisml_compiler.evaluation.ethos import resolve_ethos_profile
 from erisml_compiler.evaluation.conflict_detector import detect_conflicts
-from erisml_compiler.evaluation.tensor_builder_v3 import build_moral_tensor_v3
 from erisml_compiler.ingestion.structured_loader import load_structured_input
 from erisml_compiler.ingestion.text_loader import load_text_document
 from erisml_compiler.ir.schemas import CompilerIR, PassRecord
@@ -59,17 +57,16 @@ class StrictV3Error(RuntimeError):
     """
 
 
-def _produce_v3_tensor(ir, em_outputs, dag, options, *, ethos_weights=None):
+def _produce_v3_tensor(ir, options):
     """V3 tensor dispatch:
     - rank 1-2 → Phase 3-4 bridge (per-party V3 facts → DEME V3 modules)
     - rank 3-6 → Phase 5 higher-rank builder (stacks rank-2 slices over
       time / action / coalition / uncertainty axes)
 
-    Falls back to the Phase 2 V2-migration tensor builder on a module
-    exception, unless `options.strict_v3` is True, in which case the failure
-    re-raises as `StrictV3Error` so callers can fail loudly instead of
-    silently downgrading. erisml-lib is a core dependency, so its absence is
-    an installation error, not a fallback.
+    On a module exception the IR gets no tensor and the failure is logged, unless
+    `options.strict_v3` is True, in which case it re-raises as `StrictV3Error`.
+    (Before 0.10 it fell back to a tensor built from the compiler's EM-DAG,
+    which is retired.)
     """
     rank = options.tensor_rank
     try:
@@ -96,16 +93,10 @@ def _produce_v3_tensor(ir, em_outputs, dag, options, *, ethos_weights=None):
         if options.strict_v3:
             raise StrictV3Error(
                 f"strict_v3=True but V3 bridge raised {type(e).__name__}: {e}. "
-                f"Set strict_v3=False to allow the Phase 2 fallback."
+                f"Set strict_v3=False to compile without a tensor."
             ) from e
-        _v3_log.warning(
-            "V3 bridge raised %s; falling back to Phase 2 fanout: %s",
-            type(e).__name__,
-            e,
-        )
-        return build_moral_tensor_v3(
-            ir, em_outputs, dag, rank=min(rank, 2), ethos_weights=ethos_weights
-        )
+        _v3_log.warning("V3 bridge raised %s; the IR has no tensor: %s", type(e).__name__, e)
+        return None
 
 
 @dataclass
@@ -113,7 +104,9 @@ class CompileOptions:
     tier: CompilerTier
     extractor: str = "rule"  # "mock" | "rule" | "probe" | "llm"
     critic: str | None = None  # same set or None
-    em_profile: str | Path | None = None  # path to YAML; default if None
+    em_profile: str | Path | None = None
+    """Retired in 0.10 with the EM-DAG; setting it is an error. DEME judges under the
+    bridge's profile (erisml_backend.deme_bridge), weighted by `ethos_profile` if given."""
     projections: tuple[str, ...] = (
         "consequentialist_distributive",
         "deontic_kantian",
@@ -128,10 +121,9 @@ class CompileOptions:
     analysis. See `docs/plans/release-planning-06-framework-pluralist-architecture.md`."""
     ethos_profile: str | Path | None = None
     """Path to a fitted ethos YAML (e.g.
-    `src/erisml_compiler/em_dag/profiles/dear_abby_socialchem_v0.1.yaml`).
-    When set, per-module weights are applied at MoralVector projection
-    time. Audit record carries the profile name + YAML sha256. Defaults
-    to None — no ethos, all modules at equal weight."""
+    `src/erisml_compiler/profiles/dear_abby_socialchem_v0.1.yaml`). When set, its channel
+    weights become DEME's dimension weights (evaluation.ethos). The audit record carries the
+    profile name and YAML sha256. Defaults to None: DEME's default dimension weights."""
     canonicalizer: Canonicalizer | None = None  # default: auto-select
     llm_adapter: "ModelAdapter | None" = None  # for tier="llm" or critic="llm"
     probe_config: object | None = None  # ProbeExtractorConfig for tier="probe"
@@ -156,25 +148,17 @@ class CompileOptions:
     strict_v3: bool = False
 
 
-def _resolve_em_profile(em_profile: str | Path | None) -> EMDAG:
-    if em_profile is None:
-        # Use the bundled default profile.
-        here = Path(__file__).parent.parent / "em_dag" / "profiles" / "default.yaml"
-        return load_profile(here)
-    return load_profile(em_profile)
-
-
 def _projection_result_to_dict(res) -> dict[str, Any]:
     """Convert a ProjectionResult into a JSON-serialisable dict.
 
     The `framework_specific` block may carry non-serialisable objects
-    (MoralTensorV3, EMOutput, etc.) which already live on the top-level
+    (MoralTensorV3, DEME's MoralVector, etc.) which already live on the top-level
     IR; we drop them here to keep ir.projections small + JSON-clean.
     """
     fs = res.framework_specific
     fs_clean: dict[str, Any] = {}
     for k, v in fs.items():
-        if k in ("moral_tensor_v3", "moral_vector", "timeline", "em_outputs", "deme_verdict"):
+        if k in ("moral_tensor_v3", "moral_vector", "timeline", "deme_verdict"):
             continue
         fs_clean[k] = v
     return {
@@ -186,21 +170,6 @@ def _projection_result_to_dict(res) -> dict[str, Any]:
         "framework_specific": fs_clean,
         "metadata": res.metadata,
     }
-
-
-def _resolve_ethos_profile(
-    ethos_profile: str | Path | None,
-) -> tuple[dict[str, float] | None, str | None, str | None]:
-    """Returns (weights_dict, profile_name, profile_sha256)."""
-    if ethos_profile is None:
-        return None, None, None
-    p = Path(ethos_profile)
-    data = load_ethos_profile(p)
-    name = str(data.get("name") or p.stem)
-    weights_raw = data.get("weights") or {}
-    weights = {str(k): float(v) for k, v in weights_raw.items()}
-    sha256 = hashlib.sha256(p.read_bytes()).hexdigest()
-    return (weights or None), name, sha256
 
 
 def _resolve_extractor(
@@ -263,8 +232,13 @@ def compile_document(
     input_path = Path(input_path)
     passes: list[PassRecord] = []
     tier_value = options.tier.value
-    dag = _resolve_em_profile(options.em_profile)
-    ethos_weights, ethos_name, ethos_sha256 = _resolve_ethos_profile(options.ethos_profile)
+    if options.em_profile is not None:
+        raise ValueError(
+            "CompileOptions.em_profile is retired with the EM-DAG (0.10): DEME judges under "
+            "the bridge's profile; pass a fitted ethos via ethos_profile."
+        )
+    ethos_weights, ethos_name, ethos_sha256 = resolve_ethos_profile(options.ethos_profile)
+    bridge = DEMEBridge(dimension_weights=ethos_weights)
     _ir_graph_hash: str | None = None
 
     # Pass 0: Ingestion (and pass-through extraction for Tier 1).
@@ -347,7 +321,7 @@ def compile_document(
     # Pass 8: Projection (two-layer IR). For each enabled projection,
     # build framework-bound output from the descriptive substrate.
     # The consequentialist projection's output back-fills the legacy
-    # ir.moral_tensor_v3 / moral_vectors / timeline / em_outputs fields
+    # ir.moral_tensor_v3 / moral_vectors / timeline fields
     # for backward compat with downstream consumers.
     with record_pass(passes, 8, "projection_pass", tier_value):
         from erisml_compiler.projections import (
@@ -360,23 +334,9 @@ def compile_document(
         projections_run: dict[str, Any] = {}
 
         if "consequentialist_distributive" in options.projections:
-            cp = ConsequentialistProjection(
-                dag=dag,
-                ethos_weights=ethos_weights,
-                tensor_rank=options.tensor_rank,
-            )
-            # Pre-compute the tensor via the orchestrator's V3 dispatcher
-            # (honours strict_v3 + bridge vs Phase 2 fallback). The
-            # projection accepts a tensor override so it doesn't always
-            # use the fallback path.
-            _em_for_tensor = dag.evaluate(ir)
-            _tensor_for_projection = _produce_v3_tensor(
-                ir,
-                _em_for_tensor,
-                dag,
-                options,
-                ethos_weights=ethos_weights,
-            )
+            cp = ConsequentialistProjection(bridge=bridge, tensor_rank=options.tensor_rank)
+            # The tensor via the orchestrator's V3 dispatcher (honours strict_v3 and the rank).
+            _tensor_for_projection = _produce_v3_tensor(ir, options)
             cres = cp.project(
                 substrate,
                 ir=ir,
@@ -388,8 +348,7 @@ def compile_document(
             # Back-fill legacy fields for backward compat.
             fs = cres.framework_specific
             ir.timeline = fs.get("timeline", [])
-            ir.em_outputs = fs.get("em_outputs", {})
-            ir.moral_vectors = [fs["moral_vector"]] if "moral_vector" in fs else []
+            ir.moral_vectors = [fs["moral_vector"]] if fs.get("moral_vector") is not None else []
             ir.deme_verdict = fs.get("deme_verdict")
             ir.moral_tensor_v3 = fs.get("moral_tensor_v3")
             # the V3 bridge (_produce_v3_tensor, above) has already set these from the per-party
@@ -460,7 +419,7 @@ def compile_document(
             ir,
             tier=tier_value,
             extractor=extractor_name,
-            em_profile=dag.name,
+            em_profile=bridge.profile_name,
             passes=passes.copy(),
             ethos_profile=ethos_name,
             ethos_profile_sha256=ethos_sha256,

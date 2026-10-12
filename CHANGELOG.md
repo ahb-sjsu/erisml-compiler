@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Changed (0.10: the compiler imports erisml-lib)
+
+- **erisml-lib is a core dependency** (>=3.2). The compiler extracts; erisml-lib judges.
+- **DEME's verdict.** `erisml_backend/deme_bridge.py` runs erisml-lib's `DEMEPipeline` under a
+  hard-shell DEME profile instead of a stand-in of thresholds; the `DEMEVerdict` contract is
+  unchanged.
+- **One copy** of the universalizability table and of the `Maxim` (erisml-lib's).
+- **The maxim is the deciding agent's**: neither extractor takes another party's act as the
+  agent's maxim, and the purpose is the one the agent states.
+- **The IR's evaluation vector is DEME's**: `moral_vectors` and `timeline` hold erisml-lib's
+  nine-dimension `MoralVector` (IR schema v0.4); conflicts are read on it; fitted ethos profiles
+  become DEME's dimension weights (`profiles/*.yaml`, moved from `em_dag/profiles/`).
+- **I-EIP delta** compares the probes' ten channels with DEME's vector in DEME's nine dimensions
+  (`delta/deme_space.py`); an IR written before 0.10 is compared as before. Phase 5 is
+  reproducible at the tag `phase5-results`.
+- RLEF export schema `rlef_v0.3` (no `em_outputs`).
+
+### Removed (0.10)
+
+- **The EM-DAG** (`em_dag/`: ten one-dimension modules and their topological evaluator), the
+  Phase-2 tensor fallback built from its outputs, `build_moral_vector_from_em_outputs`, the
+  `--em-profile` option, and `CompilerIR.em_outputs`.
+- **The silicon evaluator target**: the EM-DAG HLS pipeline, the top-level kernel and its
+  Makefile. `silicon-emit` emits the FSMs only; a DEME evaluator target is future work.
+
 ### Added
 
 - **Scene runtime** (`runtime/scene.py`). Steps a compiled scene's Commitment, Consent and
