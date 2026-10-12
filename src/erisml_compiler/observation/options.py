@@ -32,6 +32,7 @@ from erisml_compiler.ir.schemas import CompilerIR, EthicalFact
 from erisml_compiler.observation.compiler import SEVERITIES, _hash, _scene_summary, check_fact
 
 OUTCOME_KINDS = frozenset({"harm", "non_maleficence", "benefit", "externality"})
+RECENT_EVENTS = 40  # the projector sees a longer history than an observation patch needs
 
 _SYSTEM = (
     "You project the consequences of acts an agent could take now, from the structured model of a "
@@ -61,7 +62,7 @@ def _prompt(ir: CompilerIR, acts: Mapping[str, str]) -> str:
     kinds = list(EthicalFact.model_fields["kind"].annotation.__args__)
     return json.dumps(
         {
-            "scene": _scene_summary(ir),
+            "scene": _scene_summary(ir, recent=RECENT_EVENTS),
             "consents_on_record": consents_on_record(ir, acts),
             "acts": dict(acts),
             "ethical_fact_kinds": kinds,
@@ -76,6 +77,8 @@ def _prompt(ir: CompilerIR, acts: Mapping[str, str]) -> str:
             "rules": [
                 "Each act is judged as if it were the only thing the agent did now. Say what would "
                 "follow from it, including harm that would remain because the act does not address it.",
+                "Read what the agent has already done (action_performed events) and what came of it. "
+                "An act already done whose effect still stands secures nothing new by being repeated.",
                 "For harm, severity is how grave the harm would be. For benefit, severity is how grave "
                 "the harm averted or the good secured. For urgency, severity is how grave what follows "
                 "if nothing effective is done in time.",
