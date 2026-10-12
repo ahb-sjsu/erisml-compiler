@@ -32,7 +32,6 @@ convenience.
 from __future__ import annotations
 
 
-
 from erisml_compiler.ir.graph.container import MoralGraph
 from erisml_compiler.ir.graph.schema import EdgeKind, MoralEdge, MoralNode, NodeKind
 
