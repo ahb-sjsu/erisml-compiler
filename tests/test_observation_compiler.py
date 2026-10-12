@@ -274,3 +274,26 @@ def test_a_vulnerability_outside_the_scale_is_rejected():
     }
     patch = compiler(bad).compile(scene(), SAID, ACTS)
     assert patch.ops == [] and "vulnerability" in patch.rejected[0]["reason"]
+
+
+def test_a_patch_is_stamped_against_the_ir_it_is_applied_to():
+    """stackcheck2 d19 (brain8): a decision compiled its patch on a snapshot, two system events were
+    appended meanwhile, and the patch's events, stamped with the snapshot's next time index, sorted
+    between them and rewrote the order the runtime had stepped. They now take the applying IR's."""
+    base = scene()
+    patch = compiler(GOOD).compile(base, SAID, ACTS)  # compiled on the snapshot
+    rt = SceneRuntime(base)
+    ir = base
+    for content in (
+        "elevate",
+        "lapsed",
+    ):  # two system events, appended while the model was thinking
+        ir = append_event(ir, {"type": "governor_ruling", "actor": "governor", "content": content})
+        rt.step(ir.events[-1])
+    new = apply_observation_patch(ir, patch)
+    rebuilt = rebuild_runtime(
+        rt, new
+    )  # refused before: the observed events sorted between the two rulings
+    times = {e.type: e.time_index for e in new.events if e.type in ("hazard", "consent")}
+    assert min(times.values()) > max(e.time_index for e in ir.events)
+    assert [e.type for e in rebuilt.events][-3:] == ["utterance", "consent", "hazard"]

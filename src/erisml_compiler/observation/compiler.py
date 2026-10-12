@@ -375,17 +375,46 @@ def check_allowed(ops: Sequence[Mapping[str, Any]]) -> None:
             raise PatchNotAllowed(f"{kind} {path} is outside the observation allow-list")
 
 
+def _rebased(ir: CompilerIR, ops: Sequence[Mapping[str, Any]]) -> List[Dict[str, Any]]:
+    """The patch's events stamped against the IR it is applied to, not the snapshot it was compiled
+    from. A patch compiled while other events were appended (a caller compiles outside its lock)
+    would otherwise sort its events before the newer ones and rewrite the order a running scene had
+    already stepped. Observed events take the next time index of this IR; ids that this IR already
+    uses are renamed."""
+    t = max((e.time_index for e in ir.events), default=-1) + 1
+    taken = (
+        {e.id for e in ir.events}
+        | {f.id for f in ir.ethical_facts}
+        | {r.id for r in ir.relations}
+        | {s.id for s in ir.stakeholders}
+    )
+    out = []
+    for op in ops:
+        op = dict(op)
+        if op.get("op") == "add" and str(op.get("path", "")).startswith("events."):
+            value = dict(op["value"], time_index=t)
+            eid = value["id"]
+            while eid in taken:
+                eid += "_"
+            value["id"] = eid
+            taken.add(eid)
+            op.update(path=f"events.{eid}", value=value)
+        out.append(op)
+    return out
+
+
 def apply_observation_patch(ir: CompilerIR, patch: ObservationPatch) -> CompilerIR:
     """Apply a patch after checking the allow-list again; every op must apply, or none does."""
     from erisml_compiler.correction.corrector import apply_corrections
 
     check_allowed(patch.ops)
+    ops = _rebased(ir, patch.ops)
     new_ir, record, summaries = apply_corrections(
         ir,
         {
             "corrector_id": "observation_compiler",
             "rationale": f"observations {patch.observations_hash}",
-            "patches": patch.ops,
+            "patches": ops,
         },
     )
     if record.n_patches_failed:
