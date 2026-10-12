@@ -32,6 +32,7 @@ from erisml_compiler.ir.schemas import CompilerIR, EthicalFact
 from erisml_compiler.observation.compiler import SEVERITIES, _hash, _scene_summary, check_fact
 
 OUTCOME_KINDS = frozenset({"harm", "non_maleficence", "benefit", "externality"})
+MAX_FACTS_PER_ACT = 3  # keeps the answer within a model's output limit for twenty-odd acts
 RECENT_EVENTS = 40  # the projector sees a longer history than an observation patch needs
 
 _SYSTEM = (
@@ -78,6 +79,8 @@ def _prompt(
                 "confidence": "a number from 0 to 1",
             },
             "rules": [
+                f"Give at most {MAX_FACTS_PER_ACT} facts per act, the gravest; keep each description to "
+                "one short sentence.",
                 "Each act is judged as if it were the only thing the agent did now. Say what would "
                 "follow from it, including harm that would remain because the act does not address it.",
                 "Read what the agent has already done (action_performed events) and what came of it. "
@@ -117,14 +120,22 @@ class OptionProjector:
     """`adapter` asks the model; an optional `critic` asks again, and their agreement (Jaccard over
     fact signatures per act) is reported, with the facts only one found listed for review."""
 
-    def __init__(self, adapter: ModelAdapter, critic: Optional[ModelAdapter] = None):
-        self.adapter, self.critic = adapter, critic
+    def __init__(
+        self,
+        adapter: ModelAdapter,
+        critic: Optional[ModelAdapter] = None,
+        max_tokens: Optional[int] = None,
+    ):
+        """``max_tokens``: the output budget asked of the model for one projection (a reasoning
+        model spends from it before it answers); None leaves the adapter's default."""
+        self.adapter, self.critic, self.max_tokens = adapter, critic, max_tokens
 
     def _ask(self, adapter: ModelAdapter, user: str) -> Dict[str, Any]:
         """The model's answer as an object; an answer that cannot be parsed (cut off at the length
         limit, not JSON) is recorded as such, and no act is projected from it."""
+        kw = {} if self.max_tokens is None else {"max_tokens": self.max_tokens}
         try:
-            raw = _extract_first_json(adapter.call(_SYSTEM, user), expect_array=False)
+            raw = _extract_first_json(adapter.call(_SYSTEM, user, **kw), expect_array=False)
         except ValueError as e:
             return {"_unparseable": str(e)}
         return raw if isinstance(raw, dict) else {}
