@@ -153,3 +153,20 @@ def test_per_option_facts_through_the_bridge_and_the_guide_s_hard_shell():
     assert result.selected_option_id == "call_centre"
     stages = {s["stage"]: s["vetoed"] for s in result.stages}
     assert stages == {"shell": ["wait"], "inner": ["help_up"]}  # unsafe; refused
+
+
+def test_attested_states_reach_the_model_with_their_rule():
+    """stackcheck rehearse-deme1 d42: the evidence plane had verified a visitor's credential, but the
+    projector saw only the scene IR, which does not carry a runtime's verified state."""
+    seen = {}
+
+    class Spy(MockLLMAdapter):
+        def call(self, system, user, **kw):
+            seen["user"] = user
+            return super().call(system, user, **kw)
+
+    spy = Spy({"You project the consequences": json.dumps(ANSWER)})
+    OptionProjector(spy).project(scene(), ACTS, attested={"stratum:visitor_standing": "household"})
+    prompt = json.loads(seen["user"])
+    assert prompt["attested"] == {"stratum:visitor_standing": "household"}
+    assert any("outweigh what anyone appears to be or claims" in r for r in prompt["rules"])
