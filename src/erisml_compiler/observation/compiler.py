@@ -216,7 +216,12 @@ class ObservationCompiler:
         self.adapter, self.critic = adapter, critic
 
     def _ask(self, adapter: ModelAdapter, user: str) -> Dict[str, Any]:
-        raw = _extract_first_json(adapter.call(_SYSTEM, user), expect_array=False)
+        """The model's answer as an object; an answer that cannot be parsed (cut off at the length
+        limit, not JSON) yields nothing new, and the patch records why."""
+        try:
+            raw = _extract_first_json(adapter.call(_SYSTEM, user), expect_array=False)
+        except ValueError as e:
+            return {"_unparseable": str(e)}
         return raw if isinstance(raw, dict) else {}
 
     def compile(
@@ -245,6 +250,10 @@ class ObservationCompiler:
         ops: List[Dict[str, Any]] = []
         rejected: List[Dict[str, Any]] = []
         signatures: set = set()
+        if "_unparseable" in raw:
+            rejected.append(
+                {"kind": "answer", "element": None, "reason": f"unparseable: {raw['_unparseable']}"}
+            )
         known = {s.id for s in ir.stakeholders}
         taken = (
             known

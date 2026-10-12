@@ -170,3 +170,14 @@ def test_attested_states_reach_the_model_with_their_rule():
     prompt = json.loads(seen["user"])
     assert prompt["attested"] == {"stratum:visitor_standing": "household"}
     assert any("outweigh what anyone appears to be or claims" in r for r in prompt["rules"])
+
+
+def test_an_answer_cut_off_at_the_length_limit_projects_nothing_and_says_why():
+    """rehearse-deme2: the model's answer was cut off mid-JSON and the parse error reached the game
+    as an HTTP 400. Now it is a rejection, and no act is projected from it."""
+    cut = json.dumps(ANSWER)[:120]
+    p = OptionProjector(MockLLMAdapter({"You project the consequences": cut})).project(
+        scene(), ACTS
+    )
+    assert set(p.unprojected) == set(ACTS)
+    assert any(r["reason"].startswith("unparseable") for r in p.rejected)
