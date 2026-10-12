@@ -16,7 +16,7 @@ The observation vocabulary is general, a small set of speech acts and states, ne
 cases: an utterance; a consent or refusal of a named act; a request for a named act; a claim a
 person makes about themselves; a presence (arrived or left); a hazard (how soon severe harm is
 expected for whom). Acts are named only from the agent's own capability vocabulary. Ethical facts
-use the IR's fourteen kinds.
+use the IR's kinds.
 
 What an observation can never change: norms, commitments, the document, `extra`. Those belong to
 the scene's authors (the service agreement, the constitutional set, the capability manifest).
@@ -192,6 +192,21 @@ def _prompt(ir: CompilerIR, observations: Sequence[Observation], acts: Mapping[s
     )
 
 
+def check_fact(f: Mapping[str, Any], fid: str, known: set) -> Tuple[Optional[EthicalFact], str]:
+    """An ethical fact the model wrote, validated against the schema, the severities and the
+    scene's stakeholders, under the id the compiler assigns; or None and the reason."""
+    try:
+        model = EthicalFact.model_validate({**f, "id": fid})
+    except (ValidationError, TypeError) as err:
+        return None, f"schema: {str(err).splitlines()[0]}"
+    if model.severity is not None and model.severity not in SEVERITIES:
+        return None, f"severity {model.severity!r} is not one of {SEVERITIES}"
+    unknown = [x for x in model.subjects if x not in known]
+    if unknown:
+        return None, f"subjects {unknown} are not stakeholders"
+    return model, ""
+
+
 class ObservationCompiler:
     """`adapter` asks the model; an optional `critic` adapter asks a second time, and the agreement
     between the two (Jaccard over element signatures) is reported, with every element only one of
@@ -317,17 +332,9 @@ class ObservationCompiler:
             fid = f"fact{n}_{i}"
             while fid in taken:
                 fid += "_"
-            try:
-                model = EthicalFact.model_validate({**f, "id": fid})
-            except (ValidationError, TypeError) as err:
-                reject("ethical_fact", f, f"schema: {str(err).splitlines()[0]}")
-                continue
-            if model.severity is not None and model.severity not in SEVERITIES:
-                reject("ethical_fact", f, f"severity {model.severity!r} is not one of {SEVERITIES}")
-                continue
-            unknown = [x for x in model.subjects if x not in known]
-            if unknown:
-                reject("ethical_fact", f, f"subjects {unknown} are not stakeholders")
+            model, reason = check_fact(f, fid, known)
+            if model is None:
+                reject("ethical_fact", f, reason)
                 continue
             taken.add(fid)
             ops.append(
