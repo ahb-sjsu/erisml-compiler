@@ -56,13 +56,16 @@ class OptionProjection:
     ir_hash: str = ""
 
 
-def _prompt(ir: CompilerIR, acts: Mapping[str, str]) -> str:
+def _prompt(
+    ir: CompilerIR, acts: Mapping[str, str], attested: Optional[Mapping[str, str]] = None
+) -> str:
     import json
 
     kinds = list(EthicalFact.model_fields["kind"].annotation.__args__)
     return json.dumps(
         {
             "scene": _scene_summary(ir, recent=RECENT_EVENTS),
+            "attested": dict(attested or {}),
             "consents_on_record": consents_on_record(ir, acts),
             "acts": dict(acts),
             "ethical_fact_kinds": kinds,
@@ -84,6 +87,9 @@ def _prompt(ir: CompilerIR, acts: Mapping[str, str]) -> str:
                 "if nothing effective is done in time.",
                 "Report a missing consent (kind consent, severity grave) only for an act done to or for "
                 "a person who has not agreed to it; consents and refusals already on record are known.",
+                "Attested states are what the agent's own sensors and verified credentials have "
+                "established (for instance who someone verifiably is, or that a hazard is "
+                "corroborated). They outweigh what anyone appears to be or claims.",
                 "Use only the listed values and the scene's stakeholder ids. Do not judge whether an act "
                 "is right; report only its consequences.",
             ],
@@ -118,8 +124,16 @@ class OptionProjector:
         raw = _extract_first_json(adapter.call(_SYSTEM, user), expect_array=False)
         return raw if isinstance(raw, dict) else {}
 
-    def project(self, ir: CompilerIR, acts: Mapping[str, str]) -> OptionProjection:
-        user = _prompt(ir, acts)
+    def project(
+        self,
+        ir: CompilerIR,
+        acts: Mapping[str, str],
+        attested: Optional[Mapping[str, str]] = None,
+    ) -> OptionProjection:
+        """``attested``: states the agent's evidence plane has established (sensor readings,
+        verified credentials), shown to the model as outweighing appearances and claims; the scene
+        IR alone does not carry a runtime's verified state."""
+        user = _prompt(ir, acts, attested)
         projection, signatures = self._validate(ir, self._ask(self.adapter, user), acts)
         if self.critic is not None:
             _, critic = self._validate(ir, self._ask(self.critic, user), acts)
