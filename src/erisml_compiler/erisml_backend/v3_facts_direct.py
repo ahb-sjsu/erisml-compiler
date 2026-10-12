@@ -46,9 +46,13 @@ _SEVERITY_MAGNITUDE: dict[str | None, float] = {
 }
 
 
-def ir_to_v3_facts(ir: CompilerIR) -> Any:
+def ir_to_v3_facts(ir: CompilerIR, option_id: str | None = None) -> Any:
     """Build EthicalFactsV3 directly from compiler IR with per-party
     attribution from `EthicalFact.subjects`.
+
+    `option_id` names the candidate option the IR describes; it defaults to
+    the document id. Urgency is the gravest `urgency` fact; an IR with none
+    keeps the earlier stand-in, the gravest per-party harm.
 
     Returns an `erisml.ethics.facts_v3.EthicalFactsV3` instance. Raises
     `ImportError` if erisml-lib is not available — the caller is
@@ -120,6 +124,7 @@ def ir_to_v3_facts(ir: CompilerIR) -> Any:
 
     # Decision-level (epistemic) accumulators.
     epistemic_uncertainty = 0.0
+    stated_urgency: float | None = None
 
     for fact in ir.ethical_facts:
         # Decide which parties this fact applies to.
@@ -133,6 +138,8 @@ def ir_to_v3_facts(ir: CompilerIR) -> Any:
 
         if fact.kind == "uncertainty":
             epistemic_uncertainty = max(epistemic_uncertainty, magnitude)
+        if fact.kind == "urgency":
+            stated_urgency = max(stated_urgency or 0.0, magnitude)
         if fact.kind == "legitimacy":
             aggregate_legitimacy = max(aggregate_legitimacy, magnitude)
 
@@ -214,7 +221,11 @@ def ir_to_v3_facts(ir: CompilerIR) -> Any:
     consequences = ConsequencesV3(
         expected_benefit=_mean([p.expected_benefit for p in per_consequences]),
         expected_harm=_mean([p.expected_harm for p in per_consequences]),
-        urgency=_max([state[pid]["expected_harm"] for pid in parties]) if parties else 0.0,
+        urgency=(
+            stated_urgency
+            if stated_urgency is not None
+            else _max([state[pid]["expected_harm"] for pid in parties])
+        ),
         affected_count=n_parties,
         per_party=per_consequences,
     )
@@ -278,7 +289,7 @@ def ir_to_v3_facts(ir: CompilerIR) -> Any:
     )
 
     return EthicalFactsV3(
-        option_id=ir.document.doc_id if ir.document else "scenario",
+        option_id=option_id or (ir.document.doc_id if ir.document else "scenario"),
         consequences=consequences,
         rights_and_duties=rights_and_duties,
         justice_and_fairness=justice_and_fairness,
@@ -361,7 +372,10 @@ def _apply_fact_to_party_state(s: dict, fact: EthicalFact, magnitude: float) -> 
             s["expected_harm"] = max(s["expected_harm"], magnitude * 0.4)
     elif kind == "role_duty":
         s["duty_owed"] = True
-    # uncertainty is decision-level — handled outside this fn.
+    elif kind == "benefit":
+        s["expected_benefit"] = max(s["expected_benefit"], magnitude)
+        s["relative_benefit"] = max(s["relative_benefit"], magnitude)
+    # uncertainty and urgency are decision-level — handled outside this fn.
     # reciprocity has no V3 mapping yet.
 
 

@@ -97,6 +97,8 @@ _FACT_KIND_TO_V2_FIELD: dict[str, list[tuple[str, str]]] = {
     "deception": [("virtue_and_care.betrays_trust", "flag")],
     "role_duty": [("rights_and_duties.role_duty_conflict", "flag")],
     "reciprocity": [],  # no clean V2 mapping; stored in metadata
+    "benefit": [("consequences.expected_benefit", "max")],
+    "urgency": [("consequences.urgency", "max")],
 }
 
 
@@ -117,9 +119,13 @@ def _ensure_erisml_lib() -> None:
         ) from e
 
 
-def ir_to_v2_facts(ir: CompilerIR) -> "V2EthicalFacts":
+def ir_to_v2_facts(ir: CompilerIR, option_id: str | None = None) -> "V2EthicalFacts":
     """Aggregate compiler IR's raw EthicalFact list into a V2
     `EthicalFacts` instance.
+
+    `option_id` names the candidate option the IR describes (a scene with one
+    option's projected effects), for a caller that builds facts per option to
+    pass to DEMEPipeline.decide; it defaults to the document id.
 
     This is the heuristic boundary: the compiler IR records each
     ethical claim as a separate `EthicalFact` row, while DEME V2 wants
@@ -167,7 +173,7 @@ def ir_to_v2_facts(ir: CompilerIR) -> "V2EthicalFacts":
             _apply_op(nodes, field_path, op, magnitude, fact)
 
     facts = EthicalFacts(
-        option_id=ir.document.doc_id if ir.document else "scenario",
+        option_id=option_id or (ir.document.doc_id if ir.document else "scenario"),
         consequences=consequences,
         rights_and_duties=rights_and_duties,
         justice_and_fairness=justice_and_fairness,

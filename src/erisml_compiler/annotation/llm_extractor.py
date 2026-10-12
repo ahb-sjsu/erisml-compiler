@@ -242,13 +242,13 @@ Stakeholder ids available for `subjects`: {subjects}
 
 Return ONLY a JSON array. Each element has these fields:
   id            snake_case slug
-  kind          one of: coercion, consent, legitimacy, harm, vulnerability, uncertainty, externality, justice, care, truth, role_duty, deception, reciprocity, non_maleficence
+  kind          one of: coercion, consent, legitimacy, harm, vulnerability, uncertainty, externality, justice, care, truth, role_duty, deception, reciprocity, non_maleficence, benefit, urgency
   subjects      list of stakeholder ids
   description   one sentence
   severity      one of: minor, moderate, grave, catastrophic
   confidence    number in [0,1]
 
-Be specific. A line like 'soldiers threaten village' produces two facts: one of kind `coercion` and one of kind `externality`, both subject to the village.
+Be specific. A line like 'soldiers threaten village' produces two facts: one of kind `coercion` and one of kind `externality`, both subject to the village. For `benefit` (a good secured or a harm averted) and `urgency` (what follows if nothing is done in time), severity names the stakes.
 
 TEXT:
 {text}"""

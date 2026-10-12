@@ -209,6 +209,11 @@ EthicalFactKind = Literal[
     "deception",
     "reciprocity",
     "non_maleficence",
+    # what an option secures, and how soon it must: `severity` names the stakes, the gravity of
+    # the harm averted or the good secured (benefit) or of what follows if nothing is done in
+    # time (urgency). They carry DEME's Consequences.expected_benefit and .urgency.
+    "benefit",
+    "urgency",
 ]
 
 
