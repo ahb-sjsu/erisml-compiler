@@ -54,6 +54,7 @@ class ConsequentialistProjection(Projection):
         *,
         ir: CompilerIR | None = None,
         tensor_override: Any = None,
+        tensor_given: bool = False,
         graph: Any = None,
         **kwargs: Any,
     ) -> ProjectionResult:
@@ -101,7 +102,8 @@ class ConsequentialistProjection(Projection):
 
         timeline = build_timeline(ir, self.bridge)
         verdict_obj, final_vector = self.bridge.judge(ir)
-        if tensor_override is not None:
+        if tensor_override is not None or tensor_given:
+            # the orchestrator built it (or tried and logged why there is none)
             tensor = tensor_override
         else:
             from erisml_compiler.erisml_backend.v3_bridge import compile_to_v3_tensor

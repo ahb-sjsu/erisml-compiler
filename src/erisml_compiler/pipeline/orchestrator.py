@@ -341,6 +341,7 @@ def compile_document(
                 substrate,
                 ir=ir,
                 tensor_override=_tensor_for_projection,
+                tensor_given=True,
                 graph=ir.graph,
             )
             projections_run[cp.framework] = cres

@@ -98,53 +98,14 @@ def test_build_strategy_metadata_recorded(nazi_attic_ir):
     }
 
 
-def test_phase2_fallback_carries_migration_metadata(monkeypatch):
-    """When the V3 bridge isn't available, the orchestrator falls back
-    to Phase 2's V2-migration tensor builder which embeds a `migration`
-    metadata block plus `repair_residue`. Force that path via the
-    bridge's ImportError check."""
-    from erisml_compiler.erisml_backend import v3_bridge as bridge_mod
+def test_moral_vectors_hold_deme_s_vector(nazi_attic_ir):
+    """Since 0.10 the IR's moral vector is erisml-lib's DEME vector (nine dimensions)."""
+    from erisml.ethics.moral_vector import MoralVector as DemeMoralVector
 
-    def fake_import_error(*args, **kwargs):
-        raise ImportError("simulated missing erisml-lib")
-
-    monkeypatch.setattr(bridge_mod, "compile_to_v3_tensor", fake_import_error)
-    ir = compile_document(
-        EXAMPLES_DIR / "nazi_attic.txt",
-        CompileOptions(
-            tier=CompilerTier.RULES,
-            extractor="mock",
-            canonicalizer=None,
-            tensor_rank=2,
-        ),
-    )
-    md = ir.moral_tensor_v3.metadata
-    assert md["build_strategy"] == "phase2_fanout_from_rank1"
-    assert md.get("migration", {}).get("source") == "v2_moral_vector"
-    assert "privacy_protection" in md["migration"]["synthesised_dims"]
-    assert "repair_residue" in md
-
-
-# ---------- V2 surface still produced ----------
-
-
-def test_v2_moral_vectors_still_populated(nazi_attic_ir):
-    assert nazi_attic_ir.moral_vectors  # at least one entry
-    v2 = nazi_attic_ir.moral_vectors[0]
-    # All 10 V2 dims still present.
-    for dim in [
-        "physical_harm",
-        "rights_respect",
-        "fairness_equity",
-        "autonomy_consent",
-        "legitimacy_trust",
-        "epistemic_quality",
-        "care_protection",
-        "vow_fidelity",
-        "third_party_externality",
-        "repair_residue",
-    ]:
-        assert hasattr(v2, dim)
+    assert nazi_attic_ir.moral_vectors
+    v = nazi_attic_ir.moral_vectors[0]
+    assert isinstance(v, DemeMoralVector)
+    assert set(v.to_dict()) >= set(DemeMoralVector.core_dimension_names())
 
 
 def test_v2_timeline_still_populated(nazi_attic_ir):
