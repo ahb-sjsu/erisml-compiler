@@ -6,7 +6,6 @@ from pathlib import Path
 
 import pytest
 
-pytest.importorskip("erisml.ethics.modules.tier0.geneva_em_v3")
 
 from erisml_compiler.ir.schemas import CompilerIR
 from erisml_compiler.pipeline.orchestrator import CompileOptions, compile_document

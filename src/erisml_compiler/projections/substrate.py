@@ -23,10 +23,12 @@ explicit extractor outputs.
 
 from __future__ import annotations
 
-from typing import Literal
+import dataclasses
+
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from erisml.ethics.facts import Maxim as _DemeMaxim
 from erisml_compiler.ir.schemas import (
     Commitment,
     Document,
@@ -38,37 +40,8 @@ from erisml_compiler.ir.schemas import (
     Stakeholder,
 )
 
-
-class Maxim(BaseModel):
-    """The action under a particular description.
-
-    Kantian universalizability operates on maxims, not on acts. The
-    same physical act can be intended under multiple maxims (e.g.
-    "lie to save a life" vs "lie when convenient"), and the
-    universalizability test depends on which maxim is at stake.
-    """
-
-    model_config = ConfigDict(frozen=True)
-
-    description: str
-    """Natural-language phrasing of the maxim."""
-    agent_id: str | None = None
-    """Stakeholder id of the agent whose maxim this is."""
-    action_kind: str | None = None
-    """Coarse action label: lie, promise, refuse, harm, protect, ..."""
-    polarity: Literal["affirmed", "negated"] = "affirmed"
-    """Whether the action is asserted or negated in the source. "negated"
-    means the agent did NOT perform / explicitly declined the action
-    ("did not promise", "refused to lie"). The universalizability test
-    applies to the maxim as actually instantiated, so a negated promise is
-    not a commitment-making maxim. Defaults to "affirmed" for backward
-    compatibility with extractors that don't set it."""
-    purpose: str | None = None
-    """What the agent is trying to achieve via the action."""
-    treats_persons_as: dict[str, str] = Field(default_factory=dict)
-    """stakeholder_id -> 'end' | 'means' | 'mere_means'. 'mere_means'
-    is the Kantian failure mode (treating a rational agent ONLY as
-    an instrument with no regard for them as a self-determining end)."""
+# The maxim is erisml-lib's: one model, extracted here and passed to DEME's deontic gate unchanged.
+Maxim = _DemeMaxim
 
 
 class ConsentState(BaseModel):
@@ -336,21 +309,23 @@ def _derive_maxim(ir) -> Maxim | None:
     """Derive the Maxim for an IR.
 
     v1 (v0.8.x): pattern-based prose extraction via
-    `annotation/maxim_extractor.py`. Falls back to the previous
-    kind-based heuristic when the prose extractor finds no verb
-    pattern in the document's raw text.
+    `annotation/maxim_extractor.py`. Prose that names no act of the agent
+    gives no maxim: the kind-based heuristic below names what the facts are
+    about, not what the agent does (it made the threatened coercion in
+    medical_confidentiality the physician's maxim), so it stands in only for
+    an IR with no prose.
     """
     # Prose-first extraction (v1).
     if ir.document and ir.document.raw_text:
         from erisml_compiler.annotation.maxim_extractor import extract_maxim
 
-        # Determine the heuristic action_kind to use as fallback.
-        heuristic_action_kind = _heuristic_action_kind(ir)
         maxim, _ev = extract_maxim(
             ir.document.raw_text,
             stakeholders=list(ir.stakeholders),
-            fallback_action_kind=heuristic_action_kind,
+            fallback_action_kind=None,
         )
+        if maxim is None:
+            return None
         if maxim is not None:
             # Augment treats_persons_as with kind-derived signals the
             # prose extractor may have missed (instrumental facts on
@@ -365,7 +340,7 @@ def _derive_maxim(ir) -> Maxim | None:
                     for sid in getattr(f, "subjects", []) or []:
                         treats.setdefault(sid, "means")
             if treats != maxim.treats_persons_as:
-                maxim = maxim.model_copy(update={"treats_persons_as": treats})
+                maxim = dataclasses.replace(maxim, treats_persons_as=treats)
             return maxim
 
     # Heuristic fallback (legacy path).

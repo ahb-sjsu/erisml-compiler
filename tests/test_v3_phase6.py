@@ -7,7 +7,6 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-pytest.importorskip("erisml.ethics.game_theory")
 
 from erisml_compiler.erisml_backend.v3_phase6 import (
     build_coalition_c_axis_slices,

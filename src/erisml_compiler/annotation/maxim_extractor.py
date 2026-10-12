@@ -82,7 +82,7 @@ _VERB_PATTERNS: list[tuple[re.Pattern, str]] = [
     (
         re.compile(
             r"\b(protect(?:ed|ing|s)?|shelter(?:ed|ing|s)?|shield(?:ed|ing|s)?|"
-            r"defend(?:ed|ing|s)?|safeguard(?:ed|ing|s)?|"
+            r"defend(?:ed|ing|s)?|safeguard(?:ed|ing|s)?|save[ds]?|saving|rescu(?:e|ed|es|ing)|"
             r"care for|caring for|look(?:ed|ing)? after)\b",
             re.IGNORECASE,
         ),
@@ -163,19 +163,21 @@ _VERB_PATTERNS: list[tuple[re.Pattern, str]] = [
 
 # ---------------------------------------------------- purpose clause patterns
 
+# The explicit purpose verbs come first: in "lied to the soldiers to protect the family" the
+# purpose is "protect the family", not "the soldiers ...", which the generic "to ..." would take.
 _PURPOSE_PATTERNS: list[re.Pattern] = [
-    re.compile(
-        r"\b(?:in order |so as |so that |so |in order|so it would |so it could |to )"
-        r"(?:to |that )?([a-zA-Z][^,.;!?\n]{3,80})",
-        re.IGNORECASE,
-    ),
-    re.compile(r"\bfor the sake of\s+([a-zA-Z][^,.;!?\n]{3,60})", re.IGNORECASE),
     re.compile(
         r"\bto (protect|save|spare|shield|prevent|stop|avoid|hide|conceal|warn|honor|"
         r"honour|keep|maintain|preserve|achieve|secure|advance|fulfil|fulfill|defend|"
         r"comply with|escape|expose|disclose|reveal)\s+([a-zA-Z][^,.;!?\n]{0,60})",
         re.IGNORECASE,
     ),
+    re.compile(
+        r"\b(?:in order |so as |so that |so |in order|so it would |so it could |to )"
+        r"(?:to |that )?([a-zA-Z][^,.;!?\n]{3,80})",
+        re.IGNORECASE,
+    ),
+    re.compile(r"\bfor the sake of\s+([a-zA-Z][^,.;!?\n]{3,60})", re.IGNORECASE),
 ]
 
 
@@ -258,11 +260,17 @@ def extract_maxim(
                 )
                 return srl_maxim, evidence
 
-    # 1. Find the dominant action verb.
+    # 1. Identify the agent, then find the dominant action verb among the verbs whose clause is
+    #    the agent's: a verb in a clause another party is the subject of ("the patient revealed a
+    #    plan to seriously harm a colleague") is that party's act, not the agent's maxim.
+    agent_id, agent_evidence = _identify_agent(text, stakeholders or [])
+    cues = _agent_cues(agent_id, agent_evidence, stakeholders or [])
     matched_verb: str | None = None
     action_kind: str | None = None
     for pattern, kind in _VERB_PATTERNS:
-        m = pattern.search(text)
+        m = next(
+            (m for m in pattern.finditer(text) if _is_agents_clause(text, m.start(), cues)), None
+        )
         if m:
             matched_verb = m.group(0)
             action_kind = kind
@@ -273,20 +281,8 @@ def extract_maxim(
             return None, MaximExtractionEvidence(None, None, None, None, [])
         action_kind = fallback_action_kind
 
-    # 2. Find a purpose clause if present.
-    matched_purpose: str | None = None
-    purpose: str | None = None
-    for pattern in _PURPOSE_PATTERNS:
-        m = pattern.search(text)
-        if m:
-            matched_purpose = m.group(0)
-            purpose = (m.group(1) if pattern.groups >= 1 else "").strip()
-            purpose = _normalise_purpose(purpose)
-            if purpose:
-                break
-
-    # 3. Identify the agent.
-    agent_id, agent_evidence = _identify_agent(text, stakeholders or [])
+    # 2. Find the purpose the agent states, if any.
+    matched_purpose, purpose, purpose_kind = stated_purpose(text, cues)
 
     # 4. Mere-means evidence: who does the prose say is being used?
     mere_means_subjects: dict[str, str] = {}
@@ -312,6 +308,7 @@ def extract_maxim(
         agent_id=agent_id,
         action_kind=action_kind,
         purpose=purpose,
+        purpose_kind=purpose_kind,
         treats_persons_as=mere_means_subjects,
     )
     evidence = MaximExtractionEvidence(
@@ -370,6 +367,68 @@ def _identify_agent(text: str, stakeholders: list) -> tuple[str | None, str | No
     if prof_label:
         return None, f"profession:{prof_label} (no matching stakeholder, no agent-role fallback)"
     return None, None
+
+
+# A clause starts after a sentence end, a comma or semicolon, or a subordinating word; the words
+# from there to a verb are that verb's own clause, where its subject is. Line breaks are not
+# boundaries (prose is wrapped mid-sentence), nor are and, but, or, which join noun phrases as
+# often as clauses.
+_CLAUSE_START = re.compile(
+    r"[.!?;,]|\b(?:because|since|although|though|while|when|whether|that|who|which|"
+    r"after|before|until|unless|if)\b",
+    re.IGNORECASE,
+)
+
+
+def _agent_cues(
+    agent_id: str | None, evidence: str | None, stakeholders: list
+) -> tuple[list[str], list[str]]:
+    """Lower-case words that name the agent (its stakeholder label, the profession that
+    identified it) and words that name another party (the other stakeholders' labels)."""
+    cues: list[str] = []
+    others: list[str] = []
+    for s in stakeholders:
+        words = [w for w in (getattr(s, "label", "") or "").lower().split() if len(w) > 2]
+        (cues if getattr(s, "id", None) == agent_id else others).extend(words)
+    if evidence and evidence.startswith("profession:"):
+        cues.append(evidence.split(":", 1)[1].split("-", 1)[0].split(" ", 1)[0])
+    return cues, [w for w in others if w not in cues]
+
+
+def _is_agents_clause(text: str, start: int, cues: tuple[list[str], list[str]]) -> bool:
+    """Whether the verb at ``start`` is the agent's: its clause names the agent (first person or
+    a cue), or names no other stakeholder. With no stakeholders known, every clause counts."""
+    agent, others = cues
+    head = text[:start]
+    boundaries = list(_CLAUSE_START.finditer(head))
+    clause = head[boundaries[-1].end() :].lower() if boundaries else head.lower()
+    if _FIRST_PERSON.search(clause) or any(c in clause for c in agent):
+        return True
+    return not any(re.search(r"\b" + re.escape(o) + r"\b", clause) for o in others)
+
+
+def stated_purpose(
+    text: str, cues: tuple[list[str], list[str]]
+) -> tuple[str | None, str | None, str | None]:
+    """The purpose the agent states, in a clause of the agent's: (the matched phrase, the
+    purpose, its action kind). The kind is read with the same verb patterns, so that a deceit
+    whose purpose is to protect meets an imperfect duty, which DEME's deontic gate weighs
+    (erisml-lib 3.2). Another party's purpose is never the agent's."""
+    for pattern in _PURPOSE_PATTERNS:
+        for m in pattern.finditer(text):
+            if not _is_agents_clause(text, m.start(), cues):
+                continue
+            purpose = _normalise_purpose(" ".join(g for g in m.groups() if g).strip())
+            if purpose:
+                kind = next((k for p, k in _VERB_PATTERNS if p.search(purpose)), None)
+                return m.group(0), purpose, kind
+    return None, None, None
+
+
+def agent_cues(text: str, stakeholders: list) -> tuple[list[str], list[str]]:
+    """The words that name the agent and the other parties, for a text and its stakeholders."""
+    agent_id, evidence = _identify_agent(text, stakeholders)
+    return _agent_cues(agent_id, evidence, stakeholders)
 
 
 def _resolve_target_to_stakeholder(target: str, stakeholders: list) -> str | None:

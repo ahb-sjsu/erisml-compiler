@@ -35,9 +35,8 @@ instances; the V2 `EthicalFacts` is an aggregate per-dimension
 structure. The mapping is a documented many-to-one — see
 `_FACT_KIND_TO_V2_FIELD`.
 
-When erisml-lib is not installed, all entry points raise a clear
-ImportError pointing at the migration doc. Phase 2's fallback path
-remains active in the orchestrator for that case.
+erisml-lib is a core dependency of the compiler (since 0.10), so the
+bridge's imports of it are unconditional.
 """
 
 from __future__ import annotations
@@ -105,20 +104,6 @@ _FACT_KIND_TO_V2_FIELD: dict[str, list[tuple[str, str]]] = {
 # ---------- IR -> V2 EthicalFacts -----------------------------------------
 
 
-def _ensure_erisml_lib() -> None:
-    try:
-        import erisml.ethics.facts  # noqa: F401, PLC0415
-        import erisml.ethics.facts_v3  # noqa: F401, PLC0415
-        import erisml.ethics.modules.base_v3  # noqa: F401, PLC0415
-        import erisml.ethics.modules.tier0.geneva_em_v3  # noqa: F401, PLC0415
-        import erisml.ethics.modules.triage_em_v3  # noqa: F401, PLC0415
-    except ImportError as e:  # pragma: no cover
-        raise ImportError(
-            "DEME V3 bridge requires erisml-lib. "
-            "See docs/migration/deme_v3_alignment.md for installation."
-        ) from e
-
-
 def ir_to_v2_facts(ir: CompilerIR, option_id: str | None = None) -> "V2EthicalFacts":
     """Aggregate compiler IR's raw EthicalFact list into a V2
     `EthicalFacts` instance.
@@ -132,7 +117,6 @@ def ir_to_v2_facts(ir: CompilerIR, option_id: str | None = None) -> "V2EthicalFa
     an aggregated per-dimension structure. We group by claim `kind`
     and route into V2 fields via `_FACT_KIND_TO_V2_FIELD`.
     """
-    _ensure_erisml_lib()
     from erisml.ethics.facts import (  # noqa: PLC0415
         AutonomyAndAgency,
         Consequences,
@@ -167,12 +151,23 @@ def ir_to_v2_facts(ir: CompilerIR, option_id: str | None = None) -> "V2EthicalFa
         "epistemic_status": epistemic_status,
     }
 
+    # A coercion fact names who is coerced (its subjects), not who coerces. When the deciding
+    # agent is among the coerced, the agent is under duress: that is not the option coercing
+    # anyone, so it does not set the option's coercion flags (it made AutonomyConsent forbid the
+    # coerced agent's own choice in nazi_attic and medical_confidentiality). It is recorded in
+    # the facts' metadata. An agent's act of coercion reaches DEME through its maxim.
+    agents = {s.id for s in ir.stakeholders if "agent" in (s.roles or [])} | {"self"}
+    duress: list[str] = []
     for fact in ir.ethical_facts:
+        if fact.kind == "coercion" and agents & set(fact.subjects):
+            duress.append(fact.description)
+            continue
         magnitude = _SEVERITY_MAGNITUDE.get(fact.severity, 0.5) * fact.confidence
         for field_path, op in _FACT_KIND_TO_V2_FIELD.get(fact.kind, []):
             _apply_op(nodes, field_path, op, magnitude, fact)
 
     facts = EthicalFacts(
+        metadata={"agent_under_duress": duress} if duress else {},
         option_id=option_id or (ir.document.doc_id if ir.document else "scenario"),
         consequences=consequences,
         rights_and_duties=rights_and_duties,
@@ -185,25 +180,10 @@ def ir_to_v2_facts(ir: CompilerIR, option_id: str | None = None) -> "V2EthicalFa
         epistemic_status=epistemic_status,
     )
 
-    # Forward the maxim (incl. polarity) so erisml-lib's deontic gate can run.
-    # Guarded: only erisml-lib builds that ship `Maxim` resolve this import;
-    # its absence (and any attr mismatch) is handled by the try/except below.
-    try:
-        from erisml.ethics.facts import Maxim  # noqa: PLC0415  # ty: ignore[unresolved-import]
+    # The maxim is erisml-lib's own type, so it is forwarded to the deontic gate unchanged.
+    from erisml_compiler.projections.substrate import _derive_maxim  # noqa: PLC0415
 
-        from erisml_compiler.projections.substrate import _derive_maxim  # noqa: PLC0415
-
-        derived = _derive_maxim(ir)
-        if derived is not None and hasattr(facts, "maxim"):
-            maxim_obj = Maxim(
-                action_kind=derived.action_kind,
-                polarity=getattr(derived, "polarity", "affirmed"),
-                description=getattr(derived, "description", "") or "",
-            )
-            facts.maxim = maxim_obj  # ty: ignore[invalid-assignment]  # Maxim is Unknown
-    except Exception as exc:  # pragma: no cover - defensive, lib optional
-        log.debug("V3 bridge: maxim forwarding skipped (%s)", exc)
-
+    facts.maxim = _derive_maxim(ir)
     return facts
 
 
@@ -256,7 +236,6 @@ def _instantiate_v3_modules() -> list:
     rights/fairness). Phase 4 will widen this to the full tier
     discovered via EMRegistry.list_by_tier(...).
     """
-    _ensure_erisml_lib()
     from erisml.ethics.modules.tier0.geneva_em_v3 import GenevaEMV3  # noqa: PLC0415
     from erisml.ethics.modules.triage_em_v3 import TriageEMV3  # noqa: PLC0415
 
@@ -296,7 +275,6 @@ def compile_to_v3_tensor(
             f"V3 bridge supports rank 1 and 2; rank {rank} arrives in Phase 5."
         )
 
-    _ensure_erisml_lib()
     import numpy as np  # noqa: PLC0415
     from erisml.ethics.facts_v3 import EthicalFactsV3  # noqa: PLC0415
 

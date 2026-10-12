@@ -31,6 +31,8 @@ convenience.
 
 from __future__ import annotations
 
+import dataclasses
+
 
 from erisml_compiler.ir.graph.container import MoralGraph
 from erisml_compiler.ir.graph.schema import EdgeKind, MoralEdge, MoralNode, NodeKind
@@ -238,10 +240,13 @@ def graph_from_flat(ir) -> MoralGraph:
         heuristic_kind = "make_or_keep_commitment"
 
     text = ir.document.raw_text if ir.document else ""
+    # The kind heuristic names what the facts are about, not what the agent does, so it stands in
+    # only when there is no prose; prose that names no act of the agent gives no maxim. (It made
+    # the threatened coercion in medical_confidentiality the physician's maxim.)
     maxim_obj, evidence = extract_maxim(
         text,
         stakeholders=list(ir.stakeholders),
-        fallback_action_kind=heuristic_kind,
+        fallback_action_kind=None if text else heuristic_kind,
     )
     if maxim_obj is not None:
         # Semantic overlay: when SRL picks a *neutral* commitment verb
@@ -252,11 +257,10 @@ def graph_from_flat(ir) -> MoralGraph:
         if maxim_obj.action_kind == "make_or_keep_commitment" and any(
             _fact_kind_str(f) in _DECEIT_KINDS for f in ir.ethical_facts
         ):
-            maxim_obj = maxim_obj.model_copy(
-                update={
-                    "action_kind": "deceive",
-                    "description": f"{maxim_obj.description} (false commitment → deceit overlay)",
-                }
+            maxim_obj = dataclasses.replace(
+                maxim_obj,
+                action_kind="deceive",
+                description=f"{maxim_obj.description} (false commitment → deceit overlay)",
             )
 
         # Layer in kind-derived treats_persons_as (instrumental facts

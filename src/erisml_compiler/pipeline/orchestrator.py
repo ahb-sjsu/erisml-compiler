@@ -65,11 +65,11 @@ def _produce_v3_tensor(ir, em_outputs, dag, options, *, ethos_weights=None):
     - rank 3-6 → Phase 5 higher-rank builder (stacks rank-2 slices over
       time / action / coalition / uncertainty axes)
 
-    Falls back to the Phase 2 V2-migration tensor builder on ImportError
-    (erisml-lib not installed) or any module exception — UNLESS
-    `options.strict_v3` is True, in which case the failure re-raises as
-    `StrictV3Error` (or the original ImportError) so callers can fail
-    loudly instead of silently downgrading.
+    Falls back to the Phase 2 V2-migration tensor builder on a module
+    exception, unless `options.strict_v3` is True, in which case the failure
+    re-raises as `StrictV3Error` so callers can fail loudly instead of
+    silently downgrading. erisml-lib is a core dependency, so its absence is
+    an installation error, not a fallback.
     """
     rank = options.tensor_rank
     try:
@@ -92,17 +92,6 @@ def _produce_v3_tensor(ir, em_outputs, dag, options, *, ethos_weights=None):
                 coalition_mode=options.coalition_mode,
             )
             return build_moral_tensor_v3_rank3plus(ir, rank=rank, config=cfg)
-    except ImportError as e:
-        if options.strict_v3:
-            raise StrictV3Error(
-                f"strict_v3=True but erisml-lib (V3 modules) is not installed. "
-                f"Install with `pip install 'erisml-compiler[deme-v3]'` or set "
-                f"strict_v3=False to allow the Phase 2 fallback. Underlying: {e}"
-            ) from e
-        _v3_log.info("erisml-lib not installed; using Phase 2 fanout path")
-        return build_moral_tensor_v3(
-            ir, em_outputs, dag, rank=min(rank, 2), ethos_weights=ethos_weights
-        )
     except Exception as e:  # noqa: BLE001
         if options.strict_v3:
             raise StrictV3Error(

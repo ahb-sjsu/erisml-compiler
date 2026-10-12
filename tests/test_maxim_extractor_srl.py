@@ -78,13 +78,12 @@ def test_srl_distinguishes_agent_from_patient() -> None:
             Stakeholder(id="patient_001", label="patient", type="individual"),
         ],
     )
-    # The SRL picks 'reveal' (the patient's actual action in this
-    # sentence) and attributes it to the patient — NOT to the doctor.
-    # This is the key correctness property the v1 regex missed.
-    assert m is not None
-    assert (
-        m.agent_id != "self"
-    ), f"SRL incorrectly attributed verb to the doctor; got agent_id={m.agent_id}"
+    # The maxim is the deciding agent's: DEME's deontic gate reads it as the
+    # maxim of the act being judged. The sentence holds no act of the
+    # doctor's, so there is no maxim. Before 0.10 the SRL returned the
+    # patient's 'reveal' as the maxim, and the bench's medical scenario was
+    # then gated on the patient's act.
+    assert m is None, f"expected no maxim of the doctor's; got {m}"
 
 
 # ----------------------------------------------------- polysemy
