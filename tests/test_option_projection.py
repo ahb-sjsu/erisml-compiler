@@ -226,3 +226,200 @@ def test_the_model_is_told_not_to_assume_threats():
         scene(), ACTS
     )
     assert any("Do not assume a threat" in r for r in json.loads(seen["user"])["rules"])
+
+
+class _Recording(MockLLMAdapter):
+    def __init__(self, answer):
+        super().__init__({"": answer})
+        self.kwargs = []
+
+    def call(self, system, user, **kwargs):
+        self.kwargs.append(kwargs)
+        return super().call(system, user, **kwargs)
+
+
+def test_the_projector_offers_its_answer_schema_to_the_adapter():
+    """An adapter that can have the answer enforced receives the schema; validation is unchanged."""
+    import jsonschema
+
+    from erisml_compiler.observation.options import answer_schema
+
+    good = {
+        "urgency": None,
+        "options": {
+            a: [
+                {
+                    "kind": "benefit",
+                    "subjects": ["margaret"],
+                    "description": "d",
+                    "severity": "minor",
+                }
+            ]
+            for a in ACTS
+        },
+    }
+    adapter = _Recording(json.dumps(good))
+    OptionProjector(adapter).project(scene(), ACTS)
+    schema = adapter.kwargs[0]["json_schema"]
+    assert schema == answer_schema(ACTS, ["margaret"])
+    jsonschema.validate(good, schema)
+
+
+@pytest.mark.parametrize(
+    "bad",
+    [
+        # the on-robot model's answers in the probe of 2026-10-12
+        {
+            "urgency": None,
+            "options": {
+                "chore": [
+                    {
+                        "kind": "harm",
+                        "subjects": ["margaret"],
+                        "description": "d",
+                        "severity": "grave",
+                    }
+                ]
+            },
+        },
+        {
+            "urgency": None,
+            "options": {
+                a: [
+                    {
+                        "kind": "harm",
+                        "subjects": ["margaret"],
+                        "descrption": "d",
+                        "severity": "moderate",
+                    }
+                ]
+                for a in ACTS
+            },
+        },
+        {
+            "urgency": None,
+            "options": {
+                a: {
+                    "harm": [
+                        {
+                            "kind": "harm",
+                            "subjects": ["margaret"],
+                            "description": "d",
+                            "severity": "grave",
+                        }
+                    ]
+                }
+                for a in ACTS
+            },
+        },
+        {
+            "urgency": None,
+            "options": {
+                a: [
+                    {
+                        "kind": "harm",
+                        "subjects": ["property"],
+                        "description": "d",
+                        "severity": "minor",
+                    }
+                ]
+                for a in ACTS
+            },
+        },
+    ],
+)
+def test_the_answer_schema_excludes_the_malformed_answers_seen(bad):
+    import jsonschema
+
+    from erisml_compiler.observation.options import answer_schema
+
+    with pytest.raises(jsonschema.ValidationError):
+        jsonschema.validate(bad, answer_schema(ACTS, ["margaret"]))
+
+
+def test_the_observation_compiler_offers_the_patch_schema():
+    import jsonschema
+
+    from erisml_compiler.observation import Observation, ObservationCompiler
+    from erisml_compiler.observation.compiler import patch_schema
+
+    answer = {
+        "stakeholders": [],
+        "events": [
+            {"type": "request", "actor": "margaret", "target": "help_up", "content": "help me up"}
+        ],
+        "ethical_facts": [],
+        "relations": [],
+    }
+    adapter = _Recording(json.dumps(answer))
+    ObservationCompiler(adapter).compile(
+        scene(), [Observation("speech", "margaret", "help me up")], ACTS
+    )
+    assert adapter.kwargs[0]["json_schema"] == patch_schema()
+    jsonschema.validate(answer, patch_schema())
+    with pytest.raises(jsonschema.ValidationError):
+        jsonschema.validate(
+            {**answer, "events": [{"type": "assistance_consented"}]}, patch_schema()
+        )
+
+
+class _Sequence(MockLLMAdapter):
+    """Answers in turn, and records each call's keyword arguments."""
+
+    def __init__(self, *answers):
+        super().__init__({})
+        self.answers, self.kwargs = list(answers), []
+
+    def call(self, system, user, **kwargs):
+        self.kwargs.append(kwargs)
+        return self.answers.pop(0)
+
+
+GOOD = {
+    "urgency": None,
+    "options": {
+        a: [{"kind": "benefit", "subjects": ["margaret"], "description": "d", "severity": "minor"}]
+        for a in ACTS
+    },
+}
+
+
+def test_a_usable_answer_is_asked_for_once_and_freely():
+    """rehearse-deme7: with the schema always enforced the model's answers lost their depth."""
+    adapter = _Sequence(json.dumps(GOOD))
+    projection = OptionProjector(adapter).project(scene(), ACTS)
+    assert len(adapter.kwargs) == 1 and adapter.kwargs[0]["schema_required"] is False
+    assert projection.retried is None and not projection.unprojected
+
+
+def test_an_answer_from_which_no_act_survives_is_asked_again_with_the_schema_required():
+    """rehearse-deme6: every fact a plain sentence, every act unprojected."""
+    strings = {"urgency": None, "options": {a: ["a plain sentence"] for a in ACTS}}
+    adapter = _Sequence(json.dumps(strings), json.dumps(GOOD))
+    projection = OptionProjector(adapter).project(scene(), ACTS)
+    assert [k["schema_required"] for k in adapter.kwargs] == [False, True]
+    assert projection.retried.startswith("no act projected (3 facts rejected)")
+    assert not projection.unprojected and projection.rejected == []
+
+
+def test_the_observation_compiler_asks_again_only_when_nothing_could_be_read():
+    from erisml_compiler.observation import Observation, ObservationCompiler
+
+    ok = {
+        "stakeholders": [],
+        "events": [
+            {"type": "request", "actor": "margaret", "target": "help_up", "content": "help me up"}
+        ],
+        "ethical_facts": [],
+        "relations": [],
+    }
+    adapter = _Sequence("not json at all", json.dumps(ok))
+    patch = ObservationCompiler(adapter).compile(
+        scene(), [Observation("speech", "margaret", "help me up")], ACTS
+    )
+    assert [k["schema_required"] for k in adapter.kwargs] == [False, True] and patch.ops
+    quiet = _Sequence(
+        json.dumps({"stakeholders": [], "events": [], "ethical_facts": [], "relations": []})
+    )
+    ObservationCompiler(quiet).compile(scene(), [Observation("speech", "margaret", "hello")], ACTS)
+    assert len(quiet.kwargs) == 1  # nothing new is an answer, not a failure

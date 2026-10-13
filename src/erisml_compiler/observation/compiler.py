@@ -68,6 +68,85 @@ SEVERITIES = ("minor", "moderate", "grave", "catastrophic")
 VULNERABILITY = ("low", "moderate", "high", "extreme")
 
 
+def fact_schema(
+    subjects: Optional[Sequence[str]] = None, kinds: Optional[Sequence[str]] = None
+) -> Dict[str, Any]:
+    """The JSON schema of one ethical fact as a model writes it, from the same values validation
+    accepts. ``subjects``: the stakeholder ids it may name (any string when None). A model whose
+    server enforces a schema (llama.cpp's ``response_format``) cannot then misspell a field or invent
+    a kind; the compiler still validates every fact."""
+    kinds = list(kinds) if kinds is not None else _choices(EthicalFact, "kind")
+    who: Dict[str, Any] = {"enum": sorted(subjects)} if subjects else {"type": "string"}
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["kind", "subjects", "description", "severity"],
+        "properties": {
+            "kind": {"enum": kinds},
+            "subjects": {"type": "array", "minItems": 1, "items": who},
+            "description": {"type": "string", "maxLength": 240},
+            "severity": {"enum": list(SEVERITIES)},
+            "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        },
+    }
+
+
+def _object(props: Dict[str, Any], required: List[str]) -> Dict[str, Any]:
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "required": required,
+        "properties": props,
+    }
+
+
+def patch_schema() -> Dict[str, Any]:
+    """The JSON schema of an observation patch as the model writes it (see ``_SYSTEM``). New
+    stakeholders may be named, so ids are strings here; validation checks them."""
+    text = {"type": "string"}
+    return _object(
+        {
+            "stakeholders": {
+                "type": "array",
+                "items": _object(
+                    {
+                        "id": text,
+                        "label": text,
+                        "type": {"enum": _choices(Stakeholder, "type")},
+                        "roles": {
+                            "type": "array",
+                            "items": {"enum": _choices(Stakeholder, "roles")},
+                        },
+                        "vulnerability": {"enum": list(VULNERABILITY)},
+                    },
+                    ["id"],
+                ),
+            },
+            "events": {
+                "type": "array",
+                "items": _object(
+                    {
+                        "type": {"enum": list(OBSERVATION_EVENTS)},
+                        "actor": text,
+                        "target": text,
+                        "content": text,
+                    },
+                    ["type"],
+                ),
+            },
+            "ethical_facts": {"type": "array", "items": fact_schema()},
+            "relations": {
+                "type": "array",
+                "items": _object(
+                    {"type": text, "source": text, "target": text, "description": text},
+                    ["type", "source", "target"],
+                ),
+            },
+        },
+        ["stakeholders", "events", "ethical_facts", "relations"],
+    )
+
+
 def _choices(model: Any, name: str) -> List[str]:
     """The allowed values of a Literal field (or of a list of Literals), read from the schema, so the
     prompt can never drift from what validation accepts."""
@@ -215,11 +294,16 @@ class ObservationCompiler:
     def __init__(self, adapter: ModelAdapter, critic: Optional[ModelAdapter] = None):
         self.adapter, self.critic = adapter, critic
 
-    def _ask(self, adapter: ModelAdapter, user: str) -> Dict[str, Any]:
+    def _ask(self, adapter: ModelAdapter, user: str, required: bool = False) -> Dict[str, Any]:
         """The model's answer as an object; an answer that cannot be parsed (cut off at the length
-        limit, not JSON) yields nothing new, and the patch records why."""
+        limit, not JSON) yields nothing new, and the patch records why. The patch's schema is offered
+        to an adapter that can have the answer enforced (``json_schema``); ``required`` says it must
+        be (``schema_required``); others ignore both."""
         try:
-            raw = _extract_first_json(adapter.call(_SYSTEM, user), expect_array=False)
+            raw = _extract_first_json(
+                adapter.call(_SYSTEM, user, json_schema=patch_schema(), schema_required=required),
+                expect_array=False,
+            )
         except ValueError as e:
             return {"_unparseable": str(e)}
         return raw if isinstance(raw, dict) else {}
@@ -230,6 +314,11 @@ class ObservationCompiler:
         user = _prompt(ir, observations, acts)
         raw = self._ask(self.adapter, user)
         ops, rejected, signatures = self._validate(ir, raw, acts)
+        # freely first; asked again with the schema required only when nothing survives of an
+        # answer that could not be read or whose every element was rejected (see OptionProjector)
+        if not ops and ("_unparseable" in raw or rejected):
+            raw = self._ask(self.adapter, user, required=True)
+            ops, rejected, signatures = self._validate(ir, raw, acts)
         agreement, review = None, []
         if self.critic is not None:
             _, _, critic_signatures = self._validate(ir, self._ask(self.critic, user), acts)

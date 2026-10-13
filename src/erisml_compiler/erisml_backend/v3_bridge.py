@@ -207,6 +207,118 @@ def ir_to_v2_facts(ir: CompilerIR, option_id: str | None = None) -> "V2EthicalFa
     return facts
 
 
+def ir_to_party_facts(
+    ir: CompilerIR, option_id: str | None = None, parties: list[str] | None = None
+) -> Any:
+    """The option as each party bears it: an `EthicalFactsV3` whose per-party records come from
+    the same mapping as `ir_to_v2_facts`, applied to the facts that name that party.
+
+    For each party the IR is narrowed to the facts whose subjects include it, or that name no
+    subject (they apply to everyone), and mapped by `ir_to_v2_facts`; the party's records
+    (harm and benefit, rights violated and consent, choice, coercion and withdrawal, compassion,
+    trust and respect, consultation, contestation and explanation) are read from that view. The
+    aggregate, the maxim and the metadata are `ir_to_v2_facts` of the whole IR, so the rank-1
+    record is unchanged. erisml-lib's DEME judges these per party (`EthicalFactsV3.for_party`).
+    `parties` defaults to the IR's stakeholders."""
+    from dataclasses import replace  # noqa: PLC0415
+
+    _ensure_erisml_lib()
+    from erisml.ethics.facts_v3 import (  # noqa: PLC0415
+        EthicalFactsV3,
+        PartyAutonomy,
+        PartyConsequences,
+        PartyProcedural,
+        PartyRights,
+        PartyVirtue,
+    )
+
+    whole = ir_to_v2_facts(ir, option_id)
+    parties = list(parties) if parties is not None else [s.id for s in ir.stakeholders]
+    views = {}
+    for p in parties:
+        mine = [f for f in ir.ethical_facts if not f.subjects or p in f.subjects]
+        views[p] = ir_to_v2_facts(ir.model_copy(update={"ethical_facts": mine}), option_id)
+
+    v3 = EthicalFactsV3.from_v2(whole, parties=parties)
+    v3 = replace(
+        v3,
+        consequences=replace(
+            v3.consequences,
+            per_party=tuple(
+                PartyConsequences(
+                    party_id=p,
+                    expected_benefit=v.consequences.expected_benefit,
+                    expected_harm=v.consequences.expected_harm,
+                )
+                for p, v in views.items()
+            ),
+        ),
+        rights_and_duties=replace(
+            v3.rights_and_duties,
+            per_party=tuple(
+                PartyRights(
+                    party_id=p,
+                    rights_violated=v.rights_and_duties.violates_rights,
+                    consent_given=v.rights_and_duties.has_valid_consent,
+                )
+                for p, v in views.items()
+            ),
+        ),
+        maxim=getattr(whole, "maxim", None),
+        metadata=dict(getattr(whole, "metadata", None) or {}),
+    )
+    if v3.autonomy_and_agency is not None:
+        v3 = replace(
+            v3,
+            autonomy_and_agency=replace(
+                v3.autonomy_and_agency,
+                per_party=tuple(
+                    PartyAutonomy(
+                        party_id=p,
+                        has_meaningful_choice=v.autonomy_and_agency.has_meaningful_choice,
+                        is_coerced=v.autonomy_and_agency.coercion_or_undue_influence,
+                        can_withdraw=v.autonomy_and_agency.can_withdraw_without_penalty,
+                        decision_capacity=v.autonomy_and_agency.decision_capacity,
+                    )
+                    for p, v in views.items()
+                ),
+            ),
+        )
+    if v3.virtue_and_care is not None:
+        v3 = replace(
+            v3,
+            virtue_and_care=replace(
+                v3.virtue_and_care,
+                per_party=tuple(
+                    PartyVirtue(
+                        party_id=p,
+                        receives_compassion=v.virtue_and_care.expresses_compassion,
+                        trust_preserved=not v.virtue_and_care.betrays_trust,
+                        treated_as_end=v.virtue_and_care.respects_person_as_end,
+                    )
+                    for p, v in views.items()
+                ),
+            ),
+        )
+    if v3.procedural_and_legitimacy is not None:
+        v3 = replace(
+            v3,
+            procedural_and_legitimacy=replace(
+                v3.procedural_and_legitimacy,
+                per_party=tuple(
+                    PartyProcedural(
+                        party_id=p,
+                        was_consulted=v.procedural_and_legitimacy.stakeholders_consulted,
+                        can_contest=v.procedural_and_legitimacy.contestation_available,
+                        decision_explained=v.procedural_and_legitimacy.decision_explainable_to_public,
+                    )
+                    for p, v in views.items()
+                ),
+            ),
+        )
+    return v3
+
+
 def _apply_op(
     nodes: dict[str, Any],
     field_path: str,
