@@ -26,11 +26,18 @@ ids, and rejects with a reason what fails. The model writes facts, never verdict
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Mapping, Optional
+from typing import Any, Dict, List, Mapping, Optional, Sequence
 
 from erisml_compiler.annotation.llm_extractor import ModelAdapter, _extract_first_json
 from erisml_compiler.ir.schemas import CompilerIR, EthicalFact
-from erisml_compiler.observation.compiler import SEVERITIES, _hash, _scene_summary, check_fact
+from erisml_compiler.observation.compiler import (
+    SEVERITIES,
+    _hash,
+    _object,
+    _scene_summary,
+    check_fact,
+    fact_schema,
+)
 
 OUTCOME_KINDS = frozenset({"harm", "non_maleficence", "benefit", "externality"})
 MAX_FACTS_PER_ACT = 3  # keeps the answer within a model's output limit for twenty-odd acts
@@ -44,6 +51,32 @@ _SYSTEM = (
     "Report how urgent the situation is once. Answer with one JSON object with the keys urgency (one "
     "fact or null) and options (an object from each act's name to a list of facts)."
 )
+
+
+def answer_schema(
+    acts: Mapping[str, str], stakeholders: Optional[Sequence[str]] = None
+) -> Dict[str, Any]:
+    """The JSON schema of a projection as the model writes it (see ``_SYSTEM``): urgency one fact or
+    null, and options keyed by exactly the acts, each at most MAX_FACTS_PER_ACT facts naming the
+    scene's stakeholders. An on-robot model wrote "descrption" in every fact, invented act names and
+    nested facts under "harm" (probe of 2026-10-12 on rehearse-deme4/5); a server that enforces this
+    schema makes those answers impossible. Validation is unchanged."""
+    kinds = [k for k in EthicalFact.model_fields["kind"].annotation.__args__ if k != "urgency"]
+    fact = fact_schema(stakeholders, kinds)
+    urgency = _object(
+        {k: v for k, v in fact["properties"].items() if k != "kind"},
+        ["subjects", "description", "severity"],
+    )
+    return _object(
+        {
+            "urgency": {"anyOf": [{"type": "null"}, urgency]},
+            "options": _object(
+                {a: {"type": "array", "maxItems": MAX_FACTS_PER_ACT, "items": fact} for a in acts},
+                sorted(acts),
+            ),
+        },
+        ["urgency", "options"],
+    )
 
 
 @dataclass
@@ -133,10 +166,15 @@ class OptionProjector:
         model spends from it before it answers); None leaves the adapter's default."""
         self.adapter, self.critic, self.max_tokens = adapter, critic, max_tokens
 
-    def _ask(self, adapter: ModelAdapter, user: str) -> Dict[str, Any]:
+    def _ask(
+        self, adapter: ModelAdapter, user: str, schema: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
         """The model's answer as an object; an answer that cannot be parsed (cut off at the length
-        limit, not JSON) is recorded as such, and no act is projected from it."""
-        kw = {} if self.max_tokens is None else {"max_tokens": self.max_tokens}
+        limit, not JSON) is recorded as such, and no act is projected from it. ``schema`` is offered
+        to an adapter that can have the answer enforced (``json_schema``); others ignore it."""
+        kw: Dict[str, Any] = {} if self.max_tokens is None else {"max_tokens": self.max_tokens}
+        if schema is not None:
+            kw["json_schema"] = schema
         try:
             raw = _extract_first_json(adapter.call(_SYSTEM, user, **kw), expect_array=False)
         except ValueError as e:
@@ -153,9 +191,10 @@ class OptionProjector:
         verified credentials), shown to the model as outweighing appearances and claims; the scene
         IR alone does not carry a runtime's verified state."""
         user = _prompt(ir, acts, attested)
-        projection, signatures = self._validate(ir, self._ask(self.adapter, user), acts)
+        schema = answer_schema(acts, [s.id for s in ir.stakeholders])
+        projection, signatures = self._validate(ir, self._ask(self.adapter, user, schema), acts)
         if self.critic is not None:
-            _, critic = self._validate(ir, self._ask(self.critic, user), acts)
+            _, critic = self._validate(ir, self._ask(self.critic, user, schema), acts)
             union = signatures | critic
             projection.agreement = 1.0 if not union else len(signatures & critic) / len(union)
             projection.review = sorted(" ".join(map(str, s)) for s in signatures ^ critic)
