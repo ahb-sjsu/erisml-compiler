@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_serializer
 
 from erisml_compiler import __schema_version__
 from erisml_compiler.ir.v3 import MoralTensorV3  # noqa: F401  used as forward ref
@@ -132,6 +132,16 @@ class Event(BaseModel):
     content: str | None = None
     conditions: list[str] = Field(default_factory=list)
     source_spans: list[str] = Field(default_factory=list)
+    # vector clock, one counter per producer (erisml_compiler.observation.clock); empty for events
+    # compiled before clocks, and then left out of the serialised form, so their IR hashes are unchanged
+    clock: dict[str, int] = Field(default_factory=dict)
+
+    @model_serializer(mode="wrap")
+    def _omit_empty_clock(self, handler):
+        data = handler(self)
+        if isinstance(data, dict) and not data.get("clock"):
+            data.pop("clock", None)
+        return data
 
 
 # =============================================================================
