@@ -89,6 +89,8 @@ class OptionProjection:
     agreement: Optional[float] = None
     review: List[str] = field(default_factory=list)
     ir_hash: str = ""
+    retried: Optional[str] = None
+    """Why the model was asked again with the schema required (``project``), or None."""
 
 
 def _prompt(
@@ -167,14 +169,21 @@ class OptionProjector:
         self.adapter, self.critic, self.max_tokens = adapter, critic, max_tokens
 
     def _ask(
-        self, adapter: ModelAdapter, user: str, schema: Optional[Dict[str, Any]] = None
+        self,
+        adapter: ModelAdapter,
+        user: str,
+        schema: Optional[Dict[str, Any]] = None,
+        required: bool = False,
     ) -> Dict[str, Any]:
         """The model's answer as an object; an answer that cannot be parsed (cut off at the length
         limit, not JSON) is recorded as such, and no act is projected from it. ``schema`` is offered
-        to an adapter that can have the answer enforced (``json_schema``); others ignore it."""
+        to an adapter that can have the answer enforced (``json_schema``); ``required`` says it must
+        be (``schema_required``). An adapter may enforce an offered schema where it serves (a small
+        local model), and others ignore both."""
         kw: Dict[str, Any] = {} if self.max_tokens is None else {"max_tokens": self.max_tokens}
         if schema is not None:
             kw["json_schema"] = schema
+            kw["schema_required"] = required
         try:
             raw = _extract_first_json(adapter.call(_SYSTEM, user, **kw), expect_array=False)
         except ValueError as e:
@@ -193,6 +202,19 @@ class OptionProjector:
         user = _prompt(ir, acts, attested)
         schema = answer_schema(acts, [s.id for s in ir.stakeholders])
         projection, signatures = self._validate(ir, self._ask(self.adapter, user, schema), acts)
+        # The model answers freely first: an enforced schema keeps the answer's form but cost it its
+        # depth (the home-care twin's rehearse-deme7: one benefit per act, the harm that remains
+        # while an act leaves a need unanswered gone, against two or three facts freely). Only an
+        # answer from which no act's facts survive validation is asked again, with the schema
+        # required (rehearse-deme6: six such answers, every fact a plain sentence).
+        if acts and set(projection.unprojected) >= set(acts):
+            first = len(projection.rejected)
+            projection, signatures = self._validate(
+                ir, self._ask(self.adapter, user, schema, required=True), acts
+            )
+            projection.retried = (
+                f"no act projected ({first} facts rejected); asked again with the schema required"
+            )
         if self.critic is not None:
             _, critic = self._validate(ir, self._ask(self.critic, user, schema), acts)
             union = signatures | critic

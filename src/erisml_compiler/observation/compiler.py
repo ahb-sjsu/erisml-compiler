@@ -294,13 +294,15 @@ class ObservationCompiler:
     def __init__(self, adapter: ModelAdapter, critic: Optional[ModelAdapter] = None):
         self.adapter, self.critic = adapter, critic
 
-    def _ask(self, adapter: ModelAdapter, user: str) -> Dict[str, Any]:
+    def _ask(self, adapter: ModelAdapter, user: str, required: bool = False) -> Dict[str, Any]:
         """The model's answer as an object; an answer that cannot be parsed (cut off at the length
         limit, not JSON) yields nothing new, and the patch records why. The patch's schema is offered
-        to an adapter that can have the answer enforced (``json_schema``); others ignore it."""
+        to an adapter that can have the answer enforced (``json_schema``); ``required`` says it must
+        be (``schema_required``); others ignore both."""
         try:
             raw = _extract_first_json(
-                adapter.call(_SYSTEM, user, json_schema=patch_schema()), expect_array=False
+                adapter.call(_SYSTEM, user, json_schema=patch_schema(), schema_required=required),
+                expect_array=False,
             )
         except ValueError as e:
             return {"_unparseable": str(e)}
@@ -312,6 +314,11 @@ class ObservationCompiler:
         user = _prompt(ir, observations, acts)
         raw = self._ask(self.adapter, user)
         ops, rejected, signatures = self._validate(ir, raw, acts)
+        # freely first; asked again with the schema required only when nothing survives of an
+        # answer that could not be read or whose every element was rejected (see OptionProjector)
+        if not ops and ("_unparseable" in raw or rejected):
+            raw = self._ask(self.adapter, user, required=True)
+            ops, rejected, signatures = self._validate(ir, raw, acts)
         agreement, review = None, []
         if self.critic is not None:
             _, _, critic_signatures = self._validate(ir, self._ask(self.critic, user), acts)
