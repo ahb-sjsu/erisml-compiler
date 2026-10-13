@@ -108,7 +108,7 @@ eris-compile compile examples/nazi_attic.txt --rank 2 --out out/nazi_attic.ir.js
 
 # Use a fitted ethos profile from Social Chem 101
 eris-compile compile examples/nazi_attic.txt \
-    --ethos-profile src/erisml_compiler/em_dag/profiles/dear_abby_socialchem_v0.1.yaml
+    --ethos-profile src/erisml_compiler/profiles/dear_abby_socialchem_v0.1.yaml
 
 # Select a subset of projections (deontic only)
 eris-compile compile examples/nazi_attic.txt --projection deontic_kantian
@@ -161,11 +161,10 @@ flowchart TD
     SEG --> EXT["Extraction (tiered)<br/>Mock · Rule · LLM · Probe + Critic"]
     EXT --> CAN["Canonicalization<br/>Registry (Jaccard) / LaBSE cosine"]
     CAN --> G["MoralGraph<br/>typed nodes + edges · SHA-256"]
-    G --> EM["EM-DAG<br/>10 ethical modules (topological)"]
-    EM --> PROJ["Framework projections"]
+    G --> PROJ["Framework projections"]
     subgraph PL["Framework-pluralist projection layer"]
       direction LR
-      PROJ --> CONS["Consequentialist<br/>tensor · Gini · DEME"]
+      PROJ --> CONS["Consequentialist<br/>erisml-lib DEME · tensor · Gini"]
       PROJ --> DEON["Deontic / Kantian<br/>4 Z3 gates"]
       PROJ --> VIRT["Virtue<br/>character / habit"]
       PROJ --> CARE["Care Ethics<br/>relational"]
@@ -232,9 +231,8 @@ diagram, and the precise semantics of each failure mode.
 | `canonicalizer/` | Registry (Jaccard) + LaBSE cosine canonical-form snap |
 | `ontology/` | YAML registries: dimensions, roles, commitments, canonical forms |
 | `ir/` | Pydantic v2 IR schemas and validators |
-| `em_dag/` | 10 ethical modules + topological DAG evaluator |
 | `fsm/` | Commitment / Legitimacy / Consent finite-state machines |
-| `evaluation/` | MoralVector / MoralTensor construction; conflict detection |
+| `evaluation/` | DEME's moral vector and timeline (erisml-lib), fitted ethos weights, conflict detection |
 | `scoring/` | Pluggable dimension-scoring backends: validated `xbse` feeders, gate-enforced, reliability-weighted, specificity-labeled |
 | `calibration/` | Probe training: losses, adversarial heads, VIB, bond index |
 | `correction/` | IR diff + apply-corrections (RLEF feedback loop) |
@@ -271,7 +269,7 @@ erisml-compiler/
   src/erisml_compiler/
     cli.py
     ingestion/  segmentation/  annotation/  ontology/  ir/  evaluation/
-    em_dag/     fsm/           canonicalizer/          correction/
+    profiles/   fsm/           canonicalizer/          correction/
     calibration/  monitor/  delta/  silicon/  erisml_backend/
     audit/        export/   viz/    streaming/
   examples/
@@ -358,10 +356,12 @@ ir.cross_projection_disagreement  # framework polarity disagreement (v0.8.0)
 ir.audit.graph_hash      # canonical SHA-256 over the moral graph
 ```
 
-The V2 surface remains alive — `moral_vectors`, `moral_tensors`, the V2
-EM-DAG — so existing IRs still parse and the legacy `MoralVector` API still
-works. The V2 fields may be deprecated in a future major version after
-the silicon and Monitor paths migrate.
+Since 0.10 the compiler's evaluation is erisml-lib's DEME: `moral_vectors` and `timeline`
+hold DEME's nine-dimension vector, and the compiler's own EM-DAG (ten one-dimension modules)
+is retired, with its hardware emitter. The ten-channel `MoralVector` remains as the output space
+of the I-EIP activation probes. An IR written before 0.10 still parses (its `em_outputs` are
+ignored). The Phase-5 I-EIP results, which used the EM-DAG as the text lens, are reproducible at
+the tag `phase5-results`.
 
 ## Status
 
@@ -396,8 +396,8 @@ End-to-end verified on the bundled `nazi_attic` example:
 - **Rank-4 with real coalitions** (`--coalition-mode all_subsets
   --n-coalitions 4`): c-axis std = 0.43 (real per-coalition variation),
   a-axis std = 0 (still stub — actions require IR additions).
-- **Vitis HLS C++ emit** for FSMs + EM-DAG (NRP Coder bitstream blocked
-  separately — see SCOPE.md).
+- **Vitis HLS C++ emit** for the FSMs (the EM-DAG pipeline and evaluator kernel were retired in
+  0.10; NRP Coder bitstream blocked separately — see SCOPE.md).
 
 ## Current limitations
 

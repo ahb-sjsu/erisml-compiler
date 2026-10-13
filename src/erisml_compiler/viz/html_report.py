@@ -45,18 +45,19 @@ def render_html_report(
         f"<td>{e(f.description)}</td></tr>"
         for f in ir.ethical_facts
     )
-    rows_em = "".join(
-        f"<tr><td>{e(name)}</td><td>{o.score.value:+.3f}</td>"
-        f"<td>{o.score.confidence:.2f}</td><td>{e(o.score.explanation or '')}</td></tr>"
-        for name, o in sorted(ir.em_outputs.items())
+    vector = ir.moral_vectors[0] if ir.moral_vectors else None
+    rows_vector = "".join(
+        f"<tr><td>{e(dim)}</td><td>{value:.3f}</td></tr>"
+        for dim, value in (vector.to_dict().items() if vector is not None else [])
     )
     rows_timeline = "".join(
         f"<tr><td>{te.time_index}</td><td>{e(te.event_label)}</td>"
-        f"<td>{te.vector.physical_harm.value:+.2f}</td>"
-        f"<td>{te.vector.third_party_externality.value:+.2f}</td>"
-        f"<td>{te.vector.vow_fidelity.value:+.2f}</td>"
-        f"<td>{te.vector.care_protection.value:+.2f}</td>"
-        f"<td>{te.vector.legitimacy_trust.value:+.2f}</td></tr>"
+        f"<td>{te.vector.physical_harm:.2f}</td>"
+        f"<td>{te.vector.rights_respect:.2f}</td>"
+        f"<td>{te.vector.autonomy_respect:.2f}</td>"
+        f"<td>{te.vector.virtue_care:.2f}</td>"
+        f"<td>{te.vector.legitimacy_trust:.2f}</td>"
+        f"<td>{te.vector.societal_environmental:.2f}</td></tr>"
         for te in ir.timeline
     )
 
@@ -87,7 +88,7 @@ def render_html_report(
             f"<li>Compiler version: {e(a.compiler_version)}</li>"
             f"<li>Tier: {e(a.tier)}</li>"
             f"<li>Extractor: {e(a.extractor)}</li>"
-            f"<li>EM-DAG profile: {e(a.em_profile or '')}</li>"
+            f"<li>DEME profile: {e(a.em_profile or '')}</li>"
             f"<li>Timestamp: {e(a.timestamp_utc)}</li>"
             f"<li>IR hash: <code>{e(a.ir_hash)}</code></li>"
             f"<li>Source text hash: <code>{e(a.source_text_hash)}</code></li>"
@@ -128,12 +129,12 @@ def render_html_report(
 <h2>Ethical facts ({len(ir.ethical_facts)})</h2>
 <table><thead><tr><th>id</th><th>kind</th><th>severity</th><th>conf</th><th>description</th></tr></thead>
 <tbody>{rows_facts}</tbody></table>
-<h2>EM-DAG outputs</h2>
-<table><thead><tr><th>module</th><th>value</th><th>conf</th><th>explanation</th></tr></thead>
-<tbody>{rows_em}</tbody></table>
+<h2>DEME moral vector</h2>
+<table><thead><tr><th>dimension</th><th>value (0 to 1; harm: higher is worse)</th></tr></thead>
+<tbody>{rows_vector}</tbody></table>
 {plot_html}
 <h2>MoralVector timeline</h2>
-<table><thead><tr><th>t</th><th>event</th><th>harm</th><th>externality</th><th>fidelity</th><th>care</th><th>legitimacy</th></tr></thead>
+<table><thead><tr><th>t</th><th>event</th><th>harm</th><th>rights</th><th>autonomy</th><th>care</th><th>legitimacy</th><th>societal</th></tr></thead>
 <tbody>{rows_timeline}</tbody></table>
 {audit_html}
 </body></html>

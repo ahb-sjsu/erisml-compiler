@@ -10,12 +10,12 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Iterator
 
-from erisml_compiler.ir.schemas import CompilerIR, EMOutput, MoralVector
+from erisml_compiler.ir.schemas import CompilerIR
 
 
 @dataclass
 class StreamEvent:
-    kind: str  # "pass_start" | "pass_end" | "event_processed" | "fact_detected" | "em_output" | "verdict"
+    kind: str  # "pass_start" | "pass_end" | "event_processed" | "fact_detected" | "timeline_entry" | "verdict"
     time_index: int = 0
     label: str = ""
     detail: dict = field(default_factory=dict)
@@ -74,35 +74,13 @@ class MoralStreamer:
                 },
             )
 
-        # 4) EM-DAG outputs in some stable order (alphabetic).
-        for name in sorted(self.ir.em_outputs):
-            out: EMOutput = self.ir.em_outputs[name]
-            yield StreamEvent(
-                kind="em_output",
-                label=f"EM[{name}] = {out.score.value:+.3f}",
-                detail={
-                    "module": name,
-                    "value": out.score.value,
-                    "confidence": out.score.confidence,
-                    "explanation": out.score.explanation,
-                    "upstream": out.upstream_dependencies,
-                },
-            )
-
-        # 5) Timeline (per-time MoralVector summary).
+        # 4) Timeline (DEME's moral vector after each event, erisml-lib's nine dimensions).
         for entry in self.ir.timeline:
-            v: MoralVector = entry.vector
             yield StreamEvent(
                 kind="timeline_entry",
                 time_index=entry.time_index,
                 label=entry.event_label,
-                detail={
-                    "physical_harm": v.physical_harm.value,
-                    "third_party_externality": v.third_party_externality.value,
-                    "vow_fidelity": v.vow_fidelity.value,
-                    "care_protection": v.care_protection.value,
-                    "legitimacy_trust": v.legitimacy_trust.value,
-                },
+                detail=entry.vector.to_dict(),
             )
 
         # 6) Verdict.

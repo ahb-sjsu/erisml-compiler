@@ -8,5 +8,5 @@ SCOPE.md and `docs/plans/release-planning-06-framework-pluralist-architecture.md
 
 from __future__ import annotations
 
-__version__ = "0.9.0"
-__schema_version__ = "erisml_compiler_ir_v0.3"
+__version__ = "0.10.0"
+__schema_version__ = "erisml_compiler_ir_v0.4"

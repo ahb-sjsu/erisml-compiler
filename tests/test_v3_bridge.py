@@ -97,9 +97,9 @@ def test_bridge_v2_facts_aggregator_directly():
     assert not v2.autonomy_and_agency.coercion_or_undue_influence
 
 
-def test_bridge_falls_back_to_phase2_on_module_exception(monkeypatch):
-    """If the V3 bridge raises, the orchestrator should silently fall
-    back to the Phase 2 fanout. Verifies the dispatch logic."""
+def test_a_bridge_exception_leaves_no_tensor(monkeypatch):
+    """If the V3 bridge raises, the IR gets no tensor and the compile completes (no fallback since
+    the EM-DAG was retired in 0.10)."""
     from erisml_compiler.erisml_backend import v3_bridge as bridge_mod
 
     def boom(*args, **kwargs):
@@ -115,5 +115,4 @@ def test_bridge_falls_back_to_phase2_on_module_exception(monkeypatch):
             tensor_rank=2,
         ),
     )
-    # Bridge failed -> Phase 2 fanout path was used.
-    assert ir.moral_tensor_v3.metadata.get("build_strategy") == "phase2_fanout_from_rank1"
+    assert ir.moral_tensor_v3 is None

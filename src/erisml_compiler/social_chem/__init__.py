@@ -26,8 +26,8 @@ from the same Dear Abby source with proper moral-foundation tags.
 
 What's emitted:
 
-  - em_dag/profiles/dear_abby_socialchem_v0.1.yaml
-  - em_dag/profiles/aita_socialchem_v0.1.yaml
+  - profiles/dear_abby_socialchem_v0.1.yaml
+  - profiles/aita_socialchem_v0.1.yaml
     Each: per-module weights + priors fit from one SocialChem area,
     plus ethos_description, bias_notes, and corpus fingerprint.
 
