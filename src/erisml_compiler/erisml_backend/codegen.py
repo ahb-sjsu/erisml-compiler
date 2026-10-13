@@ -28,7 +28,6 @@ def render_erisml(ir: CompilerIR) -> str:
         "norms",
         "moral_vectors",
         "timeline",
-        "em_outputs",
         "deme_verdict",
         "audit",
     ]

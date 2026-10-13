@@ -56,13 +56,9 @@ def _build_coalition_context(ir: CompilerIR, mode: str = "grand_only"):
     """Construct a `CoalitionContext` from the IR's stakeholders.
 
     Each stakeholder becomes one agent. Action labels are left empty
-    (DEME V3 fills them with single-action defaults). Returns None if
-    erisml-lib is unavailable.
+    (DEME V3 fills them with single-action defaults).
     """
-    try:
-        from erisml.ethics.coalition import CoalitionContext
-    except ImportError:
-        return None
+    from erisml.ethics.coalition import CoalitionContext
 
     agent_ids = tuple(s.id for s in ir.stakeholders) if ir.stakeholders else ("aggregate",)
     if mode not in VALID_COALITION_MODES:
@@ -98,15 +94,10 @@ def compute_strategic_analysis(
             shapley_method: "exact" or "monte_carlo"
             welfare_metrics: dict with mean / min / sum across parties
             n_agents, coalition_mode
-        Or None if erisml-lib is unavailable.
+        Or None when there are fewer than two parties.
     """
-    try:
-        from erisml.ethics.coalition import CoalitionContext  # noqa: F401
-        from erisml.ethics.game_theory import compute_shapley_from_tensor
-        import numpy as np
-    except ImportError:
-        log.info("erisml-lib not installed; skipping strategic analysis")
-        return None
+    import numpy as np
+    from erisml.ethics.game_theory import compute_shapley_from_tensor
 
     n_parties = len(ir.stakeholders) if ir.stakeholders else 1
     if n_parties < 2:
@@ -368,11 +359,9 @@ def build_coalition_c_axis_slices(
     truncated; if fewer, they're padded with copies of the grand
     coalition's slice.
     """
-    try:
-        from erisml_compiler.erisml_backend.v3_bridge import compile_to_v3_tensor
-        import numpy as np
-    except ImportError:
-        return [], []
+    import numpy as np
+
+    from erisml_compiler.erisml_backend.v3_bridge import compile_to_v3_tensor
 
     if not ir.stakeholders:
         return [], []

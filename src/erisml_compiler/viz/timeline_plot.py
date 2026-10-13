@@ -1,4 +1,4 @@
-"""Render the MoralVector timeline as a matplotlib figure.
+"""Render DEME's moral-vector timeline (erisml-lib's nine dimensions) as a matplotlib figure.
 
 Matplotlib is an optional dependency (in the `notebook` extra). The function
 imports it lazily so the core CLI does not require it.
@@ -8,11 +8,13 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from erisml_compiler.ir.schemas import CompilerIR, MORAL_DIMENSIONS
+from erisml.ethics.moral_vector import MoralVector
+
+from erisml_compiler.ir.schemas import CompilerIR
 
 
 def save_timeline_plot(ir: CompilerIR, out_path: str | Path) -> Path:
-    """Save a 10-dimensional timeline plot. Returns the path to the file."""
+    """Save a nine-dimensional timeline plot. Returns the path to the file."""
     import matplotlib
 
     matplotlib.use("Agg")
@@ -28,15 +30,14 @@ def save_timeline_plot(ir: CompilerIR, out_path: str | Path) -> Path:
 
     xs = [e.time_index for e in ir.timeline]
     cmap = plt.get_cmap("tab10")
-    for i, dim in enumerate(MORAL_DIMENSIONS):
-        ys = [getattr(e.vector, dim).value for e in ir.timeline]
+    for i, dim in enumerate(MoralVector.core_dimension_names()):
+        ys = [getattr(e.vector, dim) for e in ir.timeline]
         ax.plot(xs, ys, marker="o", color=cmap(i % 10), label=dim, alpha=0.85)
 
-    ax.axhline(0.0, color="black", linewidth=0.5, alpha=0.4)
     ax.set_xlabel("Time index")
-    ax.set_ylabel("Dimension value")
-    ax.set_ylim(-1.05, 1.05)
-    ax.set_title(f"MoralVector timeline — {ir.document.doc_id}")
+    ax.set_ylabel("Dimension value (harm: higher is worse)")
+    ax.set_ylim(-0.05, 1.05)
+    ax.set_title(f"DEME moral vector timeline — {ir.document.doc_id}")
     ax.grid(alpha=0.3, linestyle="--")
     ax.legend(loc="center left", bbox_to_anchor=(1.0, 0.5), fontsize=8, framealpha=0.95)
     fig.tight_layout()

@@ -108,6 +108,8 @@ VERB_LEMMA_TO_ACTION_KIND: dict[str, str] = {
     "shield": "protect",
     "defend": "protect",
     "safeguard": "protect",
+    "save": "protect",
+    "rescue": "protect",
     # Harm
     "harm": "inflict_harm",
     "hurt": "inflict_harm",
@@ -273,6 +275,10 @@ def extract_maxim_srl(
                 )
             )
 
+    # A verb whose subject is another stakeholder is that party's act, not the agent's maxim ("the
+    # patient revealed a plan" in medical_confidentiality made the patient the maxim's agent).
+    others = {s.id for s in stakeholders or [] if "agent" not in (getattr(s, "roles", None) or [])}
+    candidates = [c for c in candidates if c.subject_resolved_to not in others]
     if not candidates:
         return None, None
 
@@ -280,9 +286,19 @@ def extract_maxim_srl(
     scored = sorted(candidates, key=_score_candidate, reverse=True)
     best = scored[0]
 
+    # The purpose: the one the parse attaches to the verb, else the one the agent states in a
+    # clause of the agent's ("I have sworn an oath to protect those in my care", before "Should I
+    # lie?"), as the regex extractor reads it; never another party's.
+    purpose_phrase = best.purpose_phrase
+    purpose_kind = VERB_LEMMA_TO_ACTION_KIND.get(best.purpose_verb_lemma or "")
+    if not purpose_phrase:
+        from erisml_compiler.annotation.maxim_extractor import agent_cues, stated_purpose
+
+        _, purpose_phrase, purpose_kind = stated_purpose(text, agent_cues(text, stakeholders or []))
+
     description = best.action_kind.replace("_", " ")
-    if best.purpose_phrase:
-        description = f"{description} to {best.purpose_phrase}"
+    if purpose_phrase:
+        description = f"{description} to {purpose_phrase}"
 
     # Mere-means proxies: if any verb in the doc is "use ... as a
     # tool/means" with an object that resolves to a stakeholder, add
@@ -299,7 +315,10 @@ def extract_maxim_srl(
         agent_id=best.subject_resolved_to,
         action_kind=best.action_kind,
         polarity="negated" if _verb_is_negated(best.token) else "affirmed",
-        purpose=best.purpose_phrase,
+        purpose=purpose_phrase,
+        # the kind of act the purpose is; a deceit whose purpose is to protect meets an imperfect
+        # duty, which DEME's deontic gate weighs (erisml-lib 3.2)
+        purpose_kind=purpose_kind,
         treats_persons_as=treats,
     )
     evidence = SrlMaximEvidence(
@@ -361,6 +380,12 @@ def _resolve_subject(
         # (relevant for xcomp / advcl).
         if candidate_verb.dep_ in ("xcomp", "advcl", "ccomp", "acomp", "conj"):
             candidate_verb = candidate_verb.head
+            continue
+        # An infinitive modifying a noun ("revealed a plan to harm a colleague") is the act of the
+        # one whose noun it is: climb from the noun to the verb that governs it, and take that
+        # verb's subject.
+        if candidate_verb.dep_ == "acl" and candidate_verb.head.head is not candidate_verb.head:
+            candidate_verb = candidate_verb.head.head
             continue
         break
 

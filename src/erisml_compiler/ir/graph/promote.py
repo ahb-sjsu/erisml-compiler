@@ -238,26 +238,19 @@ def graph_from_flat(ir) -> MoralGraph:
         heuristic_kind = "make_or_keep_commitment"
 
     text = ir.document.raw_text if ir.document else ""
+    # The kind heuristic names what the facts are about, not what the agent does, so it stands in
+    # only when there is no prose; prose that names no act of the agent gives no maxim. (It made
+    # the threatened coercion in medical_confidentiality the physician's maxim.)
     maxim_obj, evidence = extract_maxim(
         text,
         stakeholders=list(ir.stakeholders),
-        fallback_action_kind=heuristic_kind,
+        fallback_action_kind=None if text else heuristic_kind,
     )
     if maxim_obj is not None:
-        # Semantic overlay: when SRL picks a *neutral* commitment verb
-        # but the substrate flags deception, the commitment is a false
-        # commitment. The Kantian reading is that a false-vow IS a form
-        # of deceit (Constant/Kant). Override the action_kind so the
-        # downstream universalizability gate sees the deceit reading.
-        if maxim_obj.action_kind == "make_or_keep_commitment" and any(
-            _fact_kind_str(f) in _DECEIT_KINDS for f in ir.ethical_facts
-        ):
-            maxim_obj = maxim_obj.model_copy(
-                update={
-                    "action_kind": "deceive",
-                    "description": f"{maxim_obj.description} (false commitment → deceit overlay)",
-                }
-            )
+        # A false vow is a form of deceit; the overlay is shared with the substrate.
+        from erisml_compiler.projections.substrate import false_commitment_overlay
+
+        maxim_obj = false_commitment_overlay(maxim_obj, ir)
 
         # Layer in kind-derived treats_persons_as (instrumental facts
         # on specific stakeholders) that the prose extractor may have

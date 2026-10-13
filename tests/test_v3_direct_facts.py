@@ -6,7 +6,6 @@ from pathlib import Path
 
 import pytest
 
-pytest.importorskip("erisml.ethics.facts_v3")
 
 from erisml_compiler.erisml_backend.v3_facts_direct import ir_to_v3_facts
 from erisml_compiler.ir.schemas import CompilerIR

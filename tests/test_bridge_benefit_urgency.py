@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import pytest
 
-pytest.importorskip("erisml.ethics.facts_v3")
 
 from erisml_compiler.erisml_backend.v3_bridge import ir_to_v2_facts
 from erisml_compiler.erisml_backend.v3_facts_direct import ir_to_v3_facts

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "erisml-compiler"
-version = "0.9.0"
+version = "0.10.0"
 description = "Framework-pluralist DAG-native compiler from natural language to a moral intermediate representation"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -29,6 +29,9 @@ dependencies = [
     # eigenvalue spectral summary on every MoralTensorV3, and the
     # rho-estimation module uses np.linalg. Promoted from `ml` extra.
     "numpy>=1.24",
+    # The ethics library: EthicalFacts, the DEME pipeline and its modules, the moral vector,
+    # the maxim and the deontic gate. The compiler extracts; erisml-lib judges.
+    "erisml-lib>=3.2",
 ]
 
 [project.optional-dependencies]
@@ -71,24 +74,8 @@ scorers = [
     "transformers>=4.40",
 ]
 deme-v3 = [
-    # erisml-lib carries the DEME V3 modules (Geneva, Triage, etc.) that
-    # the V3 bridge invokes. When this extra is not installed, the
-    # compiler falls back to the Phase 2 V2-migration tensor builder
-    # (unless --strict-v3 is set, in which case it fails loudly).
-    "numpy>=1.24",
-    # NOTE: erisml-lib 3.0.0 is not yet on PyPI; for now this extra
-    # documents the dependency but does NOT install it. Install
-    # editable from source:
-    #   git clone https://github.com/ahb-sjsu/erisml-lib
-    #   pip install -e ./erisml-lib
-    # When erisml-lib is published, uncomment the line below and bump
-    # the extra to install transitively:
-    # "erisml-lib>=3.0.0",
-    #
-    # The V3 bridge forwards Maxim.polarity to erisml-lib's deontic gate
-    # (erisml.ethics.deontic_gate); that gate requires an erisml-lib build
-    # with EthicalFacts.maxim (the maxim-gate change). Older builds are
-    # tolerated — maxim forwarding is skipped if the field is absent.
+    # erisml-lib is a core dependency since 0.10; this extra is kept so existing installs that
+    # name it keep working.
 ]
 test = [
     "pytest>=8.0",
@@ -113,7 +100,7 @@ eris-compile = "erisml_compiler.cli:cli"
 where = ["src"]
 
 [tool.setuptools.package-data]
-erisml_compiler = ["ontology/*.yaml", "annotation/prompts/*.txt", "process/*.json"]
+erisml_compiler = ["ontology/*.yaml", "annotation/prompts/*.txt", "process/*.json", "profiles/*.yaml"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

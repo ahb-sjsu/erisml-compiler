@@ -157,7 +157,7 @@ over the `MoralGraph`) and returns a `ProjectionResult` with:
 
 | Projection | Reads | Emits | Verdict polarities |
 |---|---|---|---|
-| **`ConsequentialistProjection`** | Substrate + graph + EM-DAG outputs | rank-N `MoralTensorV3` + DEME verdict + Gini/Shapley | `permit` / `escalate` |
+| **`ConsequentialistProjection`** | Substrate + graph, judged by erisml-lib's DEME | DEME's moral vector and verdict + rank-N `MoralTensorV3` + Gini/Shapley | `permit` / `escalate` |
 | **`DeonticProjection`** | `treats_as` edges, `imposes_on`/`consents_to` edges, maxim's `action_kind` | 4 `GateFinding`s (universalizability, mere_means, valid_consent, legitimate_authority) | `permit` / `forbid` / `escalate` |
 | **`VirtueProjection`** | maxim.action_kind, commitment count, vulnerable-stakeholder `imposes_on` targets | 3 `GateFinding`s (character_consistency, commitment_context, power_asymmetry) | `permit` / `forbid` / `escalate` |
 | **`CareEthicsProjection`** | relations, dependents, `imposes_on` to dependent-labelled nodes | 3 `GateFinding`s (relational_attentiveness, asymmetric_responsibility, dependency_response) | `permit` / `forbid` / `escalate` |
@@ -198,9 +198,9 @@ README.
 | 2–7 | Extraction (entity, stakeholder, event, norm, ethical fact) | `annotation/{mock,rule,llm,probe}_extractor.py` + `annotation/critic.py` |
 | 7 | Canonical-form resolution | `canonicalizer/` (Jaccard registry → LaBSE cosine snap) |
 | **7.5** | Graph identity | `ir/graph/promote.py:graph_from_flat()` — promote flat extractor output to `MoralGraph`, compute `graph_hash`. Skipped when the extractor provided `result.graph`. |
-| 8 | EM-DAG evaluation | `em_dag/dag.py:EMDAG.evaluate()` — 10 ethical modules, topological order |
+| 8 | DEME evaluation | `evaluation/deme_evaluation.py` via `erisml_backend/deme_bridge.py:DEMEBridge.judge()` — erisml-lib's DEMEPipeline under a hard-shell profile (EM-DAG retired in 0.10) |
 | **8.5** | Projection pass | `projections/` — run every enabled framework projection over the substrate; back-fill legacy `ir.moral_tensor_v3` / `ir.deme_verdict` / etc. from `projections["consequentialist_distributive"]` for backward compat |
-| 9 | Tensorization | `evaluation/tensor_builder_v3.py:build_moral_tensor_v3()` → `MoralTensorV3` (rank 1–6) |
+| 9 | Tensorization | `erisml_backend/v3_bridge.py:compile_to_v3_tensor()` (erisml-lib's V3 modules) → `MoralTensorV3` (rank 1–6) |
 | 10 | DEME verdict | `erisml_backend/deme_bridge.py:DEMEBridge.evaluate()` → `DEMEVerdict` |
 | 11 | Spectral analysis | `evaluation/spectral.py` — principal stress / conflict / effective moral rank |
 | 12 | Audit + export | `audit/hash_chain.py:finalize_audit()` (incl. `graph_hash`, `ethos_profile`) + `export/json_export.py` |
@@ -225,48 +225,22 @@ The chain composes: identical input + extractor + profiles produces
 identical `graph_hash` and `ir_hash`. Two compiles of the same
 case yield bit-identical audit records.
 
-## EM-DAG (consequentialist evaluator)
+## Evaluation: erisml-lib's DEME (EM-DAG retired in 0.10)
 
-`src/erisml_compiler/em_dag/`
+The compiler extracts; erisml-lib judges. `erisml_backend/deme_bridge.py` maps the IR's facts
+through the V3 bridge to `EthicalFacts` and runs erisml-lib's `DEMEPipeline` under a DEME
+profile: the design guide's hard shell, Geneva (tier 0), CorePhysicalSafety (tier 1),
+AutonomyConsent (tier 2) and the advisory TragicConflict module (tier 3). DEME's aggregated
+moral vector (nine dimensions) is the IR's `moral_vectors[0]` and its per-event `timeline`
+(`evaluation/deme_evaluation.py`); conflicts are read on it (`evaluation/conflict_detector.py`).
+A fitted ethos profile (`profiles/*.yaml`, fitted by `social_chem`) is carried onto DEME's
+dimension weights through the shipped ten-to-nine map (`evaluation/ethos.py`).
 
-10 ethical modules feed the consequentialist projection's tensor.
-Roots have no dependencies; edges point from a module to the module
-that depends on it (topological evaluation order):
-
-```mermaid
-flowchart LR
-    H[harm]:::root --> EX[externality]
-    H --> CARE[care]
-    H --> REP[repair]
-    L[legitimacy]:::root --> AU[autonomy]
-    L --> FI[fidelity]
-    EX --> REP
-    FI --> REP
-    R[rights]:::root
-    FA[fairness]:::root
-    EP[epistemic]:::root
-    classDef root fill:#e8f0ff,stroke:#3060c0,stroke-width:2px;
-```
-
-A different deployment can swap in a different DAG by writing a new
-YAML profile under `em_dag/profiles/` and passing
-`--em-profile path/to/profile.yaml`. The topology is the DEME
-profile.
-
-### Graph-native helpers (v0.8.0)
-
-The EM modules call helpers (`facts_of_kind`, `active_commitments`,
-`vulnerable_stakeholders`, `nonconsenting_third_party_ids`,
-`stakeholders_with_role`) defined in `em_dag/modules/_helpers.py`.
-Each helper prefers `MoralGraph` queries when `ir.graph` is set and
-falls back to flat-field reads otherwise. The
-`nonconsenting_third_party_ids` helper specifically reads
-`IMPOSES_ON` edges without paired `CONSENTS_TO` edges — the typed-
-edge semantic, not role-label string matching.
-
-The graph-native port preserves verdicts byte-identically against
-the pre-v0.8.0 flat baseline on every bundled scenario (golden test
-in `tests/test_em_dag_graph_native.py`).
+Until 0.10 the compiler had its own EM-DAG: ten modules, one dimension each, in a topological
+graph with no constitutional tier. It was not DEME's design (erisml-lib's modules are
+perspectives on the whole vector, composed by the design guide's patterns), and it is retired,
+together with its hardware emitter pipeline. The Phase-5 I-EIP results, which used it as the text
+lens, are reproducible at the tag `phase5-results`.
 
 ## FSM layer (Tier 1 / silicon target)
 

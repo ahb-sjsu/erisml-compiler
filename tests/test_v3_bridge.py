@@ -6,7 +6,6 @@ from pathlib import Path
 
 import pytest
 
-pytest.importorskip("erisml.ethics.modules.tier0.geneva_em_v3")
 
 from erisml_compiler.ir.schemas import CompilerIR
 from erisml_compiler.pipeline.orchestrator import CompileOptions, compile_document
@@ -91,18 +90,16 @@ def test_bridge_v2_facts_aggregator_directly():
         ),
     )
     v2 = ir_to_v2_facts(ir)
-    # nazi_attic has harm + coercion facts; we should see Consequences
-    # affected_count > 0 and either harm > 0 or coercion flagged.
+    # nazi_attic's coercion fact names the speaker, the deciding agent, among the coerced: the
+    # agent is under duress, which is recorded and does not make the agent's own option coercive.
     assert v2.consequences.affected_count == len(ir.stakeholders)
-    has_harm_or_coercion = (
-        v2.consequences.expected_harm > 0.0 or v2.autonomy_and_agency.coercion_or_undue_influence
-    )
-    assert has_harm_or_coercion, "nazi_attic should produce harm or coercion signal"
+    assert v2.metadata.get("agent_under_duress"), "the agent's duress should be recorded"
+    assert not v2.autonomy_and_agency.coercion_or_undue_influence
 
 
-def test_bridge_falls_back_to_phase2_on_module_exception(monkeypatch):
-    """If the V3 bridge raises, the orchestrator should silently fall
-    back to the Phase 2 fanout. Verifies the dispatch logic."""
+def test_a_bridge_exception_leaves_no_tensor(monkeypatch):
+    """If the V3 bridge raises, the IR gets no tensor and the compile completes (no fallback since
+    the EM-DAG was retired in 0.10)."""
     from erisml_compiler.erisml_backend import v3_bridge as bridge_mod
 
     def boom(*args, **kwargs):
@@ -118,5 +115,4 @@ def test_bridge_falls_back_to_phase2_on_module_exception(monkeypatch):
             tensor_rank=2,
         ),
     )
-    # Bridge failed -> Phase 2 fanout path was used.
-    assert ir.moral_tensor_v3.metadata.get("build_strategy") == "phase2_fanout_from_rank1"
+    assert ir.moral_tensor_v3 is None

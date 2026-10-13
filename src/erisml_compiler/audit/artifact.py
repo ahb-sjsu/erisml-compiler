@@ -80,12 +80,14 @@ def _render_report(ir: CompilerIR) -> str:
             f"- **{cf.name}** (severity={cf.severity}, status={cf.resolution_status}, escalation={cf.requires_escalation})"
         )
     lines.append("")
-    lines.append("## EM-DAG outputs")
-    for name, out in ir.em_outputs.items():
-        score = out.score
-        lines.append(
-            f"- **{name}** (dim={out.module_name}): value={score.value:+.3f}, conf={score.confidence:.2f} — {score.explanation}"
-        )
+    lines.append("## DEME moral vector")
+    if ir.moral_vectors:
+        for dim, value in ir.moral_vectors[0].to_dict().items():
+            lines.append(f"- **{dim}**: {value:.3f}")
+        if ir.moral_vectors[0].veto_flags:
+            lines.append(f"- veto flags: {', '.join(ir.moral_vectors[0].veto_flags)}")
+    else:
+        lines.append("- (no facts for DEME to judge)")
     lines.append("")
     if ir.deme_verdict:
         v = ir.deme_verdict

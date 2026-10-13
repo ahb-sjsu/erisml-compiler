@@ -88,6 +88,7 @@ def compare_morals(
     direction_break_max: int = 2,
     high_uncertainty_threshold: float = 0.7,
     uncertain_value_delta_max: float = 0.25,
+    space: Sequence[str] = MORAL_DIMENSIONS,
 ) -> DeltaResult:
     """Compute the delta between text and activation moral vectors.
 
@@ -110,10 +111,13 @@ def compare_morals(
             sides' uncertainty exceeds this. Default 0.7.
         uncertain_value_delta_max: when a dimension is uncertain *and*
             |value_delta| exceeds this, raise flag_for_review.
+        space: the dimensions both vectors are scored in: the probes' ten channels
+            (MORAL_DIMENSIONS, the default) or DEME's nine (delta.deme_space), the text
+            lens since 0.10.
     """
     weights = weights or {}
-    scored = tuple(dimensions) if dimensions is not None else MORAL_DIMENSIONS
-    unknown = set(scored) - set(MORAL_DIMENSIONS)
+    scored = tuple(dimensions) if dimensions is not None else tuple(space)
+    unknown = set(scored) - set(space)
     if unknown:
         raise ValueError(f"Unknown dimensions: {sorted(unknown)}")
     per_dim: list[DimensionDelta] = []

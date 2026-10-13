@@ -7,7 +7,6 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-pytest.importorskip("erisml.ethics.facts_v3")
 
 from erisml_compiler.erisml_backend.v3_higher_rank import (
     HigherRankConfig,

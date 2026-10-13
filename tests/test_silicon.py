@@ -7,12 +7,7 @@ from erisml_compiler.silicon.fixed_point import (
     quantize_array,
     quantize_scalar,
 )
-from erisml_compiler.silicon.hls_emit import (
-    emit_em_dag_pipeline,
-    emit_fsm_cpp,
-    emit_makefile,
-    emit_top_module,
-)
+from erisml_compiler.silicon.hls_emit import emit_fsm_cpp
 
 # ---------- fixed point ----------
 
@@ -82,53 +77,13 @@ def test_emit_fsm_cpp_includes_hls_pragmas():
     assert "#pragma HLS PIPELINE" in src
 
 
-def test_emit_em_dag_pipeline_topologically_ordered():
-    src = emit_em_dag_pipeline()
-    # legitimacy must appear before autonomy (autonomy depends on legitimacy).
-    legitimacy_pos = src.find("em_legitimacy")
-    autonomy_pos = src.find("em_autonomy")
-    assert legitimacy_pos < autonomy_pos
-    # harm must appear before externality.
-    harm_pos = src.find("em_harm")
-    externality_pos = src.find("em_externality")
-    assert harm_pos < externality_pos
-
-
-def test_emit_em_dag_pipeline_has_dataflow_pragma():
-    src = emit_em_dag_pipeline()
-    assert "#pragma HLS DATAFLOW" in src
-    assert "em_dag_pipeline" in src
-
-
-def test_emit_em_dag_pipeline_balanced_braces():
-    src = emit_em_dag_pipeline()
-    assert src.count("{") == src.count("}")
-
-
-def test_emit_top_module_has_axi_pragmas():
-    src = emit_top_module()
-    assert "INTERFACE m_axi" in src
-    assert "INTERFACE s_axilite" in src
-    assert "erisml_evaluate" in src
-
-
-def test_emit_makefile_targets_u55c():
-    mk = emit_makefile()
-    assert "xilinx_u55c" in mk
-    assert "v++" in mk or "VPP" in mk
-    assert "TARGET" in mk
-
-
 # ---------- end-to-end smoke ----------
 
 
-def test_silicon_emit_writes_all_files(tmp_path):
-    """Mimic the `silicon-emit` CLI subcommand without invoking click."""
+def test_silicon_emit_writes_the_fsm_source(tmp_path):
+    """Mimic the `silicon-emit` CLI subcommand without invoking click. Since 0.10 it emits the
+    FSMs only; the EM-DAG pipeline, the evaluator kernel and its Makefile are retired."""
     out = tmp_path / "silicon"
     out.mkdir()
     (out / "erisml_fsm.cpp").write_text(emit_fsm_cpp(), encoding="utf-8")
-    (out / "erisml_em_dag.cpp").write_text(emit_em_dag_pipeline(), encoding="utf-8")
-    (out / "erisml_top.cpp").write_text(emit_top_module(), encoding="utf-8")
-    (out / "Makefile").write_text(emit_makefile(), encoding="utf-8")
-    files = sorted(p.name for p in out.iterdir())
-    assert files == ["Makefile", "erisml_em_dag.cpp", "erisml_fsm.cpp", "erisml_top.cpp"]
+    assert sorted(p.name for p in out.iterdir()) == ["erisml_fsm.cpp"]

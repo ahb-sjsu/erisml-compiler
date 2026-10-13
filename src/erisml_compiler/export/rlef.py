@@ -29,10 +29,12 @@ def to_rlef_record(ir: CompilerIR, human_corrections: dict | None = None) -> dic
     can learn against the typed graph and/or any specific framework's
     verdict, not just the (consequentialist) flat-tensor timeline.
 
-    Bumped to `rlef_v0.2` to record this richer shape.
+    Bumped to `rlef_v0.2` to record this richer shape, and to `rlef_v0.3` when the EM-DAG was
+    retired (0.10): `em_outputs` is gone, and `moral_vector_timeline` holds DEME's vector
+    (erisml-lib's nine dimensions).
     """
     record = {
-        "schema": "rlef_v0.2",
+        "schema": "rlef_v0.3",
         "source_text": ir.document.raw_text,
         "document_id": ir.document.doc_id,
         "canonical_form": ir.canonical_form,
@@ -43,7 +45,6 @@ def to_rlef_record(ir: CompilerIR, human_corrections: dict | None = None) -> dic
         "conflicts": [cf.model_dump(mode="json") for cf in ir.conflicts],
         "moral_vector_timeline": [t.model_dump(mode="json") for t in ir.timeline],
         "deme_verdict": ir.deme_verdict.model_dump(mode="json") if ir.deme_verdict else None,
-        "em_outputs": {k: v.model_dump(mode="json") for k, v in ir.em_outputs.items()},
         "audit": ir.audit.model_dump(mode="json") if ir.audit else None,
         "human_corrections": human_corrections,
         "moral_graph": _serialise_graph(ir),

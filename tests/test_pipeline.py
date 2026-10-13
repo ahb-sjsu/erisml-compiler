@@ -26,8 +26,13 @@ def options_rule():
 def test_nazi_attic_mock(options_mock):
     ir = compile_document(EXAMPLES_DIR / "nazi_attic.txt", options_mock)
     assert ir.deme_verdict is not None
-    assert ir.deme_verdict.verdict == "tragic_conflict_escalate"
-    assert ir.deme_verdict.escalation_required is True
+    # DEME's verdict (erisml-lib's pipeline; the stand-in's was tragic_conflict_escalate). The
+    # example's vow ("I vowed that there are no Jews hiding in the attic") is a false commitment,
+    # read as deceit, and the text states no purpose for it, so the deontic gate vetoes it. A deceit
+    # whose stated purpose is to protect escalates as a tragic conflict instead (bench nazi_attic_001,
+    # erisml-lib deontic_gate, owner decision 2026-10-12).
+    assert ir.deme_verdict.verdict == "prohibited"
+    assert ir.deme_verdict.escalation_required is False
     assert ir.canonical_form == "coercive_murderous_interrogation_with_collective_reprisal"
     # Spec §31 acceptance criteria:
     assert len(ir.stakeholders) >= 1  # #2

@@ -79,9 +79,10 @@ def test_strict_v3_raises_on_generic_bridge_exception(monkeypatch):
         )
 
 
-def test_non_strict_still_falls_back_to_phase2(monkeypatch):
-    """Default behaviour: bridge failure falls back to the Phase 2
-    fanout builder and the IR still has a moral_tensor_v3."""
+def test_non_strict_compiles_without_a_tensor(monkeypatch):
+    """Default behaviour: a bridge failure leaves the IR without a tensor (the failure is logged)
+    and the compile completes. Before 0.10 it fell back to a tensor built from the EM-DAG, which
+    is retired."""
     import erisml_compiler.erisml_backend.v3_bridge as bridge_mod
 
     def fake_import_error(*args, **kwargs):
@@ -99,5 +100,5 @@ def test_non_strict_still_falls_back_to_phase2(monkeypatch):
             strict_v3=False,  # explicit default
         ),
     )
-    assert ir.moral_tensor_v3 is not None
-    assert ir.moral_tensor_v3.metadata.get("build_strategy") == "phase2_fanout_from_rank1"
+    assert ir.moral_tensor_v3 is None
+    assert ir.deme_verdict is not None and ir.moral_vectors
