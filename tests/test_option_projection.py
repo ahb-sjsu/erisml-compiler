@@ -114,7 +114,19 @@ def test_an_option_ir_replaces_the_present_outcome_with_the_act_s_and_keeps_what
     assert kinds == ["benefit", "consent", "harm", "urgency", "vulnerability"]
     harm = next(f for f in ir.ethical_facts if f.kind == "harm")
     assert harm.severity == "minor"  # the act's projected harm, not the scene's grave one
-    assert ir.document.raw_text == ACTS["call_centre"]
+    assert ir.document.raw_text == ""  # judged on the IR alone
+
+
+def test_the_words_of_an_act_s_description_never_become_its_maxim():
+    # rehearse-gate1 (2026-10-14): "attacking", the dog's, was read as the robot's "inflict harm"
+    from erisml_compiler.projections.substrate import _derive_maxim
+
+    act = "physically drive an attacking animal off the person"
+    p = projector().project(scene(), {**ACTS, "drive_off": act})
+    ir = option_ir(scene(), p, "drive_off", act)
+    assert ir.document.raw_text == ""
+    maxim = _derive_maxim(ir)
+    assert maxim is None or maxim.action_kind != "inflict_harm"
 
 
 def test_consent_comes_from_the_record_and_overrides_the_model():

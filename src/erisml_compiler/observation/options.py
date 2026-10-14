@@ -20,7 +20,8 @@ ids, and rejects with a reason what fails. The model writes facts, never verdict
   by a stakeholder, gives a consent fact (a refusal grave, so the bridge marks consent invalid;
   a consent or a request as given). The model may add a missing-consent fact for an act done to
   someone who has not agreed;
-- the document text is the act's description, so the maxim the deontic gate reads is the act's.
+- no prose stands in the act's IR: the document text is empty, so the maxim the deontic gate reads
+  is derived from the IR's facts, not from the words of the act's description.
 """
 
 from __future__ import annotations
@@ -320,7 +321,11 @@ def option_ir(
                 )
             )
     out.ethical_facts = standing + extra
-    out.document = out.document.model_copy(update={"raw_text": description})
+    # the act is judged on the IR alone: no prose reaches DEME. The act's description once stood
+    # here as the document text, and the bridge read a maxim out of its words; "drive an attacking
+    # animal off the person" became the robot's maxim "inflict harm" and the deontic gate vetoed
+    # driving off a dog that was biting her (rehearse-gate1, 2026-10-14)
+    out.document = out.document.model_copy(update={"raw_text": ""})
     return out
 
 
