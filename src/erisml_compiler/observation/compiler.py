@@ -446,6 +446,8 @@ class ObservationCompiler:
 
         for i, r in enumerate(raw.get("relations") or []):
             rid = f"rel{n}_{i}"
+            while rid in taken:
+                rid += "_"
             try:
                 model = Relation.model_validate({**r, "id": rid})
             except (ValidationError, TypeError) as err:
@@ -522,6 +524,16 @@ def _rebased(
             value["id"] = eid
             taken.add(eid)
             op.update(path=f"events.{eid}", value=value)
+        elif op.get("op") == "add" and str(op.get("path", "")).startswith(
+            ("ethical_facts.", "relations.")
+        ):
+            # a fact or relation added since the snapshot may hold the same id
+            kind = str(op["path"]).split(".")[0]
+            rid = op["value"]["id"]
+            while rid in taken:
+                rid += "_"
+            taken.add(rid)
+            op.update(path=f"{kind}.{rid}", value=dict(op["value"], id=rid))
         out.append(op)
     return out
 

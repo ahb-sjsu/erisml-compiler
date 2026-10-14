@@ -297,3 +297,30 @@ def test_a_patch_is_stamped_against_the_ir_it_is_applied_to():
     times = {e.type: e.time_index for e in new.events if e.type in ("hazard", "consent")}
     assert min(times.values()) > max(e.time_index for e in ir.events)
     assert [e.type for e in rebuilt.events][-3:] == ["utterance", "consent", "hazard"]
+
+
+KIN = {"relations": [{"type": "kin_of", "source": "robot", "target": "margaret"}]}
+
+
+def test_a_relation_never_takes_an_id_the_scene_already_has():
+    """devdeme1 d16-d29 (brain8): a moment that added a relation and no event left the event count,
+    and so the id rel{n}_0, unchanged; the next moment's relation took the same id and the patch was
+    refused ('add' on existing entity relations.rel5_0), five times. Relation ids are now checked
+    against the scene's ids, as event and fact ids are."""
+    ir = scene()
+    for _ in range(2):
+        patch = compiler(KIN).compile(ir, SAID, ACTS)
+        assert patch.rejected == []
+        ir = apply_observation_patch(ir, patch)
+    assert len(ir.relations) == 2 and len({r.id for r in ir.relations}) == 2
+
+
+def test_fact_and_relation_ids_are_renamed_against_the_ir_a_patch_is_applied_to():
+    """Two patches compiled on one snapshot both name their fact fact1_0 and their relation rel1_0;
+    the second is applied after the first and its ids are renamed, as event ids already were."""
+    answer = {**KIN, "ethical_facts": GOOD["ethical_facts"]}
+    base = scene()
+    first, second = (compiler(answer).compile(base, SAID, ACTS) for _ in range(2))
+    ir = apply_observation_patch(apply_observation_patch(base, first), second)
+    assert len({f.id for f in ir.ethical_facts}) == len(ir.ethical_facts) == 2
+    assert len({r.id for r in ir.relations}) == len(ir.relations) == 2
