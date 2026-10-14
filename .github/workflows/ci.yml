@@ -71,7 +71,6 @@ jobs:
         run: |
           pytest tests/test_ir_schemas.py \
                  tests/test_pipeline.py \
-                 tests/test_em_dag.py \
                  tests/test_fsm.py \
                  tests/test_export.py \
                  tests/test_critic.py \
@@ -176,9 +175,8 @@ jobs:
         run: |
           eris-compile silicon-emit --out-dir out/silicon
           test -f out/silicon/erisml_fsm.cpp
-          test -f out/silicon/erisml_em_dag.cpp
-          test -f out/silicon/erisml_top.cpp
-          test -f out/silicon/Makefile
+          # the EM-DAG pipeline, top module and Makefile were retired with the EM-DAG (PR 44)
+          test ! -f out/silicon/erisml_em_dag.cpp
       - name: Monitor + delta smoke
         run: |
           eris-compile monitor "Soldiers are at the door asking about the Jews you are hiding." \
