@@ -63,15 +63,14 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           # erisml-lib 3.2 (the universalizability table) is not on PyPI yet; until it is,
-          # install the library from the branch this change needs
-          pip install "erisml-lib @ git+https://github.com/ahb-sjsu/erisml-lib@feat/universalizability-kb"
+          # install the library from its main branch, where that branch was merged (PR 152)
+          pip install "erisml-lib @ git+https://github.com/ahb-sjsu/erisml-lib@main"
           pip install -e '.[test]'
 
       - name: Pytest (core suite + V3 schema)
         run: |
           pytest tests/test_ir_schemas.py \
                  tests/test_pipeline.py \
-                 tests/test_em_dag.py \
                  tests/test_fsm.py \
                  tests/test_export.py \
                  tests/test_critic.py \
@@ -109,7 +108,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install torch --index-url https://download.pytorch.org/whl/cpu
-          pip install -e '.[llm,calibration,monitor,smt,srl,scorers,test]' cryptography             "erisml-lib @ git+https://github.com/ahb-sjsu/erisml-lib@feat/universalizability-kb"
+          pip install -e '.[llm,calibration,monitor,smt,srl,scorers,test]' cryptography             "erisml-lib @ git+https://github.com/ahb-sjsu/erisml-lib@main"
           python -m spacy download en_core_web_sm
 
       # The whole suite, so no test file can be added and never run. The only tests left skipped
@@ -160,7 +159,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install torch --index-url https://download.pytorch.org/whl/cpu
           # erisml-lib 3.2 is not on PyPI yet (see the core job)
-          pip install "erisml-lib @ git+https://github.com/ahb-sjsu/erisml-lib@feat/universalizability-kb"
+          pip install "erisml-lib @ git+https://github.com/ahb-sjsu/erisml-lib@main"
           pip install -e '.[monitor]'
       - name: eris-compile version
         run: eris-compile version
@@ -176,9 +175,8 @@ jobs:
         run: |
           eris-compile silicon-emit --out-dir out/silicon
           test -f out/silicon/erisml_fsm.cpp
-          test -f out/silicon/erisml_em_dag.cpp
-          test -f out/silicon/erisml_top.cpp
-          test -f out/silicon/Makefile
+          # the EM-DAG pipeline, top module and Makefile were retired with the EM-DAG (PR 44)
+          test ! -f out/silicon/erisml_em_dag.cpp
       - name: Monitor + delta smoke
         run: |
           eris-compile monitor "Soldiers are at the door asking about the Jews you are hiding." \

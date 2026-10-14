@@ -202,7 +202,6 @@ def ir_to_party_facts(
     `parties` defaults to the IR's stakeholders."""
     from dataclasses import replace  # noqa: PLC0415
 
-    _ensure_erisml_lib()
     from erisml.ethics.facts_v3 import (  # noqa: PLC0415
         EthicalFactsV3,
         PartyAutonomy,
