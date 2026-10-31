@@ -101,6 +101,59 @@ _FACT_KIND_TO_V2_FIELD: dict[str, list[tuple[str, str]]] = {
 }
 
 
+# ---------- duties breached -------------------------------------------------
+
+# Fact kinds by which an act wrongs the party bearing it.
+_WRONGING_KINDS = frozenset({"harm", "non_maleficence", "coercion", "deception"})
+_SEVERITY_RANK: dict[str | None, int] = {
+    None: 2,
+    "minor": 1,
+    "moderate": 2,
+    "grave": 3,
+    "catastrophic": 4,
+}
+
+
+def agent_ids(ir: CompilerIR) -> set[str]:
+    """The deciding agent's stakeholder ids: those with the `agent` role, and `self`."""
+    return {s.id for s in ir.stakeholders if "agent" in (s.roles or [])} | {"self"}
+
+
+def breached_duties(ir: CompilerIR) -> dict[str, str | None]:
+    """The parties to whom the agent owes a duty and whom the act wrongs, each with the gravest
+    severity of the wrong.
+
+    A duty is owed to a party when a `role_duty` fact names that party (other than the agent),
+    or when a commitment held by the agent names it as beneficiary. Before, a `role_duty` fact
+    set only `role_duty_conflict`, which no DEME dimension reads, and commitments did not reach
+    DEME at all: harming one's own dependant scored like harming a stranger, and breaking a
+    promise scored like nothing. The duty is breached when a harm, coercion or deception fact
+    falls on that party, or when the commitment is marked `violated` (read as moderate, since a
+    commitment carries no severity). In Hohfeld's terms the agent's duty correlates with the
+    party's claim, so a breached duty is an infringed claim."""
+    agents = agent_ids(ir)
+    owed: set[str] = set()
+    breached: dict[str, str | None] = {}
+
+    def mark(party: str, severity: str | None) -> None:
+        if party not in breached or _SEVERITY_RANK[severity] > _SEVERITY_RANK[breached[party]]:
+            breached[party] = severity
+
+    for fact in ir.ethical_facts:
+        if fact.kind == "role_duty":
+            owed |= set(fact.subjects) - agents
+    for c in ir.commitments:
+        if c.holder in agents and c.beneficiary and c.beneficiary not in agents:
+            owed.add(c.beneficiary)
+            if c.status == "violated":
+                mark(c.beneficiary, "moderate")
+    for fact in ir.ethical_facts:
+        if fact.kind in _WRONGING_KINDS:
+            for party in owed & set(fact.subjects):
+                mark(party, fact.severity)
+    return breached
+
+
 # ---------- IR -> V2 EthicalFacts -----------------------------------------
 
 
@@ -156,7 +209,7 @@ def ir_to_v2_facts(ir: CompilerIR, option_id: str | None = None) -> "V2EthicalFa
     # anyone, so it does not set the option's coercion flags (it made AutonomyConsent forbid the
     # coerced agent's own choice in nazi_attic and medical_confidentiality). It is recorded in
     # the facts' metadata. An agent's act of coercion reaches DEME through its maxim.
-    agents = {s.id for s in ir.stakeholders if "agent" in (s.roles or [])} | {"self"}
+    agents = agent_ids(ir)
     duress: list[str] = []
     for fact in ir.ethical_facts:
         if fact.kind == "coercion" and agents & set(fact.subjects):
@@ -166,8 +219,23 @@ def ir_to_v2_facts(ir: CompilerIR, option_id: str | None = None) -> "V2EthicalFa
         for field_path, op in _FACT_KIND_TO_V2_FIELD.get(fact.kind, []):
             _apply_op(nodes, field_path, op, magnitude, fact)
 
+    # A breached duty betrays the trust and withholds the care the party was owed, whatever the
+    # facts' order; at grave severity it violates the party's rights, the line the V3 builder
+    # already draws for coercion and consent.
+    breached = breached_duties(ir)
+    if breached:
+        virtue_and_care.betrays_trust = True
+        virtue_and_care.expresses_compassion = False
+        if any(_SEVERITY_RANK[s] >= _SEVERITY_RANK["grave"] for s in breached.values()):
+            rights_and_duties.violates_rights = True
+
+    metadata: dict[str, Any] = {}
+    if duress:
+        metadata["agent_under_duress"] = duress
+    if breached:
+        metadata["duties_breached"] = breached
     facts = EthicalFacts(
-        metadata={"agent_under_duress": duress} if duress else {},
+        metadata=metadata,
         option_id=option_id or (ir.document.doc_id if ir.document else "scenario"),
         consequences=consequences,
         rights_and_duties=rights_and_duties,

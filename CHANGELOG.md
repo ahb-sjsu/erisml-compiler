@@ -23,6 +23,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`delta/deme_space.py`); an IR written before 0.10 is compared as before. Phase 5 is
   reproducible at the tag `phase5-results`.
 - RLEF export schema `rlef_v0.3` (no `em_outputs`).
+- **A breached duty reaches DEME** (`erisml_backend/v3_bridge.breached_duties`, used by both the
+  V2 and the per-party V3 builders):
+  - Before, a `role_duty` fact set only `role_duty_conflict`, which no DEME dimension reads, and
+    commitments never reached DEME. Harming one's own dependant scored like harming a stranger.
+  - A duty is now owed to a party named in a `role_duty` fact, or named as beneficiary of a
+    commitment the agent holds. It is breached when a harm, coercion or deception fact falls on
+    that party, or when the commitment is `violated`.
+  - A breach betrays trust and withholds care, which lowers `virtue_care`. At grave severity it
+    also violates the party's rights, so `rights_respect` falls to 0 with DEME's rights veto.
+  - V2 facts record the breaches in `metadata["duties_breached"]`.
 
 ### Removed (0.10)
 
