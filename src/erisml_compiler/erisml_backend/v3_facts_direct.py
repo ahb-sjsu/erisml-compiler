@@ -31,6 +31,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from erisml_compiler.erisml_backend.v3_bridge import breached_duties
 from erisml_compiler.ir.schemas import CompilerIR, EthicalFact
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -142,6 +143,17 @@ def ir_to_v3_facts(ir: CompilerIR, option_id: str | None = None) -> Any:
             stated_urgency = max(stated_urgency or 0.0, magnitude)
         if fact.kind == "legitimacy":
             aggregate_legitimacy = max(aggregate_legitimacy, magnitude)
+
+    # A duty breached (v3_bridge.breached_duties): the party was owed it and the act wrongs them.
+    # It betrays their trust and withholds the care owed; at grave severity it violates their
+    # rights, the same line coercion and consent draw above.
+    for pid, severity in breached_duties(ir).items():
+        if pid in state:
+            state[pid]["duty_owed"] = True
+            state[pid]["trust_preserved"] = False
+            state[pid]["receives_compassion"] = False
+            if severity in ("grave", "catastrophic"):
+                state[pid]["rights_violated"] = True
 
     # Build the per-party tuples in stakeholder order.
     per_consequences = tuple(
