@@ -33,6 +33,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - A breach betrays trust and withholds care, which lowers `virtue_care`. At grave severity it
     also violates the party's rights, so `rights_respect` falls to 0 with DEME's rights veto.
   - V2 facts record the breaches in `metadata["duties_breached"]`.
+- **The LLM extractor encodes relations, their duties, and what a first pass missed**
+  (`annotation/llm_extractor.py`):
+  - Relations are asked for, in a fixed vocabulary (`RELATION_TYPES`). Before, the LLM extractor
+    never filled `Relation`.
+  - Every relation of the agent's in `DUTY_RELATIONS` (kin, partners, friends, guardians, carers,
+    employers) becomes an `active` `role_duty` commitment the agent holds toward the other party.
+    The table is a normative choice, kept in one place.
+  - A first-person text always has a narrator who is the agent. Before, a fifth of one-line acts
+    compiled to no stakeholders.
+  - `max_completion_passes` (default 1) completion passes show the model its draft and take only
+    the elements it adds that name known stakeholders. They stop once nothing is added; the counts
+    are in `extractor_metadata["completion_passes_added"]`.
+  - An array wrapped in a one-key object is unwrapped, and an answer holding no array is asked for
+    once more.
 
 ### Removed (0.10)
 
