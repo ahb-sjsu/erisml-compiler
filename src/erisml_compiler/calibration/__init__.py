@@ -11,7 +11,8 @@ Adapts the BIP probe architecture from `ahb-sjsu/sqnd-probe` (v10.16.9):
     nuisance variables (sqnd-probe v10.16.9)
   - Variational Information Bottleneck (VIB) for compressed representations
   - Confusion loss: encodes "no classifier can predict the nuisance"
-  - Bond Index: aggregate cross-cultural / cross-lingual generalisation score
+  - Transfer score: aggregate cross-cultural / cross-lingual generalisation score
+    (called the Bond Index here until November 2026; the Bond Index proper is in erisml-lib)
 
 Phase 3 ships:
   - The architecture and the training loop (verified on synthetic data)
@@ -28,7 +29,10 @@ from erisml_compiler.calibration.adversarial_heads import (
     AdversarialHead,
     MultiHeadAdversarial,
 )
-from erisml_compiler.calibration.bond_index import compute_bond_index
+from erisml_compiler.calibration.transfer_score import (
+    compute_bond_index,
+    compute_transfer_score,
+)
 from erisml_compiler.calibration.dataset import (
     ProbeBatch,
     ProbeTrainingDataset,
@@ -50,6 +54,7 @@ __all__ = [
     "ProbeHead",
     "ProbeTrainingDataset",
     "compute_bond_index",
+    "compute_transfer_score",
     "confusion_loss",
     "spectral_decoupling_loss",
     "train_probe",

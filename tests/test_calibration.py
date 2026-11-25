@@ -14,7 +14,7 @@ from erisml_compiler.calibration.adversarial_heads import (
     AdversarialHead,
     MultiHeadAdversarial,
 )
-from erisml_compiler.calibration.bond_index import compute_bond_index
+from erisml_compiler.calibration.transfer_score import compute_bond_index, compute_transfer_score
 from erisml_compiler.calibration.dataset import (
     ProbeBatch,
     synthetic_dataset,
@@ -148,23 +148,34 @@ def test_synthetic_dataset_deterministic():
     assert ds1.labels == ds2.labels
 
 
-# ---------- bond index ----------
+# ---------- transfer score (called the Bond Index here until November 2026) ----------
 
 
-def test_bond_index_equal_weighted_mean():
-    r = compute_bond_index({"a": 0.8, "b": 0.6})
-    assert abs(r.bond_index - 0.7) < 1e-9
+def test_transfer_score_equal_weighted_mean():
+    r = compute_transfer_score({"a": 0.8, "b": 0.6})
+    assert abs(r.score - 0.7) < 1e-9
+    assert r.summary_lines()[0] == "Transfer score: 0.7000"
 
 
-def test_bond_index_custom_weights():
-    r = compute_bond_index({"a": 1.0, "b": 0.0}, weights={"a": 3.0, "b": 1.0})
+def test_transfer_score_custom_weights():
+    r = compute_transfer_score({"a": 1.0, "b": 0.0}, weights={"a": 3.0, "b": 1.0})
     # (1.0*3 + 0.0*1) / (3+1) = 0.75
-    assert abs(r.bond_index - 0.75) < 1e-9
+    assert abs(r.score - 0.75) < 1e-9
 
 
-def test_bond_index_empty():
-    r = compute_bond_index({})
-    assert r.bond_index == 0.0
+def test_transfer_score_empty():
+    r = compute_transfer_score({})
+    assert r.score == 0.0
+
+
+def test_the_old_bond_index_names_still_work_and_say_they_are_deprecated():
+    from erisml_compiler.calibration import bond_index as old_module
+
+    with pytest.warns(DeprecationWarning, match="transfer"):
+        r = compute_bond_index({"a": 0.8, "b": 0.6})
+    with pytest.warns(DeprecationWarning, match="transfer"):
+        assert abs(r.bond_index - 0.7) < 1e-9
+    assert old_module.BondIndexResult is type(r)
 
 
 # ---------- train loop (gated; requires LaBSE download) ----------

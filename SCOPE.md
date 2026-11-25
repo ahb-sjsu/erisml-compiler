@@ -192,15 +192,16 @@ Phase 3 ships three parallel tracks on top of v0.2.0:
     frozen + VIB + head).
   - `train.py`: full training loop with `CalibrationConfig`,
     `save_checkpoint`, `load_checkpoint`.
-  - `bond_index.py`: aggregate cross-cultural / cross-lingual
-    generalisation score.
+  - `transfer_score.py`: aggregate cross-cultural / cross-lingual
+    generalisation score (named the Bond Index until November 2026; the Bond
+    Index proper is erisml-lib's `erisml.ethics.bond_index`).
   - `dataset.py`: `ProbeBatch`, `ProbeTrainingDataset`, `synthetic_dataset`.
 - **CLI**: `eris-compile calibrate --task synthetic --out probe.pt` runs
   the full training loop on a deterministic toy dataset (verifies the
   loop end-to-end). For real corpora, extend `calibration/dataset.py`
   with a corrected-IR loader.
 - 16 tests covering each loss, GRL gradient flow, adversarial heads,
-  Bond Index aggregation, dataset determinism. (1 skipped, LaBSE
+  transfer-score aggregation, dataset determinism. (1 skipped, LaBSE
   download-gated.)
 - **Phase 3 does NOT ship trained weights.** Real weights need (a) a
   corpus of corrected-IR + source-text pairs from real annotation work,

@@ -234,7 +234,7 @@ diagram, and the precise semantics of each failure mode.
 | `fsm/` | Commitment / Legitimacy / Consent finite-state machines |
 | `evaluation/` | DEME's moral vector and timeline (erisml-lib), fitted ethos weights, conflict detection |
 | `scoring/` | Pluggable dimension-scoring backends: validated `xbse` feeders, gate-enforced, reliability-weighted, specificity-labeled |
-| `calibration/` | Probe training: losses, adversarial heads, VIB, bond index |
+| `calibration/` | Probe training: losses, adversarial heads, VIB, transfer score |
 | `correction/` | IR diff + apply-corrections (RLEF feedback loop) |
 | `erisml_backend/` | ErisML codegen and DEME bridge |
 | `silicon/` | Fixed-point conversion + Vitis HLS C++ emitters (FSM + DAG) |
