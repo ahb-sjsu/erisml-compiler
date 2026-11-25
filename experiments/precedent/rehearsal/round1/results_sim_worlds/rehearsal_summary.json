@@ -1,0 +1,289 @@
+{
+ "simulation": true,
+ "embedding_file": "/archive/experiments/learned-coords/emb/labse.npz",
+ "n_texts": 27982,
+ "worlds": {
+  "smooth_only": {
+   "runs": 5,
+   "recovered": 5,
+   "passes": {
+    "H1_gates": 0,
+    "H2_metric": 5,
+    "H3_local": 0,
+    "H4_retrieval": 5
+   },
+   "z": {
+    "H1_gates": [
+     4.99,
+     5.85,
+     3.9,
+     2.94,
+     2.98
+    ],
+    "H2_metric": [
+     -9.2,
+     -7.52,
+     -8.3,
+     -5.42,
+     -8.27
+    ],
+    "H3_local": [
+     1.39,
+     2.41,
+     2.05,
+     2.0,
+     4.11
+    ],
+    "H4_retrieval": [
+     -10.71,
+     -10.87,
+     -10.1,
+     -10.47,
+     -9.14
+    ]
+   },
+   "mean_sq_error": {
+    "tradeoff": {
+     "G": 0.6996,
+     "A": 0.4375,
+     "M": 0.3088,
+     "B": 0.4672,
+     "Cp": 0.3199,
+     "Cl": 0.3519
+    },
+    "flips": {
+     "G": 0.711,
+     "A": 0.4151,
+     "M": 0.29,
+     "B": 0.4944,
+     "Cp": 0.3,
+     "Cl": 0.3531
+    },
+    "crossdomain": {
+     "G": 1.0126,
+     "A": 0.6411,
+     "M": 0.3477,
+     "B": 0.6988,
+     "Cp": 0.3718,
+     "Cl": 0.3979
+    }
+   },
+   "paraphrase_jaccard": {
+    "jaccard_cosine": 0.617,
+    "jaccard_learned_metric": 0.195
+   }
+  },
+  "gates_only": {
+   "runs": 5,
+   "recovered": 5,
+   "passes": {
+    "H1_gates": 5,
+    "H2_metric": 0,
+    "H3_local": 0,
+    "H4_retrieval": 0
+   },
+   "z": {
+    "H1_gates": [
+     -17.36,
+     -17.23,
+     -17.85,
+     -18.52,
+     -18.85
+    ],
+    "H2_metric": [
+     3.05,
+     1.77,
+     1.84,
+     2.72,
+     -0.17
+    ],
+    "H3_local": [
+     2.3,
+     -0.1,
+     -0.06,
+     -0.2,
+     1.07
+    ],
+    "H4_retrieval": [
+     3.52,
+     4.75,
+     4.0,
+     4.15,
+     5.83
+    ]
+   },
+   "mean_sq_error": {
+    "tradeoff": {
+     "G": 0.2553,
+     "A": 1.1062,
+     "M": 0.8132,
+     "B": 0.2811,
+     "Cp": 0.2963,
+     "Cl": 0.3024
+    },
+    "flips": {
+     "G": 0.2372,
+     "A": 1.9894,
+     "M": 2.2759,
+     "B": 0.2639,
+     "Cp": 0.2671,
+     "Cl": 0.2982
+    },
+    "crossdomain": {
+     "G": 0.2498,
+     "A": 1.3446,
+     "M": 0.8168,
+     "B": 0.2687,
+     "Cp": 0.2921,
+     "Cl": 0.3134
+    }
+   },
+   "paraphrase_jaccard": {
+    "jaccard_cosine": 0.617,
+    "jaccard_learned_metric": 0.15
+   }
+  },
+  "gates_pooled": {
+   "runs": 5,
+   "recovered": 5,
+   "passes": {
+    "H1_gates": 5,
+    "H2_metric": 5,
+    "H3_local": 0,
+    "H4_retrieval": 5
+   },
+   "z": {
+    "H1_gates": [
+     -14.73,
+     -14.97,
+     -13.99,
+     -16.75,
+     -16.22
+    ],
+    "H2_metric": [
+     -9.2,
+     -7.52,
+     -8.3,
+     -5.42,
+     -8.27
+    ],
+    "H3_local": [
+     1.39,
+     2.41,
+     2.05,
+     2.0,
+     4.11
+    ],
+    "H4_retrieval": [
+     -10.71,
+     -10.87,
+     -10.1,
+     -10.47,
+     -9.14
+    ]
+   },
+   "mean_sq_error": {
+    "tradeoff": {
+     "G": 0.6996,
+     "A": 1.26,
+     "M": 0.8735,
+     "B": 0.4672,
+     "Cp": 0.3199,
+     "Cl": 0.3519
+    },
+    "flips": {
+     "G": 0.711,
+     "A": 2.1029,
+     "M": 2.2835,
+     "B": 0.4944,
+     "Cp": 0.3,
+     "Cl": 0.3531
+    },
+    "crossdomain": {
+     "G": 1.0126,
+     "A": 1.5322,
+     "M": 0.9385,
+     "B": 0.6988,
+     "Cp": 0.3718,
+     "Cl": 0.3979
+    }
+   },
+   "paraphrase_jaccard": {
+    "jaccard_cosine": 0.617,
+    "jaccard_learned_metric": 0.195
+   }
+  },
+  "gates_local": {
+   "runs": 5,
+   "recovered": 0,
+   "passes": {
+    "H1_gates": 5,
+    "H2_metric": 4,
+    "H3_local": 0,
+    "H4_retrieval": 5
+   },
+   "z": {
+    "H1_gates": [
+     -14.02,
+     -14.66,
+     -12.7,
+     -15.44,
+     -13.96
+    ],
+    "H2_metric": [
+     -5.75,
+     -4.15,
+     -4.32,
+     -2.76,
+     -2.3
+    ],
+    "H3_local": [
+     1.45,
+     -0.2,
+     1.19,
+     -0.68,
+     0.24
+    ],
+    "H4_retrieval": [
+     -9.71,
+     -10.1,
+     -9.27,
+     -9.43,
+     -10.34
+    ]
+   },
+   "mean_sq_error": {
+    "tradeoff": {
+     "G": 0.6558,
+     "A": 1.4171,
+     "M": 1.0614,
+     "B": 0.4255,
+     "Cp": 0.3608,
+     "Cl": 0.3666
+    },
+    "flips": {
+     "G": 0.7593,
+     "A": 2.4381,
+     "M": 2.7585,
+     "B": 0.4947,
+     "Cp": 0.4147,
+     "Cl": 0.4142
+    },
+    "crossdomain": {
+     "G": 0.8955,
+     "A": 1.7619,
+     "M": 1.2279,
+     "B": 0.5689,
+     "Cp": 0.4536,
+     "Cl": 0.4174
+    }
+   },
+   "paraphrase_jaccard": {
+    "jaccard_cosine": 0.617,
+    "jaccard_learned_metric": 0.261
+   }
+  }
+ },
+ "selftests": {},
+ "seconds": 202.4
+}

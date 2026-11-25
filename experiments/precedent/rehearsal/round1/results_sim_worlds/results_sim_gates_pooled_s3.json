@@ -1,0 +1,87 @@
+{
+ "source": "simulated",
+ "z_bar": 2.5,
+ "verdicts": {
+  "H1_gates": {
+   "mean_diff": -1.7101165607387527,
+   "se": 0.10207289881917753,
+   "z": -16.753874735822187,
+   "n_items": 600,
+   "n_units": 600,
+   "passes": true,
+   "compares": "B vs A on flips"
+  },
+  "H2_metric": {
+   "mean_diff": -0.08567538253855585,
+   "se": 0.015794912524175808,
+   "z": -5.424239128100297,
+   "n_items": 800,
+   "n_units": 800,
+   "passes": true,
+   "compares": "Cp vs B on tradeoff"
+  },
+  "H3_local": {
+   "mean_diff": 0.023980842912954818,
+   "se": 0.01201151829029167,
+   "z": 1.9964872327869971,
+   "n_items": 800,
+   "n_units": 800,
+   "passes": false,
+   "compares": "Cl vs Cp on tradeoff"
+  },
+  "H4_retrieval": {
+   "mean_diff": -0.21181750073136307,
+   "se": 0.020222240351983722,
+   "z": -10.47448240375526,
+   "n_items": 800,
+   "n_units": 800,
+   "passes": true,
+   "compares": "B vs G on tradeoff"
+  }
+ },
+ "mean_sq_error": {
+  "tradeoff": {
+   "G": 0.6017719278237392,
+   "A": 1.2653681367509952,
+   "M": 0.8820027619712175,
+   "B": 0.38995442709237615,
+   "Cp": 0.30427904455382027,
+   "Cl": 0.3282598874667751
+  },
+  "crossdomain": {
+   "G": 1.982688988772825,
+   "A": 1.8073373218928388,
+   "M": 0.9525663485365584,
+   "B": 1.159225118457612,
+   "Cp": 0.563242725653734,
+   "Cl": 0.529764317694595
+  },
+  "flips": {
+   "G": 0.6204292434394364,
+   "A": 2.138857242212677,
+   "M": 2.3838773919861116,
+   "B": 0.42874068147392386,
+   "Cp": 0.3139744066163141,
+   "Cl": 0.3316078291716474
+  }
+ },
+ "rehearsal_reading": "gates_plus_pooled_metric",
+ "world": "gates_pooled",
+ "seed": 3,
+ "strata_sizes_train": [
+  842,
+  622,
+  689,
+  847
+ ],
+ "paraphrase": {
+  "jaccard_cosine": 0.6200974780938016,
+  "jaccard_learned_metric": 0.20877753030423307
+ },
+ "expected": [
+  true,
+  true,
+  false
+ ],
+ "recovered": true
+}
