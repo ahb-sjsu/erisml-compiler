@@ -1,0 +1,8 @@
+{
+ "cases": {
+  "train": 6000,
+  "ordinary": 1500,
+  "crossdomain": 1500
+ },
+ "cases_sha256": "79eea1395f058618ed7d4fcc4bf4b1f1aee7f5ceef9300e107dad2c5e504f7e1"
+}

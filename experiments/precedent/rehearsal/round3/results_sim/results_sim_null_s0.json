@@ -1,0 +1,100 @@
+{
+ "source": "simulated",
+ "z_bar": 2.5,
+ "verdicts": {
+  "H1_gates": {
+   "mean_diff": -0.0017576642847975006,
+   "se": 0.00739774124683973,
+   "z": -0.2375947233283354,
+   "n_items": 600,
+   "n_units": 600,
+   "passes": false,
+   "compares": "B vs A on flips"
+  },
+  "H2_metric": {
+   "mean_diff": 0.012879755077840487,
+   "se": 0.008013025948624804,
+   "z": 1.6073522237939228,
+   "n_items": 800,
+   "n_units": 800,
+   "passes": false,
+   "compares": "Cp vs B on tradeoff"
+  },
+  "H3_local": {
+   "mean_diff": 0.013326373905298566,
+   "se": 0.004602259037655864,
+   "z": 2.8956157826540516,
+   "n_items": 800,
+   "n_units": 800,
+   "passes": false,
+   "compares": "Cl vs Cp on tradeoff"
+  },
+  "H4_retrieval": {
+   "mean_diff": 0.01626993301452821,
+   "se": 0.005417147204614971,
+   "z": 3.003413494222114,
+   "n_items": 800,
+   "n_units": 800,
+   "passes": false,
+   "compares": "B vs G on tradeoff"
+  }
+ },
+ "mean_sq_error": {
+  "tradeoff": {
+   "Mean": 0.24529496264788883,
+   "G": 0.24535428383238425,
+   "A": 0.2602272691766477,
+   "M": 0.2931849010382173,
+   "B": 0.26162421684691245,
+   "Cp": 0.27450397192475295,
+   "Cl": 0.28783034583005146
+  },
+  "crossdomain": {
+   "Mean": 0.24353361179411637,
+   "G": 0.2440600585547432,
+   "A": 0.260669671361334,
+   "M": 0.28295689069648977,
+   "B": 0.268929850230427,
+   "Cp": 0.28089174677291734,
+   "Cl": 0.2823824141409104
+  },
+  "flips": {
+   "Mean": 0.23130132642691298,
+   "G": 0.23124086328472435,
+   "A": 0.25145043801166567,
+   "M": 0.2797964864807427,
+   "B": 0.24969277372686818,
+   "Cp": 0.2748965918399885,
+   "Cl": 0.2708051684645843
+  }
+ },
+ "V5_z_against_grand_mean": {
+  "G": 0.31,
+  "A": 2.88,
+  "M": 6.52,
+  "B": 3.01,
+  "Cp": 4.32,
+  "Cl": 5.99
+ },
+ "V5_signal": false,
+ "rehearsal_reading": "no_structure_detected",
+ "world": "null",
+ "seed": 0,
+ "strata_sizes_train": [
+  936,
+  677,
+  638,
+  749
+ ],
+ "paraphrase": {
+  "jaccard_cosine": 0.6173355566002625,
+  "jaccard_learned_metric": 0.14745636533658982
+ },
+ "expected": [
+  false,
+  false,
+  false
+ ],
+ "recovered": true,
+ "V5_expected_signal": false
+}

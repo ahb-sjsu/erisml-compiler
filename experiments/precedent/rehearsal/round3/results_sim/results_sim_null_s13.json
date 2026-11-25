@@ -1,0 +1,100 @@
+{
+ "source": "simulated",
+ "z_bar": 2.5,
+ "verdicts": {
+  "H1_gates": {
+   "mean_diff": -0.00036042615754254456,
+   "se": 0.009161513603406637,
+   "z": -0.03934133300948469,
+   "n_items": 600,
+   "n_units": 600,
+   "passes": false,
+   "compares": "B vs A on flips"
+  },
+  "H2_metric": {
+   "mean_diff": 0.024841808836263937,
+   "se": 0.008973913547115572,
+   "z": 2.7682246665111547,
+   "n_items": 800,
+   "n_units": 800,
+   "passes": false,
+   "compares": "Cp vs B on tradeoff"
+  },
+  "H3_local": {
+   "mean_diff": 0.00288205911614572,
+   "se": 0.00396023218050563,
+   "z": 0.7277500370641774,
+   "n_items": 800,
+   "n_units": 800,
+   "passes": false,
+   "compares": "Cl vs Cp on tradeoff"
+  },
+  "H4_retrieval": {
+   "mean_diff": 0.027677225574470624,
+   "se": 0.005784894431255133,
+   "z": 4.7843959649347605,
+   "n_items": 800,
+   "n_units": 800,
+   "passes": false,
+   "compares": "B vs G on tradeoff"
+  }
+ },
+ "mean_sq_error": {
+  "tradeoff": {
+   "Mean": 0.24434673072442575,
+   "G": 0.24433667414269544,
+   "A": 0.270743374676462,
+   "M": 0.2814615579938226,
+   "B": 0.2720138997171661,
+   "Cp": 0.29685570855343,
+   "Cl": 0.2997377676695757
+  },
+  "crossdomain": {
+   "Mean": 0.24893945774737627,
+   "G": 0.25023763572663127,
+   "A": 0.27078048601071153,
+   "M": 0.300398311321423,
+   "B": 0.27755175388089787,
+   "Cp": 0.3070913008744271,
+   "Cl": 0.31677040157367187
+  },
+  "flips": {
+   "Mean": 0.23767882414201238,
+   "G": 0.2376680268739778,
+   "A": 0.2677498668353325,
+   "M": 0.2715835893874086,
+   "B": 0.2673894406777899,
+   "Cp": 0.26957992685135235,
+   "Cl": 0.2718130529880828
+  }
+ },
+ "V5_z_against_grand_mean": {
+  "G": -0.02,
+  "A": 4.66,
+  "M": 4.77,
+  "B": 4.78,
+  "Cp": 6.72,
+  "Cl": 7.06
+ },
+ "V5_signal": false,
+ "rehearsal_reading": "no_structure_detected",
+ "world": "null",
+ "seed": 13,
+ "strata_sizes_train": [
+  1039,
+  516,
+  337,
+  1108
+ ],
+ "paraphrase": {
+  "jaccard_cosine": 0.6313287407037407,
+  "jaccard_learned_metric": 0.12380992599162104
+ },
+ "expected": [
+  false,
+  false,
+  false
+ ],
+ "recovered": true,
+ "V5_expected_signal": false
+}

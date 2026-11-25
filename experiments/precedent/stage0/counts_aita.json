@@ -1,0 +1,25 @@
+{
+ "area": "amitheasshole",
+ "rows": 96082,
+ "split_rule": "sha256(situation-short-id)[:8] % 100 >= 80 is held out",
+ "case_base_situations": 23632,
+ "case_base_situations_with_judgement": 23385,
+ "held_out_situations": 5878,
+ "held_out_situations_with_judgement": 5821,
+ "judgement_rows_per_situation": {
+  "min": 1,
+  "median": 2,
+  "max": 127,
+  "share_with_one_row": 0.141
+ },
+ "case_base_distinct_judgement_values": 261,
+ "case_base_judgement_histogram_rounded": {
+  "-2": 633,
+  "-1": 5637,
+  "0": 15575,
+  "1": 1409,
+  "2": 131
+ },
+ "case_base_judgement_variance": 0.36,
+ "V6_resolves_at_least_5_values": true
+}

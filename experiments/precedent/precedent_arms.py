@@ -154,7 +154,7 @@ class Fitted:
     def predict(self, q: Cases) -> dict[str, np.ndarray]:
         zq = self.coords(q.e)
         g = np.array([self.s_mean.get(int(s), self.grand) for s in q.s])
-        out = {"G": g}
+        out = {"Mean": np.full(len(q.y), self.grand), "G": g}
         # cosine on unit vectors is monotone in Euclidean distance on the raw embedding
         out["A"] = _knn_mean(q.e, self.train.e, self.train.y, K_NEIGHBOURS)
         out["M"] = _knn_mean(zq @ self.u_nogate.T, self.z @ self.u_nogate.T, self.train.y, K_NEIGHBOURS)

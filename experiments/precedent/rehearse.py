@@ -249,6 +249,7 @@ def main() -> None:
             g["paraphrase"] = paraphrase_stability(fit, fams["tradeoff"], world, seed)
             got = tuple(g["verdicts"][h]["passes"] for h in ("H1_gates", "H2_metric", "H3_local"))
             g["expected"], g["recovered"] = list(EXPECTED[kind]), bool(got == EXPECTED[kind])
+            g["V5_expected_signal"] = kind != "null"
             (out / f"results_sim_{kind}_s{seed}.json").write_text(json.dumps(g, indent=1))
             rows.append(g)
             print(kind, seed, g["rehearsal_reading"], "recovered" if g["recovered"] else "MISSED",
@@ -257,6 +258,7 @@ def main() -> None:
             "runs": len(rows),
             "recovered": sum(r["recovered"] for r in rows),
             "passes": {h: sum(r["verdicts"][h]["passes"] for r in rows) for h, *_ in HYPOTHESES},
+            "V5_signal_runs": sum(bool(r.get("V5_signal")) for r in rows),
             "z": {h: [round(r["verdicts"][h]["z"], 2) for r in rows] for h, *_ in HYPOTHESES},
             "mean_sq_error": {
                 f: {arm: round(float(np.mean([r["mean_sq_error"][f][arm] for r in rows])), 4) for arm in ARMS}

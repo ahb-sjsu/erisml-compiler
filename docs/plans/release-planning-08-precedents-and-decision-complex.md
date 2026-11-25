@@ -4,7 +4,7 @@
 implemented except the experiment harness in `experiments/precedent/`.**
 **Predecessors:** release-planning-05 (Social Chem grounding), -06 (framework-pluralist architecture),
 -07 (graph consumer migration).
-**Companion files:** `experiments/precedent/PREREG-precedent-v1-DRAFT.md` (the test plan),
+**Companion files:** `experiments/precedent/prereg-precedent-v1.md` (the registered test),
 `experiments/precedent/REHEARSAL.md` (what was run on 2026-11-25),
 `geometric-ethics/notes/2026-11-25-hnsw-and-stratified-geometry.md` (the survey and analysis this follows).
 
@@ -265,7 +265,7 @@ found.
 | Phase | Work | Waits for | Repositories |
 |---|---|---|---|
 | P0 | Book checks. Rehearsal of the registered test on planted truths. | Done 2026-11-25. | geometric-ethics, erisml-compiler |
-| P1 | Stage 0 of the test: compile the cases, measure gate-extraction agreement, write the flip set, seal, run. | Owner's OK to seal. An NRP or Atlas slot for extraction. | erisml-compiler, geometric-ethics ledger |
+| P1 | Stage 0 of the test, then seal and run. Begun 2026-11-25: the first gate pilot failed on one-line titles, a second is running on full posts (`experiments/precedent/STAGE0.md`). | A pilot in which two gates are read reliably. | erisml-compiler, geometric-ethics ledger |
 | P2 | C2, C3, C4 (exact), C5, C6. Advisory only. | Nothing. Useful whatever the test finds. | erisml-compiler, erisml-lib (`DecisionProof`) |
 | P3 | `PrecedentEM` with the gate check. Bench flip categories. | H1 passes (gates beat similarity on flips). | erisml-lib, erisml-compiler |
 | P4 | C1 with the learned metric as the retrieval distance. Analyzer and xbse wiring. | H2 passes (a learned metric adds prediction beyond gates). If H2 fails, retrieval uses whitened cosine and the metric stays out of the product. | erisml-compiler, moral-spectrum-analyzer, xbse |
@@ -289,7 +289,8 @@ Versions: P2 is erisml-compiler 0.11 with IR schema v0.5 and erisml-lib 3.3. P4 
 
 ## 8. Decisions that are the owner's
 
-1. Whether to seal the test (`PREREG-precedent-v1-DRAFT.md`) as drafted.
+1. Whether to seal the test. The owner said to seal (2026-11-25). Stage 0 then failed its gate pilot, so
+   it is not sealed yet. See `experiments/precedent/STAGE0.md`.
 2. Which corpus supplies the confirmatory cases and which is held back unseen.
 3. Who writes the consent flip set. It must be someone who does not know the arms.
 4. Whether the first coordinate artifact is the sealed LaBSE metric of 2026-10-30 or a new fit.

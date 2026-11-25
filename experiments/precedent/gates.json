@@ -1,0 +1,42 @@
+{
+  "version": "gates-v2",
+  "note": "The gate registry of the precedent experiment. A normative choice kept in one place. Each gate is read as present or absent from the text of a case. The reader reports what the text states or clearly implies and does not judge the act. v1 (2026-11-25) failed its pilot on one-line titles: the two readers agreed at kappa 0.47 on no_consent and 0.46 on coercion, because both definitions fitted almost any act that affects another person. v2 narrows those two.",
+  "gates": [
+    {
+      "name": "no_consent",
+      "boundary": "threshold",
+      "book": "Geometric Ethics 8.3 Type I (informed consent)",
+      "question": "Someone does something to another person's body, property, money or private information, or takes a decision that was that person's to make, without that person's agreement or against their stated refusal. Declining to do something for someone, ending a relationship, or disappointing someone does not count."
+    },
+    {
+      "name": "commitment",
+      "boundary": "phase",
+      "book": "Geometric Ethics 8.4 (you promised: Liberty to Obligation)",
+      "question": "Someone has made a promise, agreement, vow or explicit commitment that bears on what is done in the situation."
+    },
+    {
+      "name": "coercion",
+      "boundary": "threshold",
+      "book": "geometric-methods 6.4.3 (coercion)",
+      "question": "Someone uses a threat, an ultimatum, physical force or blackmail to make another person do something. Ordinary persuasion, nagging, anger or disagreement does not count."
+    },
+    {
+      "name": "emergency",
+      "boundary": "phase",
+      "book": "Geometric Ethics 8.3 Type II (emergency), nullifier danger",
+      "question": "There is an urgent risk to someone's life, health or physical safety at the time of the act."
+    },
+    {
+      "name": "abuse",
+      "boundary": "absorbing",
+      "book": "Geometric Ethics 8.3 Type III (nullifier abuse)",
+      "question": "Someone is being abused: physical violence, sustained cruelty, or exploitation of a dependent person."
+    },
+    {
+      "name": "impossibility",
+      "boundary": "absorbing",
+      "book": "Geometric Ethics 8.3 Type III (nullifier impossibility)",
+      "question": "What is asked or expected of someone cannot be done by them."
+    }
+  ]
+}

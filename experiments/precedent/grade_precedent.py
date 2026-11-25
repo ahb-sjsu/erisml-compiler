@@ -63,17 +63,36 @@ def grade(errors: dict, clusters: dict, source: str) -> dict:
         raise ValueError(f"REFUSED: source must be 'simulated' or 'held_out', got {source!r}")
     verdicts = {}
     for name, x, y, fam in HYPOTHESES:
+        if fam not in errors:  # a family with no data is reported as not run, never as a miss
+            verdicts[name] = {"not_run": True, "passes": False, "compares": f"{x} vs {y} on {fam}"}
+            continue
         r = paired(np.asarray(errors[fam][x]), np.asarray(errors[fam][y]), np.asarray(clusters[fam]))
         r["passes"] = bool(r["z"] < -Z_BAR)
         r["compares"] = f"{x} vs {y} on {fam}"
         verdicts[name] = r
-    key = tuple(verdicts[h]["passes"] for h in ("H1_gates", "H2_metric", "H3_local"))
-    reading = DIAGNOSES.get(key, "inconsistent_pattern")
+    if verdicts["H1_gates"].get("not_run"):
+        # prereg-precedent-v1 as sealed: no flip family, so the reading rests on H2 alone
+        reading = "metric_adds_beyond_gates_and_precedents" if verdicts["H2_metric"]["passes"] else "metric_unsupported_on_this_data"
+    else:
+        key = tuple(verdicts[h]["passes"] for h in ("H1_gates", "H2_metric", "H3_local"))
+        reading = DIAGNOSES.get(key, "inconsistent_pattern")
     out = {
         "source": source,
         "z_bar": Z_BAR,
         "verdicts": verdicts,
         "mean_sq_error": {f: {a: float(np.mean(e)) for a, e in arms.items()} for f, arms in errors.items()},
     }
+    # V5: the instrument must read some signal. At least one arm has to beat the grand-mean
+    # predictor ("Mean") on ordinary held-out cases by the same bar, or the run is void.
+    if "Mean" in errors.get("tradeoff", {}):
+        zs = {
+            a: paired(np.asarray(e), np.asarray(errors["tradeoff"]["Mean"]), np.asarray(clusters["tradeoff"]))["z"]
+            for a, e in errors["tradeoff"].items()
+            if a != "Mean"
+        }
+        out["V5_z_against_grand_mean"] = {a: round(z, 2) for a, z in zs.items()}
+        out["V5_signal"] = bool(min(zs.values()) < -Z_BAR)
+        if source == "held_out" and not out["V5_signal"]:
+            reading = "VOID V5: no arm beats the grand-mean predictor"
     out["rehearsal_reading" if source == "simulated" else "diagnosis"] = reading
     return out

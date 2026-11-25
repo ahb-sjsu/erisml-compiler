@@ -1,0 +1,100 @@
+{
+ "source": "simulated",
+ "z_bar": 2.5,
+ "verdicts": {
+  "H1_gates": {
+   "mean_diff": -0.01418224721041605,
+   "se": 0.007859516548763455,
+   "z": -1.8044681403014993,
+   "n_items": 600,
+   "n_units": 600,
+   "passes": false,
+   "compares": "B vs A on flips"
+  },
+  "H2_metric": {
+   "mean_diff": 0.009035937718154486,
+   "se": 0.008120511402459034,
+   "z": 1.1127301311858568,
+   "n_items": 800,
+   "n_units": 800,
+   "passes": false,
+   "compares": "Cp vs B on tradeoff"
+  },
+  "H3_local": {
+   "mean_diff": 0.002192417721439119,
+   "se": 0.003716007819631703,
+   "z": 0.5899927631628104,
+   "n_items": 800,
+   "n_units": 800,
+   "passes": false,
+   "compares": "Cl vs Cp on tradeoff"
+  },
+  "H4_retrieval": {
+   "mean_diff": 0.022495298572903905,
+   "se": 0.004984181415091711,
+   "z": 4.51333864068228,
+   "n_items": 800,
+   "n_units": 800,
+   "passes": false,
+   "compares": "B vs G on tradeoff"
+  }
+ },
+ "mean_sq_error": {
+  "tradeoff": {
+   "Mean": 0.23298544915806843,
+   "G": 0.2329117192007559,
+   "A": 0.2524519369678512,
+   "M": 0.2660528041157319,
+   "B": 0.2554070177736598,
+   "Cp": 0.26444295549181435,
+   "Cl": 0.2666353732132535
+  },
+  "crossdomain": {
+   "Mean": 0.24166790761441373,
+   "G": 0.2416178537248364,
+   "A": 0.2564965143965096,
+   "M": 0.2873678324269004,
+   "B": 0.2618833336884118,
+   "Cp": 0.27615098650350267,
+   "Cl": 0.2767301605321392
+  },
+  "flips": {
+   "Mean": 0.2317177369539462,
+   "G": 0.23177163269329312,
+   "A": 0.26252412894135285,
+   "M": 0.2752504589212826,
+   "B": 0.2483418817309368,
+   "Cp": 0.271445809282908,
+   "Cl": 0.272430156055012
+  }
+ },
+ "V5_z_against_grand_mean": {
+  "G": -0.48,
+  "A": 3.6,
+  "M": 4.36,
+  "B": 4.5,
+  "Cp": 4.05,
+  "Cl": 4.51
+ },
+ "V5_signal": false,
+ "rehearsal_reading": "no_structure_detected",
+ "world": "null",
+ "seed": 2,
+ "strata_sizes_train": [
+  928,
+  459,
+  543,
+  1070
+ ],
+ "paraphrase": {
+  "jaccard_cosine": 0.6308046977532272,
+  "jaccard_learned_metric": 0.1399409751325386
+ },
+ "expected": [
+  false,
+  false,
+  false
+ ],
+ "recovered": true,
+ "V5_expected_signal": false
+}

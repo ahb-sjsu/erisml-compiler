@@ -1,0 +1,60 @@
+{
+ "n": 300,
+ "gates": {
+  "no_consent": {
+   "prev_gpt_oss": 0.26,
+   "prev_gemma": 0.157,
+   "agree": 0.823,
+   "kappa": 0.473,
+   "both_yes": 36
+  },
+  "commitment": {
+   "prev_gpt_oss": 0.033,
+   "prev_gemma": 0.043,
+   "agree": 0.977,
+   "kappa": 0.684,
+   "both_yes": 8
+  },
+  "coercion": {
+   "prev_gpt_oss": 0.027,
+   "prev_gemma": 0.03,
+   "agree": 0.97,
+   "kappa": 0.455,
+   "both_yes": 4
+  },
+  "emergency": {
+   "prev_gpt_oss": 0.013,
+   "prev_gemma": 0.007,
+   "agree": 0.993,
+   "kappa": 0.664,
+   "both_yes": 2
+  },
+  "abuse": {
+   "prev_gpt_oss": 0.01,
+   "prev_gemma": 0.013,
+   "agree": 0.99,
+   "kappa": 0.566,
+   "both_yes": 2
+  },
+  "impossibility": {
+   "prev_gpt_oss": 0.0,
+   "prev_gemma": 0.007,
+   "agree": 0.993,
+   "kappa": 0.0,
+   "both_yes": 0
+  }
+ },
+ "patterns_gpt_oss": {
+  "000000": 212,
+  "100000": 64,
+  "000010": 1,
+  "010000": 5,
+  "101000": 7,
+  "100100": 1,
+  "000110": 1,
+  "110000": 5,
+  "000100": 2,
+  "001000": 1,
+  "100010": 1
+ }
+}

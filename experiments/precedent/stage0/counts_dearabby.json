@@ -1,0 +1,25 @@
+{
+ "area": "dearabby",
+ "rows": 50300,
+ "split_rule": "sha256(situation-short-id)[:8] % 100 >= 80 is held out",
+ "case_base_situations": 9368,
+ "case_base_situations_with_judgement": 9250,
+ "held_out_situations": 2361,
+ "held_out_situations_with_judgement": 2321,
+ "judgement_rows_per_situation": {
+  "min": 1,
+  "median": 3,
+  "max": 126,
+  "share_with_one_row": 0.131
+ },
+ "case_base_distinct_judgement_values": 269,
+ "case_base_judgement_histogram_rounded": {
+  "-2": 215,
+  "-1": 1776,
+  "0": 6322,
+  "1": 891,
+  "2": 46
+ },
+ "case_base_judgement_variance": 0.3715,
+ "V6_resolves_at_least_5_values": true
+}

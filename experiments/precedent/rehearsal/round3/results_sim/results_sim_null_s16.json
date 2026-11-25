@@ -1,0 +1,100 @@
+{
+ "source": "simulated",
+ "z_bar": 2.5,
+ "verdicts": {
+  "H1_gates": {
+   "mean_diff": 0.0017802169474915796,
+   "se": 0.008482103260231737,
+   "z": 0.2098791883185519,
+   "n_items": 600,
+   "n_units": 600,
+   "passes": false,
+   "compares": "B vs A on flips"
+  },
+  "H2_metric": {
+   "mean_diff": 0.011522578473573138,
+   "se": 0.00869509663648715,
+   "z": 1.325181186051579,
+   "n_items": 800,
+   "n_units": 800,
+   "passes": false,
+   "compares": "Cp vs B on tradeoff"
+  },
+  "H3_local": {
+   "mean_diff": -0.0034834992122556785,
+   "se": 0.003821811297622654,
+   "z": -0.9114786003229878,
+   "n_items": 800,
+   "n_units": 800,
+   "passes": false,
+   "compares": "Cl vs Cp on tradeoff"
+  },
+  "H4_retrieval": {
+   "mean_diff": 0.030399547083737693,
+   "se": 0.005578226345517175,
+   "z": 5.449679737031047,
+   "n_items": 800,
+   "n_units": 800,
+   "passes": false,
+   "compares": "B vs G on tradeoff"
+  }
+ },
+ "mean_sq_error": {
+  "tradeoff": {
+   "Mean": 0.24686797827792642,
+   "G": 0.24739615863745001,
+   "A": 0.2754258061480334,
+   "M": 0.27040837477206076,
+   "B": 0.2777957057211877,
+   "Cp": 0.28931828419476086,
+   "Cl": 0.2858347849825052
+  },
+  "crossdomain": {
+   "Mean": 0.25534318139724765,
+   "G": 0.25516932667608216,
+   "A": 0.27422430481096205,
+   "M": 0.28861903093083685,
+   "B": 0.26653448137627533,
+   "Cp": 0.28479997405225904,
+   "Cl": 0.29036216964786743
+  },
+  "flips": {
+   "Mean": 0.24418785969208207,
+   "G": 0.24538212475406662,
+   "A": 0.27813115745673617,
+   "M": 0.28762230386090964,
+   "B": 0.27991137440422775,
+   "Cp": 0.2933068749292183,
+   "Cl": 0.28760789260416514
+  }
+ },
+ "V5_z_against_grand_mean": {
+  "G": 0.86,
+  "A": 5.11,
+  "M": 3.42,
+  "B": 5.52,
+  "Cp": 6.01,
+  "Cl": 5.44
+ },
+ "V5_signal": false,
+ "rehearsal_reading": "no_structure_detected",
+ "world": "null",
+ "seed": 16,
+ "strata_sizes_train": [
+  662,
+  894,
+  894,
+  550
+ ],
+ "paraphrase": {
+  "jaccard_cosine": 0.6199896733168793,
+  "jaccard_learned_metric": 0.14783470388830294
+ },
+ "expected": [
+  false,
+  false,
+  false
+ ],
+ "recovered": true,
+ "V5_expected_signal": false
+}

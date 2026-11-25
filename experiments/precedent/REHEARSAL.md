@@ -91,3 +91,11 @@ so round 1 has per-run logs and no summary file.
 - The bar of 2.5 was not tuned. Its measured false-pass count is 0 in 20 for each hypothesis, which
   bounds the rate only loosely (below about 14% at 95% confidence).
 - BGE-M3 embeddings were not rehearsed.
+
+## Round 3: the code as sealed
+
+After round 2 the grader was changed in two ways: a family with no data is reported as not run, and
+void condition V5 (an arm must beat the grand-mean predictor) is checked. The arms gained the
+grand-mean predictor. Round 3 re-ran all 45 runs and the self-tests on this code
+(`rehearsal/round3/`). Every count in the round 2 table was reproduced. V5 found signal in 25 of 25
+structured runs and in 0 of 20 noise runs.
