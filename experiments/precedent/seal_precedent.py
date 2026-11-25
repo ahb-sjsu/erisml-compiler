@@ -20,18 +20,15 @@ BUNDLE = [
     "prereg-precedent-v1.md",  # the registration
     "gates.json",  # the gate registry the readers are asked about
     "read_gates.py",  # the gate reader and its prompt
-    "stage0_counts.py",  # the split rule
-    "build_cases.py",  # which cases, by hash
+    "build_cases.py",  # which cases, by hash, and how a judgement is computed
     "embed_cases.py",  # the encoder and its snapshot
     "precedent_arms.py",  # coordinates, metric, arms, fixed constants
     "grade_precedent.py",  # every bar
     "run_precedent.py",  # the sealed run, the gate list, the void conditions
     "rehearse.py",  # the planted-truth rehearsal
-    "stage0/counts_aita.json",  # units counted before the seal
-    "stage0/counts_dearabby.json",
-    "stage0/pilot_agreement.json",  # the pilot the gate list was fixed from
-    "stage0/cases.sha256.json",  # digest of the cases file
-    "rehearsal/round3/results_sim/rehearsal_summary.json",  # rehearsal of the code as sealed
+    "stage0/cases.sha256.json",  # digest of the cases file and the training-side counts
+    "stage0/pilot2_agreement.json",  # the pilot the gate list was fixed from
+    "rehearsal/round3/results_sim/rehearsal_summary.json",  # rehearsal of the arms and grader as sealed
 ]
 
 META = {
@@ -40,8 +37,9 @@ META = {
     "author": "Andrew H. Bond, San Jose State University",
     "frozen_predictions": "H2 and H4 in prereg-precedent-v1.md Section 4; void conditions Section 5. "
     "H1 is not run in v1 (no flip family); H3 is reported only.",
-    "data": "Social-Chem-101, AITA and Dear Abby slices. Held-out judgements not read before freezing. "
-    "Texts, embeddings and gate readings may be computed before freezing; none reads a judgement.",
+    "data": "Scruples Anecdotes v1.0, training and test splits. Held-out judgements and vote counts not "
+    "read before freezing. Texts, embeddings and gate readings are computed after freezing; none reads "
+    "a judgement.",
     "encoder_snapshot": "836121a0533e5664b21c7aacc5d22951f2b8b25b",
     "hash_note": "sha256 of each file with CRLF normalized to LF; combined = sha256 over the "
     "concatenated component hex digests in bundle_files order",

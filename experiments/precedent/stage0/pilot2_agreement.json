@@ -1,0 +1,51 @@
+{
+ "registry": "gates-v2",
+ "corpus": "scruples anecdotes, training split",
+ "n": 300,
+ "read_gpt_oss": 300,
+ "read_gemma": 300,
+ "gates": {
+  "no_consent": {
+   "prev_gpt_oss": 0.233,
+   "prev_gemma": 0.167,
+   "agree": 0.853,
+   "kappa": 0.545,
+   "both_yes": 38
+  },
+  "commitment": {
+   "prev_gpt_oss": 0.273,
+   "prev_gemma": 0.247,
+   "agree": 0.86,
+   "kappa": 0.637,
+   "both_yes": 57
+  },
+  "coercion": {
+   "prev_gpt_oss": 0.07,
+   "prev_gemma": 0.06,
+   "agree": 0.95,
+   "kappa": 0.589,
+   "both_yes": 12
+  },
+  "emergency": {
+   "prev_gpt_oss": 0.03,
+   "prev_gemma": 0.017,
+   "agree": 0.98,
+   "kappa": 0.562,
+   "both_yes": 4
+  },
+  "abuse": {
+   "prev_gpt_oss": 0.05,
+   "prev_gemma": 0.033,
+   "agree": 0.97,
+   "kappa": 0.625,
+   "both_yes": 8
+  },
+  "impossibility": {
+   "prev_gpt_oss": 0.05,
+   "prev_gemma": 0.03,
+   "agree": 0.96,
+   "kappa": 0.481,
+   "both_yes": 6
+  }
+ }
+}

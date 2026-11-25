@@ -1,0 +1,39 @@
+{
+  "prereg": "prereg-precedent-v1",
+  "title": "Gates, precedents and a learned metric as predictors of moral judgement",
+  "author": "Andrew H. Bond, San Jose State University",
+  "frozen_predictions": "H2 and H4 in prereg-precedent-v1.md Section 4; void conditions Section 5. H1 is not run in v1 (no flip family); H3 is reported only.",
+  "data": "Scruples Anecdotes v1.0, training and test splits. Held-out judgements and vote counts not read before freezing. Texts, embeddings and gate readings are computed after freezing; none reads a judgement.",
+  "encoder_snapshot": "836121a0533e5664b21c7aacc5d22951f2b8b25b",
+  "hash_note": "sha256 of each file with CRLF normalized to LF; combined = sha256 over the concatenated component hex digests in bundle_files order",
+  "cases_sha256": "0844a1f4a2bfa4efd7362ffeb8cfca03de9a942de70b0bcdcc0f975ffed07b1b",
+  "bundle_files": [
+    "prereg-precedent-v1.md",
+    "gates.json",
+    "read_gates.py",
+    "build_cases.py",
+    "embed_cases.py",
+    "precedent_arms.py",
+    "grade_precedent.py",
+    "run_precedent.py",
+    "rehearse.py",
+    "stage0/cases.sha256.json",
+    "stage0/pilot2_agreement.json",
+    "rehearsal/round3/results_sim/rehearsal_summary.json"
+  ],
+  "files": {
+    "prereg-precedent-v1.md": "8f0ec2ab95d423bec1bbf04a9f71c74b8eab29b4a6500e931a0a28f6dff0b22d",
+    "gates.json": "c79406f9a8eca3a79b5497f1d0676ea8eb5c3908e8173fc6941bdb105ff30ec9",
+    "read_gates.py": "ab0307e913a62664509c971adb1535f694561ea60e07a5e5ca3a45d828ecbc7e",
+    "build_cases.py": "04d0954eeb27f6c13f985625c8a61630a7028b4482f05381cc6d72a369e04429",
+    "embed_cases.py": "b83b5efeffc84a54ebf26f163fec1c39a1e182385dc28b26a9fdfbbbb1664545",
+    "precedent_arms.py": "41076ee0785bac7fc5beafa86ba5bf8e12916323b01480309d78deb86ebb7c82",
+    "grade_precedent.py": "b3c2ac5c751cc839b2c86813b1d9404925a8981325988bf1b1ec319028745480",
+    "run_precedent.py": "5a4e1e0027db4bb27166767650be49250b13ff011e7d5c75e3c0856eb6e66101",
+    "rehearse.py": "a6cc87e95ffa548a2376633c71b2ed0d47d176821c02504db3a9e4a4589ed177",
+    "stage0/cases.sha256.json": "cfb0bfe18b0dab3fe392ee9c1d9827433cf2716e828a60366334d2f30560a4c0",
+    "stage0/pilot2_agreement.json": "f2d641edccf3223fbc326eab4890c75a9ad498cbb82e0fe00328af7b293e6d56",
+    "rehearsal/round3/results_sim/rehearsal_summary.json": "e0a1834707302773f5cd6c6243163ac62e5b0d07c2d35f1593a81bd188d5bf8d"
+  },
+  "combined_sha256": "f971a440aa7d0878e588493add0ca1617599cba2a480f4fb5f44997700b24b45"
+}
