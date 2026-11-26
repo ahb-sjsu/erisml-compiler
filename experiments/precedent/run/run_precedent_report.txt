@@ -1,0 +1,64 @@
+{
+ "prereg": "prereg-precedent-v1",
+ "seal": "f971a440aa7d0878e588493add0ca1617599cba2a480f4fb5f44997700b24b45",
+ "voids": [],
+ "unread_share_primary": {
+  "train": 0.0,
+  "ordinary": 0.0
+ },
+ "gate_kappa_full_all_gates": {
+  "no_consent": 0.552,
+  "commitment": 0.632,
+  "coercion": 0.638,
+  "emergency": 0.526,
+  "abuse": 0.677,
+  "impossibility": 0.347
+ },
+ "gate_prevalence_primary": {
+  "no_consent": 0.2736,
+  "commitment": 0.2367,
+  "coercion": 0.0796,
+  "emergency": 0.0416,
+  "abuse": 0.094,
+  "impossibility": 0.0215
+ },
+ "gates_sealed": [
+  "commitment",
+  "abuse"
+ ],
+ "gates_kept": [
+  "commitment",
+  "abuse"
+ ],
+ "strata": {
+  "patterns": {
+   "00": 2744,
+   "01": 302,
+   "10": 892,
+   "11": 62
+  },
+  "merged_into_other": 0
+ },
+ "n_train": 2949,
+ "train_below_min_votes": 1051,
+ "train_judgement_distinct_values": 362,
+ "n_held_out": 1165,
+ "held_out_below_min_votes": 335,
+ "pending": "V2 human spot-check of 200 cases (agreement >= 0.8) is the owner's to do; until then the result is provisional"
+}
+diagnosis: VOID V5: no arm beats the grand-mean predictor
+  H1_gates B vs A on flips not run
+  H2_metric Cp vs B on tradeoff z=2.98 passes=False
+  H3_local Cl vs Cp on tradeoff z=0.51 passes=False
+  H4_retrieval B vs G on tradeoff z=2.97 passes=False
+{
+ "tradeoff": {
+  "Mean": 0.09750889853108356,
+  "G": 0.09701219861080576,
+  "A": 0.10166820211643429,
+  "M": 0.11015761553913006,
+  "B": 0.10241502947297307,
+  "Cp": 0.11035746564378462,
+  "Cl": 0.11074981447947208
+ }
+}

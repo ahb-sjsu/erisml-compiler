@@ -1,0 +1,107 @@
+{
+ "prereg": "prereg-precedent-v1",
+ "seal": "f971a440aa7d0878e588493add0ca1617599cba2a480f4fb5f44997700b24b45",
+ "voids": [],
+ "unread_share_primary": {
+  "train": 0.0,
+  "ordinary": 0.0
+ },
+ "gate_kappa_full_all_gates": {
+  "no_consent": 0.552,
+  "commitment": 0.632,
+  "coercion": 0.638,
+  "emergency": 0.526,
+  "abuse": 0.677,
+  "impossibility": 0.347
+ },
+ "gate_prevalence_primary": {
+  "no_consent": 0.2736,
+  "commitment": 0.2367,
+  "coercion": 0.0796,
+  "emergency": 0.0416,
+  "abuse": 0.094,
+  "impossibility": 0.0215
+ },
+ "gates_sealed": [
+  "commitment",
+  "abuse"
+ ],
+ "gates_kept": [
+  "commitment",
+  "abuse"
+ ],
+ "strata": {
+  "patterns": {
+   "00": 2744,
+   "01": 302,
+   "10": 892,
+   "11": 62
+  },
+  "merged_into_other": 0
+ },
+ "n_train": 2949,
+ "train_below_min_votes": 1051,
+ "train_judgement_distinct_values": 362,
+ "n_held_out": 1165,
+ "held_out_below_min_votes": 335,
+ "pending": "V2 human spot-check of 200 cases (agreement >= 0.8) is the owner's to do; until then the result is provisional",
+ "grade": {
+  "source": "held_out",
+  "z_bar": 2.5,
+  "verdicts": {
+   "H1_gates": {
+    "not_run": true,
+    "passes": false,
+    "compares": "B vs A on flips"
+   },
+   "H2_metric": {
+    "mean_diff": 0.007942436170811567,
+    "se": 0.0026654834608763715,
+    "z": 2.9797356792453,
+    "n_items": 1165,
+    "n_units": 1165,
+    "passes": false,
+    "compares": "Cp vs B on tradeoff"
+   },
+   "H3_local": {
+    "mean_diff": 0.00039234883568744095,
+    "se": 0.0007769050166565823,
+    "z": 0.5050151914012831,
+    "n_items": 1165,
+    "n_units": 1165,
+    "passes": false,
+    "compares": "Cl vs Cp on tradeoff"
+   },
+   "H4_retrieval": {
+    "mean_diff": 0.0054028308621673115,
+    "se": 0.0018206757693360336,
+    "z": 2.9674865526098713,
+    "n_items": 1165,
+    "n_units": 1165,
+    "passes": false,
+    "compares": "B vs G on tradeoff"
+   }
+  },
+  "mean_sq_error": {
+   "tradeoff": {
+    "Mean": 0.09750889853108356,
+    "G": 0.09701219861080576,
+    "A": 0.10166820211643429,
+    "M": 0.11015761553913006,
+    "B": 0.10241502947297307,
+    "Cp": 0.11035746564378462,
+    "Cl": 0.11074981447947208
+   }
+  },
+  "V5_z_against_grand_mean": {
+   "G": -1.3,
+   "A": 2.14,
+   "M": 4.94,
+   "B": 2.64,
+   "Cp": 5.36,
+   "Cl": 5.68
+  },
+  "V5_signal": false,
+  "diagnosis": "VOID V5: no arm beats the grand-mean predictor"
+ }
+}

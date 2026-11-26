@@ -1,0 +1,13 @@
+    prereg-precedent-v1.md                                     ok
+    gates.json                                                 ok
+    read_gates.py                                              ok
+    build_cases.py                                             ok
+    embed_cases.py                                             ok
+    precedent_arms.py                                          ok
+    grade_precedent.py                                         ok
+    run_precedent.py                                           ok
+    rehearse.py                                                ok
+    stage0/cases.sha256.json                                   ok
+    stage0/pilot2_agreement.json                               ok
+    rehearsal/round3/results_sim/rehearsal_summary.json        ok
+  SEAL INTACT
