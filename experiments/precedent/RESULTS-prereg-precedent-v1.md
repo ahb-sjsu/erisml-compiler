@@ -134,3 +134,53 @@ the second reader's file as five records with no reading followed by five with o
 The cases file (post texts) and the embeddings are not committed. The cases file is fixed
 by its digest in `stage0/cases.sha256.json` and is rebuilt by `build_cases.py` from the
 dataset.
+
+## Addendum, 2026-11-26: why nothing beat the constant (exploratory, training posts only)
+
+After the result, two checks were run on the **training split only**. No dev or test
+judgement was read. Nothing here was registered, so the class is exploratory. Scripts:
+`after/noise_ceiling.py`, `after/signal_check.py`, `after/signal_check_bge.py`,
+`after/embed_bge.py`.
+
+**The label noise is not the cause.** This corrects item 1 of my reading above. For the
+27,766 training posts, the sampling variance of a share of votes was estimated from each
+post's own vote count and compared with the variance of the judgement.
+
+| Minimum votes | Posts | Variance of the judgement | Of which vote noise | Share that is not noise |
+|---|---|---|---|---|
+| 5 | 20,484 | 0.0962 | 0.0132 | 0.86 |
+| 10 | 10,323 | 0.1031 | 0.0076 | 0.93 |
+| 20 | 3,896 | 0.1088 | 0.0035 | 0.97 |
+| 50 | 1,386 | 0.1082 | 0.0012 | 0.99 |
+
+At the registered threshold of 5 votes, a perfect predictor could explain 86% of the
+variance. The run's arms explained none.
+
+**The embedding carries almost none of the judgement.** Five-fold cross-validation on the
+2,949 registered training posts, squared error against the mean of the training folds:
+
+| Predictor | LaBSE (the registered encoder): variance explained, z against the mean | BGE-M3, 1,024 tokens: variance explained, z |
+|---|---|---|
+| Ridge regression on the embedding, best of three penalties | 2.5%, −4.8 | 4.0%, −6.5 |
+| 10 nearest by cosine (the registered arm A) | −3.5%, +2.7 | −3.5%, +2.8 |
+| 100 nearest by cosine | 1.9%, −3.6 | 3.2%, −5.6 |
+| 300 nearest by cosine | 1.8%, −5.2 | 3.0%, −7.8 |
+
+Three things follow.
+
+1. Ten neighbours is worse than the constant in cross-validation too, by the same margin as
+   in the sealed run. That part of the void is the estimator: with 100 or more neighbours the
+   same embedding beats the constant by more than the registered margin.
+2. Even the best simple predictor explains 2.5% to 4% of a variance that is 86% signal.
+   Whether a forum's verdict falls on the author is, on this evidence, barely a function of
+   what a sentence encoder keeps of the post. A metric learned on such an embedding has
+   almost nothing to work with, whatever its form.
+3. The second encoder is the stronger one, with a longer context, and gains about 1.5 points.
+   The limit is not the truncation of the text.
+
+**What this means for a second registration.** More votes or more posts of this kind would
+not help. The test needs material in which the judgement depends on factors stated in the
+text, with many raters per item and, ideally, pairs that differ in one factor. A survey of
+such datasets is under way. On this corpus, a fair test of "does a metric add to gates"
+would need a representation that reads the judgement first, for example features read from
+the text by a language model, with that reading registered as part of the instrument.
